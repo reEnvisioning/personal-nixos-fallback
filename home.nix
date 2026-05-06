@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 {
     home = {
         stateVersion = "25.11";
@@ -8,7 +8,30 @@
 
     programs.home-manager.enable = true;
 
-    home.packages = with pkgs; [ neovim ];
+    home.packages = with pkgs; [
+        neovim
+        inputs.elephant.packages.${pkgs.stdenv.hostPlatform.system}.default
+        inputs.elephant.packages.${pkgs.stdenv.hostPlatform.system}.elephant-clipboard
+    ];
+
+    xdg.configFile."elephant/config.toml".text = ''
+        [providers]
+        default = ["desktopapplications", "clipboard", "calc", "runner", "websearch"]
+    '';
+
+    systemd.user.services.elephant = {
+        Unit = {
+            Description = "Elephant backend for Walker";
+            After = ["graphical-session.target"];
+        };
+        Service = {
+            ExecStart = "${inputs.elephant.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/elephant";
+            Restart = "on-failure";
+        };
+        Install = {
+            WantedBy = ["graphical-session.target"];
+        };
+    };
 
     wayland.windowManager.hyprland = {
         package = pkgs.hyprland;
@@ -64,13 +87,14 @@
                     "SUPER SHIFT, l, movewindow, r"
                     # programs
                     "SUPER, return, exec, kitty" # terminal
+		    "SUPER, Q, exec, kitty" # terminal
                     "SUPER, space, exec, walker" # app launcher
                     "SUPER, E, exec, nautilus" # file manager
-                    "SUPER, Q, exec, kitty -e nvim" # neovim
+                    "SUPER SHIFT, Q, exec, kitty -e nvim" # neovim
                     "SUPER, B, exec, firefox" # browser
                     # screenshots
-                    "Print, exec, hyprshot --mode region --freeze --output-folder ~/Pictures"
-                    "SUPER, Print, exec, hyprshot --mode region --freeze --clipboard-only"
+                    ", Print, exec, sh -c 'hyprshot --mode region --freeze --output-folder ~/Pictures'"
+                    "SUPER, Print, exec, sh -c 'hyprshot --mode region --freeze --clipboard-only'"
                     # exit
                     "SUPER SHIFT, L, exit" # exit hyprland
                 ]
@@ -116,7 +140,7 @@
 
             "exec-once" = [
                 "hyprpaper",
-                "walker --service"
+                "elephant"
             ];
 
             extraConfig = ''

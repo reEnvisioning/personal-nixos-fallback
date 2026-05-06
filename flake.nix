@@ -8,6 +8,13 @@
             url = "github:nix-community/home-manager/master";
             inputs.nixpkgs.follows = "nixpkgs";
         };
+
+        elephant.url = "github:abenz1267/elephant";
+
+        walker = {
+            url = "github:abenz1267/walker";
+            inputs.elephant.follows = "elephant";
+        };
     };
 
     outputs = inputs: {
@@ -19,9 +26,16 @@
                 ./hyprland.nix
                 inputs.home-manager.nixosModules.home-manager
                 {
-                    home-manager.users.visionary.imports = [
-                        ./home.nix
-                    ];
+                    home-manager.users.visionary = {
+                        imports = [
+                            ./home.nix
+                            inputs.walker.homeManagerModules.default
+                        ];
+                        programs.walker = {
+                            enable = true;
+                            systemd.enable = true;
+                        };
+                    };
                 }
             ];
         };

@@ -83,7 +83,6 @@
         nautilus
         hyprpaper
         hyprshot
-        walker
-        wl-paste
+        wl-clipboard
     ];
 }
