@@ -19,6 +19,9 @@
             general = {
                 layout = "dwindle";
                 allow_tearing = false;
+                border_size = 1;
+                gaps_in = 2;
+                gaps_out = 2;
             };
             dwindle.preserve_split = "yes";
 
@@ -37,13 +40,14 @@
                 mouse_refocus = 0;
 
                 touchpad.natural_scroll = false;
-                sensitivity = -0.5;
+                sensitivity = 0;
                 accel_profile = "flat";
             };
 
             bind = [
                     # essential keybinds
-                    "SUPER, C, killactive"
+                    "SUPER, C, exec, walker --clipboard"
+                    "SUPER, W, killactive"
                     "SUPER, V, togglefloating"
                     "SUPER, F, fullscreen"
                     "SUPER, S, togglesplit"
@@ -60,7 +64,13 @@
                     "SUPER SHIFT, l, movewindow, r"
                     # programs
                     "SUPER, return, exec, kitty" # terminal
+                    "SUPER, space, exec, walker" # app launcher
+                    "SUPER, E, exec, nautilus" # file manager
+                    "SUPER, Q, exec, kitty -e nvim" # neovim
                     "SUPER, B, exec, firefox" # browser
+                    # screenshots
+                    "Print, exec, hyprshot --mode region --freeze --output-folder ~/Pictures"
+                    "SUPER, Print, exec, hyprshot --mode region --freeze --clipboard-only"
                     # exit
                     "SUPER SHIFT, L, exit" # exit hyprland
                 ]
@@ -80,10 +90,53 @@
                 "SUPER, mouse:273, resizewindow"
             ];
 
+            animations = [
+                "border, 0"
+                "fade, 0"
+                "windows, 0"
+                "windowsOut, 0"
+                "windowsMove, 0"
+                "workspaces, 0"
+                "layers, 0"
+                "layersOut, 0"
+                "fadeIn, 0"
+                "fadeOut, 0"
+                "fadeSwitch, 0"
+                "fadeShadow, 0"
+                "fadeDim, 0"
+                "fadeLayers, 0"
+                "fadeLayersIn, 0"
+                "fadeLayersOut, 0"
+                "fadePopups, 0"
+                "fadePopupsIn, 0"
+                "fadePopupsOut, 0"
+                "zoomFactor, 0"
+                "monitorAdded, 0"
+            ];
+
+            "exec-once" = [
+                "hyprpaper",
+                "walker --service"
+            ];
+
             extraConfig = ''
                 env = XCURSOR_THEME,default
                 env = XCURSOR_SIZE,24
             '';
+        };
+    };
+
+    services.hyprpaper = {
+        enable = true;
+        settings = {
+            preload = [ "/headspace/wallpaper/wallpaper.png" ];
+            wallpaper = [
+                {
+                    monitor = "";
+                    path = "/headspace/wallpaper/wallpaper.png";
+                    fit_mode = "cover";
+                }
+            ];
         };
     };
 }
