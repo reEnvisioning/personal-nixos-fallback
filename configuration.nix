@@ -13,7 +13,7 @@
         enable = true;
         settings = {
             default_session = {
-                command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
+                command = "${pkgs.greetd.tuigreet}/bin/tuigreet --cmd start-hyprland";
                 user = "greeter";
             };
         };
@@ -80,9 +80,10 @@
         git
         firefox
         kitty
-        alacritty
         nautilus
         hyprpaper
         hyprshot
+        walker
+        wl-paste
     ];
 }
