@@ -1,3 +1,4 @@
+{ config, pkgs, ... }:
 {
     home = {
         stateVersion = "25.11";
@@ -20,7 +21,6 @@
                 allow_tearing = false;
             };
             dwindle.preserve_split = "yes";
-            gestures.workspace_swipe = "off";
 
             input = {
                 kb_layout = "us";
@@ -37,7 +37,8 @@
                 mouse_refocus = 0;
 
                 touchpad.natural_scroll = false;
-                sensitivity = 0;
+                sensitivity = -0.5;
+                accel_profile = "flat";
             };
 
             bind = [
@@ -60,6 +61,8 @@
                     # programs
                     "SUPER, return, exec, kitty" # terminal
                     "SUPER, B, exec, firefox" # browser
+                    # exit
+                    "SUPER SHIFT, L, exit" # exit hyprland
                 ]
                 ++ (builtins.concatLists (builtins.genList (
                         x: let
@@ -76,6 +79,11 @@
                 "SUPER, mouse:272, movewindow"
                 "SUPER, mouse:273, resizewindow"
             ];
+
+            extraConfig = ''
+                env = XCURSOR_THEME,default
+                env = XCURSOR_SIZE,24
+            '';
         };
     };
 }

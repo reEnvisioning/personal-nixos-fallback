@@ -11,16 +11,22 @@
 
     services.greetd = {
         enable = true;
-        greeter = {
-            package = pkgs.tuigreet;
-            name = "tuigreet";
-            settings = {
-                default-session = "hyprland";
+        settings = {
+            default_session = {
+                command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
+                user = "greeter";
             };
         };
     };
 
     services.dunst.enable = true;
+
+    hardware.bluetooth = {
+        enable = true;
+        powerOnBoot = true;
+    };
+
+    services.blueman.enable = true;
 
     users.users.visionary = {
         isNormalUser = true;
@@ -45,6 +51,7 @@
     };
 
     boot.kernelPackages = pkgs.linuxPackages_latest;
+    boot.kernelModules = [ "btusb" ];
 
     time.timeZone = "Europe/Berlin";
 
