@@ -225,8 +225,13 @@ in {
         @define-color headerbar_bg_color ${theme.colors.bg};
         @define-color card_bg_color ${theme.colors.bg};
         @define-color popover_bg_color ${theme.colors.bg};
-        @define-color sidebar_bg_color ${theme.colors.accent};
+        @define-color sidebar_bg_color ${theme.colors.bg};
         @define-color content_view_bg_color ${theme.colors.bg};
+
+        /* Places Sidebar (Home, Network, Trash) - use accent1 color */
+        GtkPlacesSidebar.sidebar .view {
+            background-color: ${theme.colors.accent};
+        }
     '';
 
     programs.firefox = {
