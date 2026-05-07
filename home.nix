@@ -28,7 +28,7 @@
             };
 
             misc = {
-                disable_splash = true;
+                disable_splash_rendering = true;
             };
 
             monitor = [
@@ -145,6 +145,7 @@
     services.hyprpaper = {
         enable = true;
         settings = {
+            splash = false;
             preload = [ "/headspace/wallpaper/wallpaper.png" ];
             wallpaper = [
                 {
