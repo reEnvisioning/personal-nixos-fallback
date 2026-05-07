@@ -191,6 +191,7 @@ in {
     gtk = {
         enable = true;
         theme.name = "adw-gtk3";
+        theme.package = pkgs.adw-gtk3;
         iconTheme.name = "Adwaita";
         gtk3.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
         gtk4.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };

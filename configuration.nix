@@ -98,7 +98,6 @@ in {
     environment.systemPackages = with pkgs; [
         vim
         git
-        firefox
         hyprpaper
         hyprshot
         wl-clipboard
