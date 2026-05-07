@@ -206,6 +206,11 @@ in {
             @define-color view_bg_color ${theme.colors.bg};
             @define-color headerbar_bg_color ${theme.colors.bg};
             @define-color card_bg_color ${theme.colors.bg};
+
+            /* Places Sidebar (Home, Network, Trash) - use accent1 color */
+            GtkPlacesSidebar.sidebar {
+                background-color: ${theme.colors.accent};
+            }
         '';
     };
 
@@ -229,7 +234,7 @@ in {
         @define-color content_view_bg_color ${theme.colors.bg};
 
         /* Places Sidebar (Home, Network, Trash) - use accent1 color */
-        GtkPlacesSidebar.sidebar .view {
+        GtkPlacesSidebar.sidebar {
             background-color: ${theme.colors.accent};
         }
     '';
