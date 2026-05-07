@@ -26,6 +26,14 @@
                 gaps_in = 2;
                 gaps_out = 2;
             };
+
+            misc = {
+                disable_splash = true;
+            };
+
+            monitor = [
+                ",1920x1080@144,auto,1"
+            ];
             dwindle.preserve_split = "yes";
 
             input = {
@@ -73,8 +81,13 @@
                     "SUPER SHIFT, Q, exec, kitty -e nvim" # neovim
                     "SUPER, B, exec, firefox" # browser
                     # screenshots
-                    ", Print, exec, sh -c 'hyprshot --mode region --freeze --output-folder ~/Pictures'"
+                    ", Print, exec, sh -c 'hyprshot --mode region --freeze --output-folder /home/visionary/Pictures'"
                     "SUPER, Print, exec, sh -c 'hyprshot --mode region --freeze --clipboard-only'"
+                    # audio controls
+                    "SUPER, XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+"
+                    "SUPER, XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+                    "SUPER, XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+                    "SUPER, XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
                     # exit
                     "SUPER SHIFT, L, exit" # exit hyprland
                 ]
