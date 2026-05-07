@@ -197,6 +197,37 @@ in {
         gtk4.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
     };
 
+    dconf = {
+        enable = true;
+        settings = {
+            "org/gnome/desktop/interface" = {
+                color-scheme = "prefer-dark";
+            };
+        };
+    };
+
+    xdg.configFile = {
+        "gtk-3.0/gtk.css" = {
+            text = ''
+                * { background-color: ${theme.colors.bg} !important; color: ${theme.colors.fg} !important; }
+                window, view { background-color: ${theme.colors.bg}; }
+            '';
+        };
+        "gtk-4.0/gtk.css" = {
+            text = ''
+                /* Force OLED black for GTK4/Libadwaita apps like Nautilus */
+                window, view, columnview, list, row, box {
+                    background-color: ${theme.colors.bg};
+                    color: ${theme.colors.fg};
+                }
+            '';
+        };
+    };
+
+    home.sessionVariables = {
+        GTK_THEME = "adw-gtk3:dark";
+    };
+
     programs.firefox = {
         enable = true;
         profiles.default = {
