@@ -8,6 +8,9 @@
 
     system.stateVersion = "25.11";
 
+    # Enable unfree software (required for NVIDIA proprietary drivers)
+    nixpkgs.config.allowUnfree = true;
+
     networking.hostName = "headspace";
 
     services.greetd = {
