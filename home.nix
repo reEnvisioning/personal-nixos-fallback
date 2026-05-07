@@ -198,10 +198,12 @@ in {
 
     programs.firefox = {
         enable = true;
-        preferences = {
-            "ui.systemUsesDarkTheme" = 1;
-            "browser.theme.toolbar-theme" = 1;
-            "browser.theme.content-theme" = 1;
+        profiles.default = {
+            settings = {
+                "ui.systemUsesDarkTheme" = 1;
+                "browser.theme.toolbar-theme" = 1;
+                "browser.theme.content-theme" = 1;
+            };
         };
     };
 
