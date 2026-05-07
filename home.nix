@@ -193,7 +193,7 @@ in {
 
     gtk = {
         enable = true;
-        theme.name = "adw-gtk3";
+        theme.name = "adw-gtk3-dark";
         theme.package = pkgs.adw-gtk3;
         iconTheme.name = "Adwaita";
         gtk3.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
@@ -214,7 +214,6 @@ in {
         settings = {
             "org/gnome/desktop/interface" = {
                 color-scheme = "prefer-dark";
-                gtk-theme = "adw-gtk3-dark";
             };
         };
     };
