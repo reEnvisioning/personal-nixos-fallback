@@ -30,7 +30,7 @@ in {
                 border_size = 1;
                 gaps_in = 2;
                 gaps_out = 2;
-                "col.active_border" = "0xff${theme.colors.accentHex}";
+                "col.active_border" = "0xff${theme.colors.borderFocusedHex}";
                 "col.inactive_border" = "0xff${theme.colors.borderInactiveHex}";
             };
 
@@ -160,7 +160,10 @@ in {
             font_family = "Monospace";
             font_size = 10.0;
         };
-        extraConfig = "color2 ${theme.colors.accent}";
+        extraConfig = ''
+            color1 ${theme.colors.accent3} # Replaces red
+            color2 ${theme.colors.accent2} # Replaces green
+        '';
     };
 
     services.dunst = {
@@ -182,8 +185,8 @@ in {
                 foreground = "${theme.colors.fg}";
             };
             urgency_critical = {
-                background = "#ff0000";
-                foreground = "#ffffff";
+                background = "${theme.colors.accent3}";
+                foreground = "${theme.colors.fg}";
             };
         };
     };
