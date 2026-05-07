@@ -108,6 +108,8 @@ in {
         pavucontrol
         qt5.qtwayland
         qt6.qtwayland
+        adw-gtk3
+        libnotify
     ];
 
     environment.variables = {
@@ -120,7 +122,7 @@ in {
         "gtk-3.0/settings.ini" = {
             text = ''
                 [Settings]
-                gtk-theme-name=Adwaita-dark
+                gtk-theme-name=adw-gtk3
                 gtk-icon-theme-name=Adwaita
                 gtk-application-prefer-dark-theme=1
             '';
@@ -128,7 +130,7 @@ in {
         "gtk-4.0/settings.ini" = {
             text = ''
                 [Settings]
-                gtk-theme-name=Adwaita-dark
+                gtk-theme-name=adw-gtk3
                 gtk-icon-theme-name=Adwaita
                 gtk-application-prefer-dark-theme=1
             '';
@@ -155,7 +157,20 @@ in {
                 foreground = #ffffff
             '';
         };
-        "kitty/kitty.conf" = {
+        "firefox/policies/policies.json" = {
+            text = ''
+                {
+                    "policies": {
+                        "Preferences": {
+                            "ui.systemUsesDarkTheme": { "Value": 1 },
+                            "browser.theme.toolbar-theme": { "Value": 1 },
+                            "browser.theme.content-theme": { "Value": 1 }
+                        }
+                    }
+                }
+            '';
+        };
+        "xdg/kitty/kitty.conf" = {
             text = ''
                 background = ${theme.colors.bg}
                 foreground = ${theme.colors.fg}

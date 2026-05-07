@@ -29,10 +29,11 @@ in {
                 border_size = 1;
                 gaps_in = 2;
                 gaps_out = 2;
-                col = {
-                    active_border = "0xff${theme.colors.accentHex}";
-                    inactive_border = "0xff${theme.colors.borderInactiveHex}";
-                };
+            };
+
+            col = {
+                active_border = "0xff${theme.colors.accentHex}";
+                inactive_border = "0xff${theme.colors.borderInactiveHex}";
             };
 
             misc = {
@@ -83,7 +84,7 @@ in {
                     "SUPER SHIFT, l, movewindow, r"
                     # programs
                     "SUPER, return, exec, kitty" # terminal
-		    "SUPER, Q, exec, kitty" # terminal
+                    "SUPER, Q, exec, kitty" # terminal
                     "SUPER, space, exec, walker" # app launcher
                     "SUPER, E, exec, nautilus" # file manager
                     "SUPER SHIFT, Q, exec, kitty -e nvim" # neovim

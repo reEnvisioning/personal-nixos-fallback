@@ -4,7 +4,7 @@
   # === INTEL CPU SETTINGS ===
   
   # Intel CPU microcode updates (security/bug fixes)
-  hardware.cpu.intel.updateMicrocode = lib.mkDefault config.hardware.enableRedistributableFirmware;
+  hardware.cpu.intel.updateMicrocode = true;
 
   # === NVIDIA RTX 3060 LITE (DESKTOP) ===
   # RTX 3060 is Turing architecture (supports open-source kernel modules)
