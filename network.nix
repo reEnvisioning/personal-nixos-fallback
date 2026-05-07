@@ -6,6 +6,9 @@
         networkmanager.enable = true;
         firewall.enable = true;
 
+        # Quad9 DNS configuration
+        nameservers = [ "9.9.9.9" "149.112.112.112" ];
+
         # Wireguard configuration example (uncomment and configure as needed)
         # wireguard.interfaces.wg0 = {
         #     ips = ["10.0.0.1/24"];
@@ -29,7 +32,28 @@
         };
     };
 
+    # DNS over TLS with systemd-resolved
+    services.resolved = {
+        enable = true;
+        fallbackDns = [ "9.9.9.9" "149.112.112.112" ];
+        domains = [ "~." ];  # Use these DNS for all domains
+    };
+
     environment.systemPackages = with pkgs; [
         wireguard-tools
     ];
+
+    # Configure systemd-resolved to use DNS over TLS (DoT) for Quad9
+    environment.etc."systemd/resolved.conf.d/quad9-dns.conf".text = ''
+        [Resolve]
+        DNS=9.9.9.9 149.112.112.112
+        DNSOverTLS=yes
+        Domains=~.
+    '';
+
+    # Tell NetworkManager to use systemd-resolved
+    environment.etc."NetworkManager/conf.d/dns.conf".text = ''
+        [device]
+        dns=systemd-resolved
+    '';
 }

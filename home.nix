@@ -1,5 +1,6 @@
 { config, pkgs, inputs, ... }:
-{
+let theme = import ./theme.nix;
+in {
     home = {
         stateVersion = "25.11";
         username = "visionary";
@@ -12,6 +13,7 @@
         neovim
         mpv
         feh
+        nautilus
     ];
 
     wayland.windowManager.hyprland = {
@@ -27,6 +29,10 @@
                 border_size = 1;
                 gaps_in = 2;
                 gaps_out = 2;
+                col = {
+                    active_border = "0xff${theme.colors.accentHex}";
+                    inactive_border = "0xff${theme.colors.borderInactiveHex}";
+                };
             };
 
             misc = {

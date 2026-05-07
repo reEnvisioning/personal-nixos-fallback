@@ -1,4 +1,6 @@
-{pkgs, ...}: {
+{pkgs, ...}:
+let theme = import ./theme.nix;
+in {
     imports = [
         # Generate with: nixos-generate-config --show-hardware-config > hardware-configuration.nix
         ./hardware-configuration.nix
@@ -100,10 +102,70 @@
         git
         firefox
         kitty
-        nautilus
         hyprpaper
         hyprshot
         wl-clipboard
         pavucontrol
+        qt5.qtwayland
+        qt6.qtwayland
     ];
+
+    environment.variables = {
+        "GTK_THEME" = "Adwaita-dark";
+        "QT_QPA_PLATFORM" = "wayland;xcb";
+        "QT_STYLE_OVERRIDE" = "Adwaita-dark";
+    };
+
+    environment.etc = {
+        "gtk-3.0/settings.ini" = {
+            text = ''
+                [Settings]
+                gtk-theme-name=Adwaita-dark
+                gtk-icon-theme-name=Adwaita
+                gtk-application-prefer-dark-theme=1
+            '';
+        };
+        "gtk-4.0/settings.ini" = {
+            text = ''
+                [Settings]
+                gtk-theme-name=Adwaita-dark
+                gtk-icon-theme-name=Adwaita
+                gtk-application-prefer-dark-theme=1
+            '';
+        };
+        "dunst/dunstrc" = {
+            text = ''
+                [global]
+                font = Monospace 10
+                background = ${theme.colors.bg}
+                foreground = ${theme.colors.fg}
+                frame_color = ${theme.colors.accent}
+                frame_width = 2
+
+                [urgency_low]
+                background = ${theme.colors.bg}
+                foreground = ${theme.colors.fg}
+
+                [urgency_normal]
+                background = ${theme.colors.bg}
+                foreground = ${theme.colors.fg}
+
+                [urgency_critical]
+                background = #ff0000
+                foreground = #ffffff
+            '';
+        };
+        "kitty/kitty.conf" = {
+            text = ''
+                background = ${theme.colors.bg}
+                foreground = ${theme.colors.fg}
+                cursor = ${theme.colors.fg}
+                selection_background = ${theme.colors.accent}
+                selection_foreground = ${theme.colors.bg}
+                color2 = ${theme.colors.accent}
+                font_family = Monospace
+                font_size = 10.0
+            '';
+        };
+    };
 }
