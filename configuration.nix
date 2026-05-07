@@ -109,6 +109,7 @@ in {
 
     environment.variables = {
         "QT_QPA_PLATFORM" = "wayland;xcb";
+        "ADW_DISABLE_PORTAL" = "1";
     };
 
 }
