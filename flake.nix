@@ -33,7 +33,12 @@
                         ];
                         programs.walker = {
                             enable = true;
-                            systemd.enable = true;
+                            runAsService = true;
+                            elephant = {
+                                providers = {
+                                    default = ["desktopapplications" "clipboard" "calc" "runner" "websearch"];
+                                };
+                            };
                         };
                     };
                 }

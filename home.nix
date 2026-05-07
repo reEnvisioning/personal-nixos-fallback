@@ -10,33 +10,13 @@
 
     home.packages = with pkgs; [
         neovim
-        inputs.elephant.packages.${pkgs.stdenv.hostPlatform.system}.default
-        inputs.elephant.packages.${pkgs.stdenv.hostPlatform.system}.elephant-clipboard
     ];
-
-    xdg.configFile."elephant/config.toml".text = ''
-        [providers]
-        default = ["desktopapplications", "clipboard", "calc", "runner", "websearch"]
-    '';
-
-    systemd.user.services.elephant = {
-        Unit = {
-            Description = "Elephant backend for Walker";
-            After = ["graphical-session.target"];
-        };
-        Service = {
-            ExecStart = "${inputs.elephant.packages.${pkgs.stdenv.hostPlatform.system}.default}/bin/elephant";
-            Restart = "on-failure";
-        };
-        Install = {
-            WantedBy = ["graphical-session.target"];
-        };
-    };
 
     wayland.windowManager.hyprland = {
         package = pkgs.hyprland;
         enable = true;
         xwayland.enable = true;
+        systemd.enable = true;
 
         settings = {
             general = {
@@ -139,8 +119,7 @@
             ];
 
             "exec-once" = [
-                "hyprpaper",
-                "elephant"
+                "hyprpaper"
             ];
 
             extraConfig = ''
