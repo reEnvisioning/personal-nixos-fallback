@@ -198,6 +198,15 @@ in {
         iconTheme.name = "Adwaita";
         gtk3.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
         gtk4.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
+        gtk3.extraCss = ''
+            * { background-color: ${theme.colors.bg}; color: ${theme.colors.fg}; }
+        '';
+        gtk4.extraCss = ''
+            @define-color window_bg_color ${theme.colors.bg};
+            @define-color view_bg_color ${theme.colors.bg};
+            @define-color headerbar_bg_color ${theme.colors.bg};
+            @define-color card_bg_color ${theme.colors.bg};
+        '';
     };
 
     dconf = {
@@ -205,10 +214,21 @@ in {
         settings = {
             "org/gnome/desktop/interface" = {
                 color-scheme = "prefer-dark";
-                gtk-theme = "adw-gtk3";
+                gtk-theme = "adw-gtk3-dark";
             };
         };
     };
+
+    xdg.configFile."gtk-4.0/style-dark.css".text = ''
+        /* Force OLED black for Libadwaita apps like Nautilus */
+        @define-color window_bg_color ${theme.colors.bg};
+        @define-color view_bg_color ${theme.colors.bg};
+        @define-color headerbar_bg_color ${theme.colors.bg};
+        @define-color card_bg_color ${theme.colors.bg};
+        @define-color popover_bg_color ${theme.colors.bg};
+        @define-color sidebar_bg_color ${theme.colors.bg};
+        @define-color content_view_bg_color ${theme.colors.bg};
+    '';
 
     programs.firefox = {
         enable = true;
