@@ -14,6 +14,7 @@ in {
         mpv
         feh
         nautilus
+        adw-gtk3
     ];
 
     wayland.windowManager.hyprland = {
@@ -29,11 +30,8 @@ in {
                 border_size = 1;
                 gaps_in = 2;
                 gaps_out = 2;
-            };
-
-            col = {
-                active_border = "0xff${theme.colors.accentHex}";
-                inactive_border = "0xff${theme.colors.borderInactiveHex}";
+                "col.active_border" = "0xff${theme.colors.accentHex}";
+                "col.inactive_border" = "0xff${theme.colors.borderInactiveHex}";
             };
 
             misc = {
@@ -148,6 +146,62 @@ in {
                 env = XCURSOR_THEME,default
                 env = XCURSOR_SIZE,24
             '';
+        };
+    };
+
+    programs.kitty = {
+        enable = true;
+        settings = {
+            background = "${theme.colors.bg}";
+            foreground = "${theme.colors.fg}";
+            cursor = "${theme.colors.fg}";
+            selection_background = "${theme.colors.accent}";
+            selection_foreground = "${theme.colors.bg}";
+            font_family = "Monospace";
+            font_size = 10.0;
+        };
+        extraConfig = "color2 ${theme.colors.accent}";
+    };
+
+    services.dunst = {
+        enable = true;
+        settings = {
+            global = {
+                font = "Monospace 10";
+                background = "${theme.colors.bg}";
+                foreground = "${theme.colors.fg}";
+                frame_color = "${theme.colors.accent}";
+                frame_width = 2;
+            };
+            urgency_low = {
+                background = "${theme.colors.bg}";
+                foreground = "${theme.colors.fg}";
+            };
+            urgency_normal = {
+                background = "${theme.colors.bg}";
+                foreground = "${theme.colors.fg}";
+            };
+            urgency_critical = {
+                background = "#ff0000";
+                foreground = "#ffffff";
+            };
+        };
+    };
+
+    gtk = {
+        enable = true;
+        theme.name = "adw-gtk3";
+        iconTheme.name = "Adwaita";
+        gtk3.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
+        gtk4.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
+    };
+
+    programs.firefox = {
+        enable = true;
+        preferences = {
+            "ui.systemUsesDarkTheme" = 1;
+            "browser.theme.toolbar-theme" = 1;
+            "browser.theme.content-theme" = 1;
         };
     };
 

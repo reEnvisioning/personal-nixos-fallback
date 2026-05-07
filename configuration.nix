@@ -25,8 +25,6 @@ in {
         };
     };
 
-    services.dunst.enable = true;
-
     hardware.bluetooth = {
         enable = true;
         powerOnBoot = true;
@@ -101,86 +99,17 @@ in {
         vim
         git
         firefox
-        kitty
         hyprpaper
         hyprshot
         wl-clipboard
         pavucontrol
         qt5.qtwayland
         qt6.qtwayland
-        adw-gtk3
         libnotify
     ];
 
     environment.variables = {
-        "GTK_THEME" = "Adwaita-dark";
         "QT_QPA_PLATFORM" = "wayland;xcb";
-        "QT_STYLE_OVERRIDE" = "Adwaita-dark";
     };
 
-    environment.etc = {
-        "gtk-3.0/settings.ini" = {
-            text = ''
-                [Settings]
-                gtk-theme-name=adw-gtk3
-                gtk-icon-theme-name=Adwaita
-                gtk-application-prefer-dark-theme=1
-            '';
-        };
-        "gtk-4.0/settings.ini" = {
-            text = ''
-                [Settings]
-                gtk-theme-name=adw-gtk3
-                gtk-icon-theme-name=Adwaita
-                gtk-application-prefer-dark-theme=1
-            '';
-        };
-        "dunst/dunstrc" = {
-            text = ''
-                [global]
-                font = Monospace 10
-                background = ${theme.colors.bg}
-                foreground = ${theme.colors.fg}
-                frame_color = ${theme.colors.accent}
-                frame_width = 2
-
-                [urgency_low]
-                background = ${theme.colors.bg}
-                foreground = ${theme.colors.fg}
-
-                [urgency_normal]
-                background = ${theme.colors.bg}
-                foreground = ${theme.colors.fg}
-
-                [urgency_critical]
-                background = #ff0000
-                foreground = #ffffff
-            '';
-        };
-        "firefox/policies/policies.json" = {
-            text = ''
-                {
-                    "policies": {
-                        "Preferences": {
-                            "ui.systemUsesDarkTheme": { "Value": 1 },
-                            "browser.theme.toolbar-theme": { "Value": 1 },
-                            "browser.theme.content-theme": { "Value": 1 }
-                        }
-                    }
-                }
-            '';
-        };
-        "xdg/kitty/kitty.conf" = {
-            text = ''
-                background = ${theme.colors.bg}
-                foreground = ${theme.colors.fg}
-                cursor = ${theme.colors.fg}
-                selection_background = ${theme.colors.accent}
-                selection_foreground = ${theme.colors.bg}
-                color2 = ${theme.colors.accent}
-                font_family = Monospace
-                font_size = 10.0
-            '';
-        };
-    };
 }
