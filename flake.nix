@@ -35,9 +35,7 @@
                             enable = true;
                             runAsService = true;
                             elephant = {
-                                providers = {
-                                    default = ["desktopapplications" "clipboard" "calc" "runner" "websearch"];
-                                };
+                                providers = ["desktopapplications" "clipboard" "calc" "runner" "websearch"];
                             };
                         };
                     };
