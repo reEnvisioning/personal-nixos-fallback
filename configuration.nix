@@ -3,6 +3,7 @@
         # Generate with: nixos-generate-config --show-hardware-config > hardware-configuration.nix
         ./hardware-configuration.nix
         ./network.nix
+        ./desktop.nix
     ];
 
     system.stateVersion = "25.11";
