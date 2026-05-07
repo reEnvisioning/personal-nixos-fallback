@@ -10,6 +10,8 @@
 
     home.packages = with pkgs; [
         neovim
+        mpv
+        feh
     ];
 
     wayland.windowManager.hyprland = {
