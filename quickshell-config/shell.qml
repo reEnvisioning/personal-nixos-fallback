@@ -4,12 +4,18 @@ import QtQuick
 ShellRoot {
     PanelWindow {
         id: panel
+        color: "@bg@"
         anchors {
             top: true
             left: true
             right: true
         }
         implicitHeight: isExpanded ? 52 : 2
+
+        Behavior on implicitHeight {
+            NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
+        }
+
         margins {
             left: (Screen.width - 200) / 2
             right: (Screen.width - 200) / 2
@@ -35,7 +41,6 @@ ShellRoot {
                     color: "@bg@"
                     border.color: "@borderFocused@"
                     border.width: 1
-                    visible: panel.isExpanded
 
                     Text {
                         text: "test"
