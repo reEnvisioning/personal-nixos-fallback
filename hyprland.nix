@@ -22,8 +22,8 @@ in {
             };
 
             decoration = {
-                active_opacity = 0.95;
-                inactive_opacity = 0.85;
+                active_opacity = 0.8;
+                inactive_opacity = 0.65;
             };
 
             monitor = [

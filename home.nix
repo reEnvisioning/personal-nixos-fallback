@@ -23,7 +23,13 @@ in {
         feh
         adw-gtk3
         prismlauncher
+        adwaita-qt5
+        adwaita-qt6
     ];
+
+    home.sessionVariables = {
+        QT_STYLE_OVERRIDE = "adwaita-dark";
+    };
 
     programs.kitty = {
         enable = true;
