@@ -166,7 +166,7 @@ in {
             selection_background = "${theme.colors.accent}";
             selection_foreground = "${theme.colors.bg}";
             font_family = "${theme.font.family}";
-            font_size = ${toString theme.font.size}.0;
+            font_size = 1.0 * theme.font.size;
         };
         extraConfig = ''
             color1 ${theme.colors.accent3} # Replaces red
