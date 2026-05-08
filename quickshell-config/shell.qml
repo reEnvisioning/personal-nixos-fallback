@@ -4,7 +4,7 @@ import QtQuick
 ShellRoot {
     PanelWindow {
         id: panel
-        color: "@bg@"
+        color: "@background@"
         anchors {
             top: true
             left: true
@@ -33,19 +33,19 @@ ShellRoot {
             Column {
                 width: parent.width
 
-                Rectangle { width: parent.width; height: 2; color: "@bg@" }
+                Rectangle { width: parent.width; height: 2; color: "@background@" }
 
                 Rectangle {
                     width: parent.width
                     height: 50
-                    color: "@bg@"
+                    color: "@background@"
                     border.color: "@borderFocused@"
                     border.width: 1
 
                     Text {
                         text: "test"
                         anchors.centerIn: parent
-                        color: "@fg@"
+                        color: "@text@"
                         font.pixelSize: 14
                     }
                 }

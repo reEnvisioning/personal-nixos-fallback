@@ -13,8 +13,8 @@ in {
                 border_size = 1;
                 gaps_in = 2;
                 gaps_out = 2;
-                "col.active_border" = "0xff${theme.colors.borderFocusedHex}";
-                "col.inactive_border" = "0xff${theme.colors.borderInactiveHex}";
+                "col.active_border" = "0xff${theme.hex theme.colors.borderFocused}";
+                "col.inactive_border" = "0xff${theme.hex theme.colors.borderInactive}";
             };
 
             misc = {
