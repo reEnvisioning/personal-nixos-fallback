@@ -23,7 +23,7 @@ in {
         feh
         adw-gtk3
         prismlauncher
-        adwaita-qt5
+        adwaita-qt
         adwaita-qt6
     ];
 
