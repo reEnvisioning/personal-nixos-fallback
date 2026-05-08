@@ -1,16 +1,12 @@
 { pkgs, ... }:
 let
   theme = import ./theme.nix;
+  themeFile = if theme.mode == "dark" then ./yazi-themes/dark.toml else ./yazi-themes/light.toml;
 in {
   programs.yazi = {
     enable = true;
-    flavors = {
-      "dark"  = ./yazi-themes/dark.toml;
-      "light" = ./yazi-themes/light.toml;
-    };
     settings = {
       yazi = {
-        flavor.use = theme.mode;
         manager = {
           show_hidden = true;
           sort_dir_first = true;
@@ -23,7 +19,7 @@ in {
           audio = [{ run = ''mpv --loop-file "$@"''; }];
         };
       };
-      theme = { };
+      theme = builtins.fromTOML (builtins.readFile themeFile);
     };
   };
 }
