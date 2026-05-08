@@ -8,13 +8,6 @@
             url = "github:nix-community/home-manager/master";
             inputs.nixpkgs.follows = "nixpkgs";
         };
-
-        elephant.url = "github:abenz1267/elephant";
-
-        walker = {
-            url = "github:abenz1267/walker";
-            inputs.elephant.follows = "elephant";
-        };
     };
 
     outputs = inputs: {
@@ -29,15 +22,7 @@
                     home-manager.users.visionary = {
                         imports = [
                             ./home.nix
-                            inputs.walker.homeManagerModules.default
                         ];
-                        programs.walker = {
-                            enable = true;
-                            runAsService = true;
-                            elephant = {
-                                providers = ["desktopapplications" "clipboard" "calc" "runner" "websearch"];
-                            };
-                        };
                     };
                 }
             ];

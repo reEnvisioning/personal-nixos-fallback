@@ -72,7 +72,6 @@ in {
 
             bind = [
                     # essential keybinds
-                    "SUPER, C, exec, walker --clipboard"
                     "SUPER, W, killactive"
                     "SUPER, V, togglefloating"
                     "SUPER, F, fullscreen"
@@ -91,7 +90,6 @@ in {
                     # programs
                     "SUPER, return, exec, kitty" # terminal
                     "SUPER, Q, exec, kitty" # terminal
-                    "SUPER, space, exec, walker" # app launcher
                     "SUPER, E, exec, nautilus" # file manager
                     "SUPER SHIFT, Q, exec, kitty -e nvim" # neovim
                     "SUPER, B, exec, firefox" # browser
@@ -104,7 +102,7 @@ in {
                     "SUPER, XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
                     "SUPER, XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
                     # exit
-                    "SUPER SHIFT, L, exit" # exit hyprland
+                    "SUPER SHIFT, P, exit" # exit hyprland
                 ]
                 ++ (builtins.concatLists (builtins.genList (
                         x: let
@@ -167,6 +165,7 @@ in {
             selection_foreground = "${theme.colors.bg}";
             font_family = "${theme.font.family}";
             font_size = 1.0 * theme.font.size;
+            confirm_os_window_close = 0;
         };
         extraConfig = ''
             color1 ${theme.colors.accent3} # Replaces red
