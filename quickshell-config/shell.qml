@@ -3,10 +3,16 @@ import QtQuick
 
 ShellRoot {
     PanelWindow {
-        anchors.top: true
-        width: 200
+        anchors {
+            top: true
+            left: true
+            right: true
+        }
         height: isExpanded ? 52 : 2
-        x: (Screen.width - width) / 2
+        margins {
+            left: (Screen.width - 200) / 2
+            right: (Screen.width - 200) / 2
+        }
         aboveWindows: true
         exclusionMode: ExclusionMode.Ignore
         focusable: false
