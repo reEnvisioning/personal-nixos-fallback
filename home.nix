@@ -207,16 +207,14 @@ in {
             @define-color view_bg_color ${theme.colors.bg};
             @define-color headerbar_bg_color ${theme.colors.bg};
             @define-color card_bg_color ${theme.colors.bg};
+            @define-color popover_bg_color ${theme.colors.accent};
 
-            /* DIAGNOSTIC: different colors to find the sidebar widget */
-            .sidebar           { background: red    !important; }
-            .sidebar-pane      { background: green  !important; }
-            .navigation-sidebar{ background: blue   !important; }
-            .nautilus-window .sidebar-pane { background: yellow !important; }
-            placessidebar      { background: magenta!important; }
-            .content-pane      { background: orange !important; }
-            placessidebar .view { background: cyan   !important; }
-            .sidebar-row       { background: lime   !important; }
+            /* Dropdown/popover menus */
+            popover.background,
+            popover.background menu,
+            popover.background .popover {
+                background-color: ${theme.colors.accent} !important;
+            }
         '';
     };
 
@@ -235,7 +233,7 @@ in {
         @define-color view_bg_color ${theme.colors.bg};
         @define-color headerbar_bg_color ${theme.colors.bg};
         @define-color card_bg_color ${theme.colors.bg};
-        @define-color popover_bg_color ${theme.colors.bg};
+        @define-color popover_bg_color ${theme.colors.accent};
         @define-color sidebar_bg_color ${theme.colors.accent};
         @define-color content_view_bg_color ${theme.colors.bg};
     '';
