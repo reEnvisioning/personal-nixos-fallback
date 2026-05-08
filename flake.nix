@@ -16,12 +16,14 @@
             specialArgs = {inherit inputs;};
             modules = [
                 ./configuration.nix
-                ./hyprland.nix
                 inputs.home-manager.nixosModules.home-manager
                 {
                     home-manager.users.visionary = {
                         imports = [
                             ./home.nix
+                            ./hyprland.nix
+                            ./yazi.nix
+                            ./quickshell.nix
                         ];
                     };
                 }
