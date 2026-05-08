@@ -75,23 +75,23 @@ in {
         iconTheme.name = "Adwaita";
         gtk3.extraConfig = { "gtk-application-prefer-dark-theme" = if theme.mode == "dark" then 1 else 0; };
         gtk4.extraConfig = { "gtk-application-prefer-dark-theme" = if theme.mode == "dark" then 1 else 0; };
-        gtk3.extraCss = ''
-            * { background-color: ${theme.colors.bg}; color: ${theme.colors.fg}; }
-        '';
-        gtk4.extraCss = ''
-            @define-color window_bg_color ${theme.colors.bg};
-            @define-color view_bg_color ${theme.colors.bg};
-            @define-color headerbar_bg_color ${theme.colors.bg};
-            @define-color card_bg_color ${theme.colors.bg};
-            @define-color popover_bg_color ${theme.colors.accent};
+        # gtk3.extraCss = ''
+        #     * { background-color: ${theme.colors.bg}; color: ${theme.colors.fg}; }
+        # '';
+        # gtk4.extraCss = ''
+        #     @define-color window_bg_color ${theme.colors.bg};
+        #     @define-color view_bg_color ${theme.colors.bg};
+        #     @define-color headerbar_bg_color ${theme.colors.bg};
+        #     @define-color card_bg_color ${theme.colors.bg};
+        #     @define-color popover_bg_color ${theme.colors.accent};
 
-            /* Dropdown/popover menus */
-            popover.background,
-            popover.background menu,
-            popover.background .popover {
-                background-color: ${theme.colors.accent} !important;
-            }
-        '';
+        #     /* Dropdown/popover menus */
+        #     popover.background,
+        #     popover.background menu,
+        #     popover.background .popover {
+        #         background-color: ${theme.colors.accent} !important;
+        #     }
+        # '';
     };
 
     dconf = {
@@ -103,16 +103,16 @@ in {
         };
     };
 
-    xdg.configFile."gtk-4.0/style-dark.css".text = ''
-        /* Force OLED black for Libadwaita apps like Nautilus */
-        @define-color window_bg_color ${theme.colors.bg};
-        @define-color view_bg_color ${theme.colors.bg};
-        @define-color headerbar_bg_color ${theme.colors.bg};
-        @define-color card_bg_color ${theme.colors.bg};
-        @define-color popover_bg_color ${theme.colors.accent};
-        @define-color sidebar_bg_color ${theme.colors.accent};
-        @define-color content_view_bg_color ${theme.colors.bg};
-    '';
+    # xdg.configFile."gtk-4.0/style-dark.css".text = ''
+    #     /* Force OLED black for Libadwaita apps like Nautilus */
+    #     @define-color window_bg_color ${theme.colors.bg};
+    #     @define-color view_bg_color ${theme.colors.bg};
+    #     @define-color headerbar_bg_color ${theme.colors.bg};
+    #     @define-color card_bg_color ${theme.colors.bg};
+    #     @define-color popover_bg_color ${theme.colors.accent};
+    #     @define-color sidebar_bg_color ${theme.colors.accent};
+    #     @define-color content_view_bg_color ${theme.colors.bg};
+    # '';
 
     programs.firefox = {
         enable = true;
