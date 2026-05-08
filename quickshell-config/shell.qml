@@ -3,12 +3,13 @@ import QtQuick
 
 ShellRoot {
     PanelWindow {
+        id: panel
         anchors {
             top: true
             left: true
             right: true
         }
-        height: isExpanded ? 52 : 2
+        implicitHeight: isExpanded ? 52 : 2
         margins {
             left: (Screen.width - 200) / 2
             right: (Screen.width - 200) / 2
@@ -26,7 +27,7 @@ ShellRoot {
             Column {
                 width: parent.width
 
-                Item { width: parent.width; height: 2 }
+                Rectangle { width: parent.width; height: 2; color: "@bg@" }
 
                 Rectangle {
                     width: parent.width
@@ -34,7 +35,7 @@ ShellRoot {
                     color: "@bg@"
                     border.color: "@borderFocused@"
                     border.width: 1
-                    visible: parent.parent.parent.isExpanded
+                    visible: panel.isExpanded
 
                     Text {
                         text: "test"
@@ -48,8 +49,8 @@ ShellRoot {
             MouseArea {
                 anchors.fill: parent
                 hoverEnabled: true
-                onEntered: parent.parent.isExpanded = true
-                onExited: parent.parent.isExpanded = false
+                onEntered: panel.isExpanded = true
+                onExited: panel.isExpanded = false
             }
         }
     }
