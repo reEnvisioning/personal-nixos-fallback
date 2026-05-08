@@ -185,7 +185,7 @@ in {
                 foreground = "${theme.colors.fg}";
             };
             urgency_critical = {
-                background = "${theme.colors.accent3}";
+                background = "${theme.colors.accent}";
                 foreground = "${theme.colors.fg}";
             };
         };
@@ -208,7 +208,9 @@ in {
             @define-color card_bg_color ${theme.colors.bg};
 
             /* Places Sidebar (Home, Network, Trash) - use accent1 color */
-            GtkPlacesSidebar.sidebar {
+            placessidebar,
+            .navigation-sidebar,
+            .sidebar-pane {
                 background-color: ${theme.colors.accent};
             }
         '';
@@ -234,7 +236,9 @@ in {
         @define-color content_view_bg_color ${theme.colors.bg};
 
         /* Places Sidebar (Home, Network, Trash) - use accent1 color */
-        GtkPlacesSidebar.sidebar {
+        placessidebar,
+        .navigation-sidebar,
+        .sidebar-pane {
             background-color: ${theme.colors.accent};
         }
     '';
