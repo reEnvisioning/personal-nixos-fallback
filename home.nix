@@ -27,10 +27,6 @@ in {
         adwaita-qt6
     ];
 
-    home.sessionVariables = {
-        QT_STYLE_OVERRIDE = "adwaita-dark";
-    };
-
     programs.kitty = {
         enable = true;
         settings = {
