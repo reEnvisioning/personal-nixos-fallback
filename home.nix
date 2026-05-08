@@ -7,6 +7,14 @@ in {
         homeDirectory = "/home/visionary";
     };
 
+    home.pointerCursor = {
+        package = pkgs.vanilla-dmz;
+        name = "Vanilla-DMZ";
+        size = 24;
+        gtk.enable = true;
+        x11.enable = true;
+    };
+
     programs.home-manager.enable = true;
 
     home.packages = with pkgs; [
@@ -143,7 +151,7 @@ in {
             ];
 
             extraConfig = ''
-                env = XCURSOR_THEME,default
+                env = XCURSOR_THEME,Vanilla-DMZ
                 env = XCURSOR_SIZE,24
             '';
         };
@@ -157,8 +165,8 @@ in {
             cursor = "${theme.colors.fg}";
             selection_background = "${theme.colors.accent}";
             selection_foreground = "${theme.colors.bg}";
-            font_family = "Monospace";
-            font_size = 10.0;
+            font_family = "${theme.font.family}";
+            font_size = ${toString theme.font.size}.0;
         };
         extraConfig = ''
             color1 ${theme.colors.accent3} # Replaces red
@@ -170,7 +178,7 @@ in {
         enable = true;
         settings = {
             global = {
-                font = "Monospace 10";
+                font = "${theme.font.family} ${toString theme.font.size}";
                 background = "${theme.colors.bg}";
                 foreground = "${theme.colors.fg}";
                 frame_color = "${theme.colors.accent}";
@@ -197,8 +205,8 @@ in {
         theme.package = pkgs.adw-gtk3;
         gtk4.theme = null;
         iconTheme.name = "Adwaita";
-        gtk3.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
-        gtk4.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
+        gtk3.extraConfig = { "gtk-application-prefer-dark-theme" = if theme.mode == "dark" then 1 else 0; };
+        gtk4.extraConfig = { "gtk-application-prefer-dark-theme" = if theme.mode == "dark" then 1 else 0; };
         gtk3.extraCss = ''
             * { background-color: ${theme.colors.bg}; color: ${theme.colors.fg}; }
         '';
@@ -222,7 +230,7 @@ in {
         enable = true;
         settings = {
             "org/gnome/desktop/interface" = {
-                color-scheme = "prefer-dark";
+                color-scheme = if theme.mode == "dark" then "prefer-dark" else "default";
             };
         };
     };
@@ -242,7 +250,7 @@ in {
         enable = true;
         profiles.default = {
             settings = {
-                "ui.systemUsesDarkTheme" = 1;
+                "ui.systemUsesDarkTheme" = if theme.mode == "dark" then 1 else 0;
                 "browser.theme.toolbar-theme" = 1;
                 "browser.theme.content-theme" = 1;
             };
@@ -253,11 +261,11 @@ in {
         enable = true;
         settings = {
             splash = false;
-            preload = [ "/headspace/wallpaper/wallpaper.png" ];
+            preload = [ "${theme.wallpaper}" ];
             wallpaper = [
                 {
                     monitor = "";
-                    path = "/headspace/wallpaper/wallpaper.png";
+                    path = "${theme.wallpaper}";
                     fit_mode = "cover";
                 }
             ];

@@ -1,4 +1,13 @@
 {
+  mode = "dark"; # "dark" or "light"
+
+  wallpaper = "/headspace/wallpaper/wallpaper.png";
+
+  font = {
+    family = "Monospace";
+    size = 10;
+  };
+
   colors = {
     # Core colors
     bg = "#000000";
