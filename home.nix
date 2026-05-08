@@ -208,13 +208,15 @@ in {
             @define-color headerbar_bg_color ${theme.colors.bg};
             @define-color card_bg_color ${theme.colors.bg};
 
-            /* Force sidebar accent color */
-            .sidebar-pane,
-            .nautilus-window .sidebar-pane,
-            placessidebar,
-            navsidebar {
-                background-color: ${theme.colors.accent} !important;
-            }
+            /* DIAGNOSTIC: different colors to find the sidebar widget */
+            .sidebar           { background: red    !important; }
+            .sidebar-pane      { background: green  !important; }
+            .navigation-sidebar{ background: blue   !important; }
+            .nautilus-window .sidebar-pane { background: yellow !important; }
+            placessidebar      { background: magenta!important; }
+            .content-pane      { background: orange !important; }
+            placessidebar .view { background: cyan   !important; }
+            .sidebar-row       { background: lime   !important; }
         '';
     };
 
