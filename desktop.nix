@@ -6,8 +6,6 @@
   # Intel CPU microcode updates (security/bug fixes)
   hardware.cpu.intel.updateMicrocode = true;
 
-  # === NVIDIA RTX 3060 LITE (DESKTOP) ===
-  # RTX 3060 is Turing architecture (supports open-source kernel modules)
 
   # Enable OpenGL/Vulkan
   hardware.graphics = {

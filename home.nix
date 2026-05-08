@@ -25,6 +25,7 @@ in {
         prismlauncher
         adwaita-qt
         adwaita-qt6
+        localsend
     ];
 
     programs.kitty = {

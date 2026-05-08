@@ -7,6 +7,8 @@
     networking = {
         networkmanager.enable = true;
         firewall.enable = true;
+        firewall.allowedTCPPorts = [ 53317 ];
+        firewall.allowedUDPPorts = [ 53317 ];
 
         # Quad9 DNS configuration
         nameservers = [ "9.9.9.9" "149.112.112.112" ];
