@@ -21,6 +21,11 @@ in {
                 disable_splash_rendering = true;
             };
 
+            decoration = {
+                active_opacity = 0.95;
+                inactive_opacity = 0.85;
+            };
+
             monitor = [
                 ",1920x1080@144,auto,1"
             ];

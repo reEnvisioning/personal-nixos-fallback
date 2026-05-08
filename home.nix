@@ -22,6 +22,7 @@ in {
         mpv
         feh
         adw-gtk3
+        prismlauncher
     ];
 
     programs.kitty = {
