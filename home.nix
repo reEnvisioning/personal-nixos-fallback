@@ -207,11 +207,25 @@ in {
             @define-color headerbar_bg_color ${theme.colors.bg};
             @define-color card_bg_color ${theme.colors.bg};
 
-            /* Places Sidebar (Home, Network, Trash) - use accent1 color */
+            /* Libadwaita sidebar color overrides (CSS custom properties) */
+            * {
+                --sidebar-bg-color: ${theme.colors.accent};
+                --sidebar-backdrop-color: ${theme.colors.accent};
+                --sidebar-border-color: ${theme.colors.accent};
+                --sidebar-shade-color: rgba(0, 0, 0, 0.25);
+            }
+
+            /* Direct CSS selectors with !important for maximum override */
             placessidebar,
+            placessidebar list,
+            placessidebar row,
             .navigation-sidebar,
-            .sidebar-pane {
-                background-color: ${theme.colors.accent};
+            .navigation-sidebar list,
+            .navigation-sidebar row,
+            .sidebar-pane,
+            .sidebar-pane list,
+            .sidebar-pane row {
+                background-color: ${theme.colors.accent} !important;
             }
         '';
     };
@@ -232,15 +246,8 @@ in {
         @define-color headerbar_bg_color ${theme.colors.bg};
         @define-color card_bg_color ${theme.colors.bg};
         @define-color popover_bg_color ${theme.colors.bg};
-        @define-color sidebar_bg_color ${theme.colors.bg};
+        @define-color sidebar_bg_color ${theme.colors.accent};
         @define-color content_view_bg_color ${theme.colors.bg};
-
-        /* Places Sidebar (Home, Network, Trash) - use accent1 color */
-        placessidebar,
-        .navigation-sidebar,
-        .sidebar-pane {
-            background-color: ${theme.colors.accent};
-        }
     '';
 
     programs.firefox = {
