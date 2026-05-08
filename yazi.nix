@@ -13,6 +13,7 @@ in {
       };
       opener = {
         text  = [{ run = ''nvim "$@"''; block = true; }];
+        code  = [{ run = ''nvim "$@"''; block = true; }];
         image = [{ run = ''feh "$@"''; }];
         video = [{ run = ''mpv --loop-file "$@"''; }];
         audio = [{ run = ''mpv --loop-file "$@"''; }];
