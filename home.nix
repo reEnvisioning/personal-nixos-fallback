@@ -195,6 +195,7 @@ in {
         enable = true;
         theme.name = "adw-gtk3-dark";
         theme.package = pkgs.adw-gtk3;
+        gtk4.theme = null;
         iconTheme.name = "Adwaita";
         gtk3.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
         gtk4.extraConfig = { "gtk-application-prefer-dark-theme" = 1; };
@@ -207,24 +208,11 @@ in {
             @define-color headerbar_bg_color ${theme.colors.bg};
             @define-color card_bg_color ${theme.colors.bg};
 
-            /* Libadwaita sidebar color overrides (CSS custom properties) */
-            * {
-                --sidebar-bg-color: ${theme.colors.accent};
-                --sidebar-backdrop-color: ${theme.colors.accent};
-                --sidebar-border-color: ${theme.colors.accent};
-                --sidebar-shade-color: rgba(0, 0, 0, 0.25);
-            }
-
-            /* Direct CSS selectors with !important for maximum override */
-            placessidebar,
-            placessidebar list,
-            placessidebar row,
-            .navigation-sidebar,
-            .navigation-sidebar list,
-            .navigation-sidebar row,
+            /* Force sidebar accent color */
             .sidebar-pane,
-            .sidebar-pane list,
-            .sidebar-pane row {
+            .nautilus-window .sidebar-pane,
+            placessidebar,
+            navsidebar {
                 background-color: ${theme.colors.accent} !important;
             }
         '';
