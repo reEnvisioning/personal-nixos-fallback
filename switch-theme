@@ -125,7 +125,7 @@ hyprctl keyword general:col.active_border "0xff$BORDER_FOCUSED" 2>/dev/null || t
 hyprctl keyword general:col.inactive_border "0xff$BORDER_INACTIVE" 2>/dev/null || true
 
 # 8. Quickshell — write colors to temp file, restart to pick up new QML
-jq -c '{background, borderFocused, text}' "$THEME_FILE" > /tmp/headspace-colors.json
+jq -c '.colors | {background, borderFocused, text}' "$THEME_FILE" > /tmp/headspace-colors.json
 pkill quickshell 2>/dev/null || true
 sleep 0.2
 nohup quickshell >/dev/null 2>&1 & disown
