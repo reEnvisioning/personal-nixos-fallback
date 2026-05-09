@@ -113,6 +113,8 @@ else
 fi
 for ver in 3.0 4.0; do
     ini="$HOME/.config/gtk-$ver/settings.ini"
+    mkdir -p "$(dirname "$ini")"
+    rm -f "$ini"
     printf "[Settings]\ngtk-application-prefer-dark-theme=%d\n" "$PREFER_DARK" > "$ini"
 done
 
@@ -122,8 +124,11 @@ BORDER_INACTIVE=$(jq -r '.colors.borderInactive' "$THEME_FILE" | sed 's/^#//')
 hyprctl keyword general:col.active_border "0xff$BORDER_FOCUSED" 2>/dev/null || true
 hyprctl keyword general:col.inactive_border "0xff$BORDER_INACTIVE" 2>/dev/null || true
 
-# 8. Quickshell — write colors to temp file (live-read by QML)
+# 8. Quickshell — write colors to temp file, restart to pick up new QML
 jq -c '{background, borderFocused, text}' "$THEME_FILE" > /tmp/headspace-colors.json
+pkill quickshell 2>/dev/null || true
+sleep 0.2
+nohup quickshell >/dev/null 2>&1 & disown
 
 # 9. Save current theme
 mkdir -p "$THEME_DIR"
