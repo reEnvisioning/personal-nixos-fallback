@@ -50,12 +50,16 @@ in {
     (writeShellScriptBin "switch-theme" (builtins.readFile ./switch-theme))
   ];
 
-  xdg.configFile = themeJsonConfigs // yaziThemeConfigs;
+  xdg.configFile = (themeJsonConfigs // yaziThemeConfigs) // {
+    "kitty/kitty.conf".force = true;
+    "dunst/dunstrc".force = true;
+  };
 
-  xdg.configFile."kitty/kitty.conf".force = true;
-  xdg.configFile."dunst/dunstrc".force = true;
+  home.activation.applyDefaultTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    switch-theme "${theme.default}" 2>/dev/null || true
+  '';
 
-  home.activation.setLocalSendTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.setLocalSendTheme = lib.hm.dag.entryAfter [ "applyDefaultTheme" ] ''
     file="$HOME/.local/share/org.localsend.localsend_app/shared_preferences.json"
     mkdir -p "$(dirname "$file")"
     if [ -f "$file" ]; then
