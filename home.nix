@@ -36,10 +36,10 @@ in {
             ${pkgs.jq}/bin/jq -c \
                 --arg theme '${if theme.mode == "dark" then "dark" else "light"}' \
                 --arg color '${if theme.mode == "dark" then "oled" else "yaru"}' \
-                '.ls_theme = $theme | .ls_color = $color' "$file" > /tmp/localsend_prefs.json \
+                '."flutter.ls_theme" = $theme | ."flutter.ls_color" = $color' "$file" > /tmp/localsend_prefs.json \
                 && mv /tmp/localsend_prefs.json "$file"
         else
-            echo '{"ls_theme":"${if theme.mode == "dark" then "dark" else "light"}","ls_color":"${if theme.mode == "dark" then "oled" else "yaru"}"}' > "$file"
+            echo '{"flutter.ls_theme":"${if theme.mode == "dark" then "dark" else "light"}","flutter.ls_color":"${if theme.mode == "dark" then "oled" else "yaru"}"}' > "$file"
         fi
     '';
 
