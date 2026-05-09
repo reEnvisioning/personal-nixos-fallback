@@ -28,6 +28,11 @@ in {
         localsend
     ];
 
+    xdg.dataFile."org.localsend.localsend_app/shared_preferences.json".text = builtins.toJSON {
+        ls_theme = if theme.mode == "dark" then "dark" else "light";
+        ls_color = if theme.mode == "dark" then "oled" else "yaru";
+    };
+
     programs.kitty = {
         enable = true;
         settings = {
