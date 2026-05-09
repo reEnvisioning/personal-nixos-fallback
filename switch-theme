@@ -133,3 +133,22 @@ nohup quickshell >/dev/null 2>&1 & disown
 # 9. Save current theme
 mkdir -p "$(dirname "$HOME/.config/headspace/current")"
 echo "$THEME_NAME" > "$HOME/.config/headspace/current"
+
+# 10. Firefox — write user.js for runtime theme for all profiles
+grep '^Path=' "$HOME/.mozilla/firefox/profiles.ini" 2>/dev/null | cut -d= -f2 | while read -r profile; do
+    if [ -n "$profile" ] && [ -d "$HOME/.mozilla/firefox/$profile" ]; then
+        if [ "$MODE" = "dark" ]; then
+            cat > "$HOME/.mozilla/firefox/$profile/user.js" << 'EOF'
+user_pref("ui.systemUsesDarkTheme", 1);
+user_pref("browser.theme.toolbar-theme", 1);
+user_pref("browser.theme.content-theme", 1);
+EOF
+        else
+            cat > "$HOME/.mozilla/firefox/$profile/user.js" << 'EOF'
+user_pref("ui.systemUsesDarkTheme", 0);
+user_pref("browser.theme.toolbar-theme", 0);
+user_pref("browser.theme.content-theme", 0);
+EOF
+        fi
+    fi
+done
