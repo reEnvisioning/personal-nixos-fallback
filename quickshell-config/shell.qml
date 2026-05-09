@@ -3,37 +3,14 @@ import Quickshell.Io
 import QtQuick
 
 ShellRoot {
-    id: shellRoot
+    id: root
     property color bg: "#000000"
     property color bd: "#303030"
     property color fg: "#C2C2C2"
 
-    Process {
-        id: reader
-        command: ["cat", "/tmp/headspace-colors.json"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    let c = JSON.parse(this.text.trim())
-                    if (c.background) shellRoot.bg = c.background
-                    if (c.borderFocused) shellRoot.bd = c.borderFocused
-                    if (c.text) shellRoot.fg = c.text
-                } catch(e) {}
-            }
-        }
-    }
-
-    Timer {
-        interval: 1000
-        running: true
-        repeat: true
-        onTriggered: reader.running = true
-    }
-
     PanelWindow {
         id: panel
-        color: bg
+        color: root.bg
         anchors {
             top: true
             left: true
@@ -46,6 +23,8 @@ ShellRoot {
         }
 
         margins {
+            top: 0
+            bottom: 0
             left: (Screen.width - 200) / 2
             right: (Screen.width - 200) / 2
         }
@@ -55,6 +34,38 @@ ShellRoot {
 
         property bool isExpanded: false
 
+        Process {
+            id: colorReader
+            command: ["cat", "/tmp/headspace-colors.json"]
+            running: true
+            stdout: StdioCollector {
+                onStreamFinished: {
+                    try {
+                        let c = JSON.parse(text.trim())
+                        if (c.background) root.bg = c.background
+                        if (c.borderFocused) root.bd = c.borderFocused
+                        if (c.text) root.fg = c.text
+                    } catch(e) {
+                        console.log("color error: " + e)
+                    }
+                }
+            }
+        }
+
+        Process {
+            id: colorWatcher
+            command: ["bash", "-c", "while [ ! -f /tmp/headspace-colors.json ]; do sleep 1; done; inotifywait -qq -e close_write,modify /tmp/headspace-colors.json"]
+            running: true
+            stdout: StdioCollector {
+                onStreamFinished: {
+                    colorReader.running = false
+                    colorReader.running = true
+                    colorWatcher.running = false
+                    colorWatcher.running = true
+                }
+            }
+        }
+
         Rectangle {
             anchors.fill: parent
             color: "transparent"
@@ -62,19 +73,19 @@ ShellRoot {
             Column {
                 width: parent.width
 
-                Rectangle { width: parent.width; height: 2; color: bg }
+                Rectangle { width: parent.width; height: 2; color: root.bg }
 
                 Rectangle {
                     width: parent.width
                     height: 50
-                    color: bg
-                    border.color: bd
+                    color: root.bg
+                    border.color: root.bd
                     border.width: 1
 
                     Text {
                         text: "test"
                         anchors.centerIn: parent
-                        color: fg
+                        color: root.fg
                         font.pixelSize: 14
                     }
                 }

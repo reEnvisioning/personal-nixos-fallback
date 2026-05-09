@@ -47,6 +47,7 @@ in {
     localsend
     jq
     procps
+    inotify-tools
     (writeShellScriptBin "switch-theme" (builtins.readFile ./switch-theme))
   ];
 
