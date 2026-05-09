@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -uo pipefail
 
 THEME_NAME="${1:-}"
 if [ -z "$THEME_NAME" ]; then
@@ -10,7 +10,7 @@ fi
 THEME_DIR="$HOME/.config/headspace/themes"
 THEME_FILE="$THEME_DIR/$THEME_NAME.json"
 YAZI_THEMES="$HOME/.config/headspace/yazi-themes"
-COLORS_QML="$HOME/.config/quickshell/Colors.qml"
+SHELL_QML="$HOME/.config/quickshell/shell.qml"
 LOCALSEND_PREFS="$HOME/.local/share/org.localsend.localsend_app/shared_preferences.json"
 
 if [ ! -f "$THEME_FILE" ]; then
@@ -36,20 +36,43 @@ if [ -f "$YAZI_THEMES/$THEME_NAME.toml" ]; then
     cp "$YAZI_THEMES/$THEME_NAME.toml" "$HOME/.config/yazi/theme.toml"
 fi
 
-# 3. Kitty
+# 3. Kitty — break Nix symlink, write config, reload
 KITTY_CONF="$HOME/.config/kitty/kitty.conf"
 mkdir -p "$(dirname "$KITTY_CONF")"
-{
-    jq -r '.colors | to_entries[] | "\(.key) \(.value)"' "$THEME_FILE"
-    echo "font_family Monospace"
-    echo "font_size 10"
-    echo "confirm_os_window_close 0"
-} > "$KITTY_CONF"
+rm -f "$KITTY_CONF"
+jq -r '
+  .colors as $c |
+  "background \($c.background)",
+  "foreground \($c.text)",
+  "cursor \($c.text)",
+  "selection_background \($c.highlighted)",
+  "selection_foreground \($c.background)",
+  "color0 \($c.background)",
+  "color8 \($c.backgroundAccent)",
+  "color1 \($c.red)",
+  "color9 \($c.red)",
+  "color2 \($c.green)",
+  "color10 \($c.green)",
+  "color3 \($c.yellow)",
+  "color11 \($c.yellow)",
+  "color4 \($c.blue)",
+  "color12 \($c.blue)",
+  "color5 \($c.magenta)",
+  "color13 \($c.magenta)",
+  "color6 \($c.cyan)",
+  "color14 \($c.cyan)",
+  "color7 \($c.text)",
+  "color15 \($c.background)",
+  "font_family Monospace",
+  "font_size 10",
+  "confirm_os_window_close 0"
+' "$THEME_FILE" > "$KITTY_CONF"
 killall -SIGUSR1 kitty 2>/dev/null || true
 
-# 4. Dunst
+# 4. Dunst — break Nix symlink, write config, reload
 DUNST_CONF="$HOME/.config/dunst/dunstrc"
 mkdir -p "$(dirname "$DUNST_CONF")"
+rm -f "$DUNST_CONF"
 jq -r '
   .colors as $c |
   "[global]",
@@ -72,11 +95,12 @@ jq -r '
 ' "$THEME_FILE" > "$DUNST_CONF"
 killall -SIGUSR2 dunst 2>/dev/null || true
 
-# 5. LocalSend
+# 5. LocalSend — write prefs, restart
 mkdir -p "$(dirname "$LOCALSEND_PREFS")"
 cat > "$LOCALSEND_PREFS" << EOF
 {"flutter.ls_theme":"$MODE","flutter.ls_color":"$LS_COLOR"}
 EOF
+killall localsend 2>/dev/null || true
 
 # 6. GTK dark/light mode
 if [ "$MODE" = "dark" ]; then
@@ -93,22 +117,19 @@ BORDER_INACTIVE=$(jq -r '.colors.borderInactive' "$THEME_FILE" | sed 's/^#//')
 hyprctl keyword general:col.active_border "0xff$BORDER_FOCUSED" 2>/dev/null || true
 hyprctl keyword general:col.inactive_border "0xff$BORDER_INACTIVE" 2>/dev/null || true
 
-# 8. Quickshell Colors.qml
-mkdir -p "$(dirname "$COLORS_QML")"
-{
-    echo "pragma Singleton"
-    echo "import QtQuick"
-    echo ""
-    echo "QtObject {"
-    jq -r '.colors | to_entries[] | "    readonly property color \(.key): \"\(.value)\""' "$THEME_FILE"
-    echo "}"
-} > "$COLORS_QML"
+# 8. Quickshell — replace placeholders in shell.qml, restart
+if [ -f "$SHELL_QML" ]; then
+    BACKGROUND=$(jq -r '.colors.background' "$THEME_FILE")
+    BORDER_FOCUSED_FULL=$(jq -r '.colors.borderFocused' "$THEME_FILE")
+    TEXT=$(jq -r '.colors.text' "$THEME_FILE")
+    sed -i "s/@background@/$BACKGROUND/g" "$SHELL_QML"
+    sed -i "s/@borderFocused@/$BORDER_FOCUSED_FULL/g" "$SHELL_QML"
+    sed -i "s/@text@/$TEXT/g" "$SHELL_QML"
+fi
+killall quickshell 2>/dev/null || true
+sleep 0.2
+nohup quickshell >/dev/null 2>&1 & disown
 
 # 9. Save current theme
 mkdir -p "$THEME_DIR"
 echo "$THEME_NAME" > "$HOME/.config/headspace/current"
-
-# 10. Restart Quickshell
-killall quickshell 2>/dev/null || true
-sleep 0.2
-nohup quickshell >/dev/null 2>&1 & disown

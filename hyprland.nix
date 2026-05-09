@@ -126,6 +126,7 @@ in {
 
             "exec-once" = [
                 "hyprpaper"
+                "bash -c '~/.nix-profile/bin/switch-theme $(cat ~/.config/headspace/current 2>/dev/null || echo void) 2>/dev/null || true'"
             ];
 
             extraConfig = ''
