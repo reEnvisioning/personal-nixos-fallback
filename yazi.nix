@@ -9,11 +9,9 @@
         sort_by = "natural";
       };
       opener = {
-        text  = [{ run = ''nvim "$@"''; block = true; }];
-        code  = [{ run = ''nvim "$@"''; block = true; }];
-        image = [{ run = ''feh "$@"''; }];
-        video = [{ run = ''mpv --loop-file "$@"''; }];
-        audio = [{ run = ''mpv --loop-file "$@"''; }];
+        edit = [{ run = "nvim %s"; block = true; }];
+        open = [{ run = "feh %s"; }];
+        play = [{ run = "mpv --loop-file %s"; orphan = true; }];
       };
     };
   };
