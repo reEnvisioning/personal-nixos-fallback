@@ -3,6 +3,7 @@ import Quickshell.Io
 import QtQuick
 
 ShellRoot {
+    id: shellRoot
     property color bg: "#000000"
     property color bd: "#303030"
     property color fg: "#C2C2C2"
