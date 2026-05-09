@@ -1,0 +1,114 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+THEME_NAME="${1:-}"
+if [ -z "$THEME_NAME" ]; then
+    echo "Usage: switch-theme <name>"
+    exit 1
+fi
+
+THEME_DIR="$HOME/.config/headspace/themes"
+THEME_FILE="$THEME_DIR/$THEME_NAME.json"
+YAZI_THEMES="$HOME/.config/headspace/yazi-themes"
+COLORS_QML="$HOME/.config/quickshell/Colors.qml"
+LOCALSEND_PREFS="$HOME/.local/share/org.localsend.localsend_app/shared_preferences.json"
+
+if [ ! -f "$THEME_FILE" ]; then
+    echo "Theme '$THEME_NAME' not found at $THEME_FILE"
+    echo "Available themes:"
+    ls "$THEME_DIR"/*.json 2>/dev/null | xargs -n1 basename -s .json
+    exit 1
+fi
+
+MODE=$(jq -r '.mode' "$THEME_FILE")
+WALLPAPER=$(jq -r '.wallpaper' "$THEME_FILE")
+LS_COLOR=$(jq -r '.localsend_color' "$THEME_FILE")
+
+# 1. Wallpaper
+if [ -f "$WALLPAPER" ]; then
+    hyprctl hyprpaper preload "$WALLPAPER" 2>/dev/null || true
+    hyprctl hyprpaper wallpaper ",$WALLPAPER" 2>/dev/null || true
+fi
+
+# 2. Yazi theme
+mkdir -p "$HOME/.config/yazi"
+if [ -f "$YAZI_THEMES/$THEME_NAME.toml" ]; then
+    cp "$YAZI_THEMES/$THEME_NAME.toml" "$HOME/.config/yazi/theme.toml"
+fi
+
+# 3. Kitty
+KITTY_CONF="$HOME/.config/kitty/kitty.conf"
+mkdir -p "$(dirname "$KITTY_CONF")"
+{
+    jq -r '.colors | to_entries[] | "\(.key) \(.value)"' "$THEME_FILE"
+    echo "font_family Monospace"
+    echo "font_size 10"
+    echo "confirm_os_window_close 0"
+} > "$KITTY_CONF"
+killall -SIGUSR1 kitty 2>/dev/null || true
+
+# 4. Dunst
+DUNST_CONF="$HOME/.config/dunst/dunstrc"
+mkdir -p "$(dirname "$DUNST_CONF")"
+jq -r '
+  .colors as $c |
+  "[global]",
+  "    background = \($c.background)",
+  "    foreground = \($c.text)",
+  "    frame_color = \($c.backgroundAccent)",
+  "    frame_width = 2",
+  "",
+  "[urgency_low]",
+  "    background = \($c.background)",
+  "    foreground = \($c.text)",
+  "",
+  "[urgency_normal]",
+  "    background = \($c.background)",
+  "    foreground = \($c.text)",
+  "",
+  "[urgency_critical]",
+  "    background = \($c.backgroundAccent)",
+  "    foreground = \($c.text)"
+' "$THEME_FILE" > "$DUNST_CONF"
+killall -SIGUSR2 dunst 2>/dev/null || true
+
+# 5. LocalSend
+mkdir -p "$(dirname "$LOCALSEND_PREFS")"
+cat > "$LOCALSEND_PREFS" << EOF
+{"flutter.ls_theme":"$MODE","flutter.ls_color":"$LS_COLOR"}
+EOF
+
+# 6. GTK dark/light mode
+if [ "$MODE" = "dark" ]; then
+    gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
+    gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3-dark' 2>/dev/null || true
+else
+    gsettings set org.gnome.desktop.interface color-scheme 'default' 2>/dev/null || true
+    gsettings set org.gnome.desktop.interface gtk-theme 'adw-gtk3' 2>/dev/null || true
+fi
+
+# 7. Hyprland border colors
+BORDER_FOCUSED=$(jq -r '.colors.borderFocused' "$THEME_FILE" | sed 's/^#//')
+BORDER_INACTIVE=$(jq -r '.colors.borderInactive' "$THEME_FILE" | sed 's/^#//')
+hyprctl keyword general:col.active_border "0xff$BORDER_FOCUSED" 2>/dev/null || true
+hyprctl keyword general:col.inactive_border "0xff$BORDER_INACTIVE" 2>/dev/null || true
+
+# 8. Quickshell Colors.qml
+mkdir -p "$(dirname "$COLORS_QML")"
+{
+    echo "pragma Singleton"
+    echo "import QtQuick"
+    echo ""
+    echo "QtObject {"
+    jq -r '.colors | to_entries[] | "    readonly property color \(.key): \"\(.value)\""' "$THEME_FILE"
+    echo "}"
+} > "$COLORS_QML"
+
+# 9. Save current theme
+mkdir -p "$THEME_DIR"
+echo "$THEME_NAME" > "$HOME/.config/headspace/current"
+
+# 10. Restart Quickshell
+killall quickshell 2>/dev/null || true
+sleep 0.2
+nohup quickshell >/dev/null 2>&1 & disown

@@ -1,10 +1,11 @@
 import Quickshell
 import QtQuick
+import "Colors" as Colors
 
 ShellRoot {
     PanelWindow {
         id: panel
-        color: "@background@"
+        color: Colors.background
         anchors {
             top: true
             left: true
@@ -33,19 +34,19 @@ ShellRoot {
             Column {
                 width: parent.width
 
-                Rectangle { width: parent.width; height: 2; color: "@background@" }
+                Rectangle { width: parent.width; height: 2; color: Colors.background }
 
                 Rectangle {
                     width: parent.width
                     height: 50
-                    color: "@background@"
-                    border.color: "@borderFocused@"
+                    color: Colors.background
+                    border.color: Colors.borderFocused
                     border.width: 1
 
                     Text {
                         text: "test"
                         anchors.centerIn: parent
-                        color: "@text@"
+                        color: Colors.text
                         font.pixelSize: 14
                     }
                 }

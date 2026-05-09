@@ -1,8 +1,5 @@
 { pkgs, ... }:
-let
-  theme = import ./theme.nix;
-  themeFile = if theme.mode == "dark" then ./yazi-themes/dark.toml else ./yazi-themes/light.toml;
-in {
+{
   programs.yazi = {
     enable = true;
     settings.yazi = {
@@ -20,6 +17,4 @@ in {
       };
     };
   };
-
-  xdg.configFile."yazi/theme.toml".source = themeFile;
 }
