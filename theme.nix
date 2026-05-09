@@ -14,6 +14,9 @@ let
         text = "#C2C2C2";
         borderInactive = "#181818";
         borderFocused = "#303030";
+        accent = "#000000";
+        accent_light = "#000000";
+        accent_dark = "#000000";
         red = "#494949";
         green = "#494949";
         yellow = "#494949";
@@ -35,6 +38,9 @@ let
         text = "#6E6E6E";
         borderInactive = "#CFCFCF";
         borderFocused = "#B6B6B6";
+        accent = "#000000";
+        accent_light = "#000000";
+        accent_dark = "#000000";
         red = "#9E9E9E";
         green = "#9E9E9E";
         yellow = "#9E9E9E";
