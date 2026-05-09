@@ -24,6 +24,7 @@
                             ./hyprland.nix
                             ./yazi.nix
                             ./quickshell.nix
+                            ./firefox.nix
                         ];
                     };
                 }
