@@ -52,6 +52,9 @@ in {
 
   xdg.configFile = themeJsonConfigs // yaziThemeConfigs;
 
+  xdg.configFile."kitty/kitty.conf".force = true;
+  xdg.configFile."dunst/dunstrc".force = true;
+
   home.activation.setLocalSendTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     file="$HOME/.local/share/org.localsend.localsend_app/shared_preferences.json"
     mkdir -p "$(dirname "$file")"
