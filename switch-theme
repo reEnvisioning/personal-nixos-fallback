@@ -137,6 +137,7 @@ echo "$THEME_NAME" > "$HOME/.config/headspace/current"
 # 10. Firefox — write user.js for runtime theme for all profiles
 grep '^Path=' "$HOME/.mozilla/firefox/profiles.ini" 2>/dev/null | cut -d= -f2 | while read -r profile; do
     if [ -n "$profile" ] && [ -d "$HOME/.mozilla/firefox/$profile" ]; then
+        rm -f "$HOME/.mozilla/firefox/$profile/user.js"
         if [ "$MODE" = "dark" ]; then
             cat > "$HOME/.mozilla/firefox/$profile/user.js" << 'EOF'
 user_pref("ui.systemUsesDarkTheme", 1);
