@@ -25,8 +25,8 @@ ShellRoot {
         margins {
             top: 0
             bottom: 0
-            left: (Screen.width - 200) / 2
-            right: (Screen.width - 200) / 2
+            left: (panel.screen.width - 200) / 2
+            right: (panel.screen.width - 200) / 2
         }
         aboveWindows: true
         exclusionMode: ExclusionMode.Ignore
@@ -54,7 +54,9 @@ ShellRoot {
 
         Process {
             id: colorWatcher
-            command: ["bash", "-c", "while [ ! -f /tmp/headspace-colors.json ]; do sleep 1; done; inotifywait -qq -e close_write,modify /tmp/headspace-colors.json"]
+            command: ["bash", "-c",
+                "while [ ! -f /tmp/headspace-colors.json ]; do sleep 1; done;" +
+                "inotifywait -qq -e close_write,modify /tmp/headspace-colors.json"]
             running: true
             stdout: StdioCollector {
                 onStreamFinished: {
