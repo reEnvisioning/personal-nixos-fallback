@@ -53,6 +53,9 @@ in {
   xdg.configFile = (themeJsonConfigs // yaziThemeConfigs) // {
     "kitty/kitty.conf".force = true;
     "dunst/dunstrc".force = true;
+    "gtk-3.0/settings.ini".force = true;
+    "gtk-4.0/settings.ini".force = true;
+    "quickshell/shell.qml".force = true;
   };
 
   home.activation.applyDefaultTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''

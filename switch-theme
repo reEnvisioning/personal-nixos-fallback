@@ -103,7 +103,7 @@ cat > "$LOCALSEND_PREFS" << EOF
 EOF
 pkill localsend 2>/dev/null || true
 
-# 6. GTK dark/light mode — gsettings + break settings.ini Nix symlinks
+# 6. GTK dark/light mode — gsettings + overwrite settings.ini
 if [ "$MODE" = "dark" ]; then
     gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
     PREFER_DARK=1
@@ -113,8 +113,6 @@ else
 fi
 for ver in 3.0 4.0; do
     ini="$HOME/.config/gtk-$ver/settings.ini"
-    mkdir -p "$(dirname "$ini")"
-    rm -f "$ini"
     printf "[Settings]\ngtk-application-prefer-dark-theme=%d\n" "$PREFER_DARK" > "$ini"
 done
 
