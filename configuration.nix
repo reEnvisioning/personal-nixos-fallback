@@ -119,6 +119,7 @@ in {
         "QT_QPA_PLATFORM" = "wayland;xcb";
         "ADW_DISABLE_PORTAL" = "1";
         "QT_STYLE_OVERRIDE" = "adwaita-dark";
+        "XDG_CURRENT_DESKTOP" = "Hyprland";
     };
 
 }
