@@ -46,6 +46,7 @@ in {
     adwaita-qt6
     localsend
     jq
+    procps
     (writeShellScriptBin "switch-theme" (builtins.readFile ./switch-theme))
   ];
 
