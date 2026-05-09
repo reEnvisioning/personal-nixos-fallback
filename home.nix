@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, inputs, lib, ... }:
 let theme = import ./theme.nix;
 in {
     home = {
@@ -26,7 +26,22 @@ in {
         adwaita-qt
         adwaita-qt6
         localsend
+        jq
     ];
+
+    home.activation.setLocalSendTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+        file="$HOME/.local/share/org.localsend.localsend_app/shared_preferences.json"
+        mkdir -p "$(dirname "$file")"
+        if [ -f "$file" ]; then
+            ${pkgs.jq}/bin/jq -c \
+                --arg theme '${if theme.mode == "dark" then "dark" else "light"}' \
+                --arg color '${if theme.mode == "dark" then "oled" else "yaru"}' \
+                '.ls_theme = $theme | .ls_color = $color' "$file" > /tmp/localsend_prefs.json \
+                && mv /tmp/localsend_prefs.json "$file"
+        else
+            echo '{"ls_theme":"${if theme.mode == "dark" then "dark" else "light"}","ls_color":"${if theme.mode == "dark" then "oled" else "yaru"}"}' > "$file"
+        fi
+    '';
 
     programs.kitty = {
         enable = true;
