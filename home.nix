@@ -62,6 +62,7 @@ in {
   };
 
   home.file.".mozilla/firefox/profiles.ini".force = true;
+  home.file.".mozilla/firefox/default/user.js".force = true;
 
   home.activation.applyDefaultTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     switch-theme "${theme.default}" 2>/dev/null || true
