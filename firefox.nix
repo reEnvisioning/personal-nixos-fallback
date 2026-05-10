@@ -2,9 +2,32 @@
   programs.firefox = {
     enable = true;
 
+    policies = {
+      Preferences = {
+        "browser.tabs.groups.smart.enabled" = {
+          Value = false;
+          Status = "locked";
+        };
+        "browser.tabs.groups.smart.optin" = {
+          Value = false;
+          Status = "locked";
+        };
+        "browser.tabs.groups.smart.userEnabled" = {
+          Value = false;
+          Status = "locked";
+        };
+      };
+    };
+
     profiles.default = {
       id = 0;
       isDefault = true;
+
+      search = {
+        force = true;
+        default = "DuckDuckGo";
+        privateDefault = "DuckDuckGo";
+      };
 
       settings = {
         # === General > Tabs > Interaction ===
@@ -27,9 +50,9 @@
         # === Home ===
         "browser.newtabpage.activity-stream.feeds.topsites" = false;
         "browser.newtabpage.activity-stream.feeds.snippets" = false;
+        "browser.newtabpage.activity-stream.feeds.websearch" = false;
 
         # === Search ===
-        "browser.search.defaultenginename" = "DuckDuckGo";
         "browser.search.suggest.enabled" = false;
 
         # === Search > Address Bar ===
@@ -42,6 +65,7 @@
         "browser.urlbar.suggest.quickactions" = false;
 
         # === Privacy > Tracking Protection ===
+        "browser.contentblocking.category" = "strict";
         "privacy.trackingprotection.enabled" = true;
         "privacy.trackingprotection.socialtrack.enabled" = true;
         "privacy.trackingprotection.cryptomining.enabled" = true;
@@ -60,11 +84,15 @@
 
         # === Privacy > Data Collection ===
         "datareporting.healthreport.uploadEnabled" = false;
+        "datareporting.healthreport.service.enabled" = false;
         "datareporting.policy.dataSubmissionEnabled" = false;
         "browser.newtabpage.activity-stream.feeds.telemetry" = false;
+        "browser.newtabpage.activity-stream.telemetry" = false;
         "browser.ping-centre.telemetry" = false;
         "browser.crashReports.unsubmittedCheck.enabled" = false;
         "browser.crashReports.unsubmittedCheck.autoSubmit2" = false;
+        "toolkit.telemetry.unified" = false;
+        "toolkit.telemetry.enabled" = false;
 
         # === Privacy > HTTPS-Only ===
         "dom.security.https_only_mode" = true;

@@ -8,6 +8,7 @@
             url = "github:nix-community/home-manager/master";
             inputs.nixpkgs.follows = "nixpkgs";
         };
+    };
 
     outputs = inputs: {
         nixosConfigurations.headspace = inputs.nixpkgs.lib.nixosSystem {
