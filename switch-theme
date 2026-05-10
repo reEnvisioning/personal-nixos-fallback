@@ -134,7 +134,19 @@ nohup quickshell >/dev/null 2>&1 & disown
 mkdir -p "$(dirname "$HOME/.config/headspace/current")"
 echo "$THEME_NAME" > "$HOME/.config/headspace/current"
 
-# 10. Firefox — write user.js for runtime theme for all profiles
+# 11. GIMP — set internal theme to match mode
+for gimp_dir in "$HOME/.config/GIMP/3.0" "$HOME/.config/GIMP/2.10"; do
+    gimprc="$gimp_dir/gimprc"
+    if [ -f "$gimprc" ]; then
+        if [ "$MODE" = "dark" ]; then
+            sed -i 's/^theme ".*"/theme "Dark"/' "$gimprc" 2>/dev/null || true
+        else
+            sed -i 's/^theme ".*"/theme "System"/' "$gimprc" 2>/dev/null || true
+        fi
+    fi
+done
+
+# 12. Firefox — write user.js for runtime theme for all profiles
 grep '^Path=' "$HOME/.mozilla/firefox/profiles.ini" 2>/dev/null | cut -d= -f2 | while read -r profile; do
     if [ -n "$profile" ] && [ -d "$HOME/.mozilla/firefox/$profile" ]; then
         rm -f "$HOME/.mozilla/firefox/$profile/user.js"

@@ -48,6 +48,7 @@ in {
     jq
     procps
     inotify-tools
+    gimp
     (writeShellScriptBin "switch-theme" (builtins.readFile ./switch-theme))
   ];
 
