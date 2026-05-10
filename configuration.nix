@@ -113,6 +113,7 @@ in {
         qt5.qtwayland
         qt6.qtwayland
         libnotify
+        temurin-bin-21
     ];
 
     environment.variables = {
