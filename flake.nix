@@ -9,12 +9,6 @@
             inputs.nixpkgs.follows = "nixpkgs";
         };
 
-        firefox-addons = {
-            url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
-            inputs.nixpkgs.follows = "nixpkgs";
-        };
-    };
-
     outputs = inputs: {
         nixosConfigurations.headspace = inputs.nixpkgs.lib.nixosSystem {
             system = "x86_64-linux";
@@ -23,7 +17,6 @@
                 ./configuration.nix
                 inputs.home-manager.nixosModules.home-manager
                 {
-                    home-manager.extraSpecialArgs = {inherit inputs;};
                     home-manager.users.visionary = {
                         imports = [
                             ./home.nix

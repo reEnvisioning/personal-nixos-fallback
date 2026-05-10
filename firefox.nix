@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }: {
+{ config, pkgs, ... }: {
   programs.firefox = {
     enable = true;
 
@@ -79,10 +79,6 @@
         "browser.ml.enable" = false;
         "extensions.ml.enabled" = false;
       };
-
-      extensions = with inputs.firefox-addons.packages."${pkgs.system}"; [
-        ublock-origin
-      ];
     };
   };
 }
