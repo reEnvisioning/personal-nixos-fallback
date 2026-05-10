@@ -57,7 +57,7 @@
 
         # === Search > Address Bar ===
         "browser.urlbar.suggest.history" = false;
-        "browser.urlbar.suggest.bookmark" = false;
+        "browser.urlbar.suggest.bookmark" = true;
         "browser.urlbar.suggest.openpage" = false;
         "browser.urlbar.suggest.topsites" = false;
         "browser.urlbar.suggest.recentsearches" = false;

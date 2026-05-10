@@ -168,6 +168,7 @@ grep '^Path=' "$HOME/.mozilla/firefox/profiles.ini" 2>/dev/null | cut -d= -f2 | 
     if [ -z "$profile" ] || [ ! -d "$HOME/.mozilla/firefox/$profile" ]; then
         continue
     fi
+    chmod u+w "$userjs" 2>/dev/null || true
     touch "$userjs"
     if [ "$MODE" = "dark" ]; then val=1; else val=0; fi
     for pref in \
