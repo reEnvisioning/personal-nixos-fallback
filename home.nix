@@ -48,7 +48,7 @@ in {
     procps
     inotify-tools
     gimp
-    jetbrains.idea-community
+    jetbrains.idea-oss
     libreoffice-qt
     obs-studio
     (writeShellScriptBin "switch-theme" (builtins.readFile ./switch-theme))
