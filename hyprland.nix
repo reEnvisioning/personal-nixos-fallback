@@ -22,8 +22,8 @@ in {
             };
 
             decoration = {
-                active_opacity = 0.8;
-                inactive_opacity = 0.65;
+                active_opacity = 0.9;
+                inactive_opacity = 0.85;
             };
 
             monitor = [
@@ -98,30 +98,6 @@ in {
                 # Move/resize windows with mainMod + LMB/RMB and dragging
                 "SUPER, mouse:272, movewindow"
                 "SUPER, mouse:273, resizewindow"
-            ];
-
-            animations = [
-                "border, 0"
-                "fade, 0"
-                "windows, 0"
-                "windowsOut, 0"
-                "windowsMove, 0"
-                "workspaces, 0"
-                "layers, 0"
-                "layersOut, 0"
-                "fadeIn, 0"
-                "fadeOut, 0"
-                "fadeSwitch, 0"
-                "fadeShadow, 0"
-                "fadeDim, 0"
-                "fadeLayers, 0"
-                "fadeLayersIn, 0"
-                "fadeLayersOut, 0"
-                "fadePopups, 0"
-                "fadePopupsIn, 0"
-                "fadePopupsOut, 0"
-                "zoomFactor, 0"
-                "monitorAdded, 0"
             ];
 
             "exec-once" = [
