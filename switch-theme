@@ -70,32 +70,6 @@ jq -r '
 ' "$THEME_FILE" > "$KITTY_CONF"
 pkill -SIGUSR1 kitty 2>/dev/null || true
 
-# 4. Dunst — break Nix symlink, write config, reload
-DUNST_CONF="$HOME/.config/dunst/dunstrc"
-mkdir -p "$(dirname "$DUNST_CONF")"
-rm -f "$DUNST_CONF"
-jq -r '
-  .colors as $c |
-  "[global]",
-  "    background = \($c.background)",
-  "    foreground = \($c.text)",
-  "    frame_color = \($c.backgroundAccent)",
-  "    frame_width = 2",
-  "",
-  "[urgency_low]",
-  "    background = \($c.background)",
-  "    foreground = \($c.text)",
-  "",
-  "[urgency_normal]",
-  "    background = \($c.background)",
-  "    foreground = \($c.text)",
-  "",
-  "[urgency_critical]",
-  "    background = \($c.backgroundAccent)",
-  "    foreground = \($c.text)"
-' "$THEME_FILE" > "$DUNST_CONF"
-pkill -SIGUSR2 dunst 2>/dev/null || true
-
 # 5. LocalSend — write prefs, restart
 mkdir -p "$(dirname "$LOCALSEND_PREFS")"
 cat > "$LOCALSEND_PREFS" << EOF

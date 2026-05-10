@@ -39,7 +39,6 @@ in {
   home.packages = with pkgs; [
     neovim
     mpv
-    feh
     adw-gtk3
     prismlauncher
     adwaita-qt
@@ -54,7 +53,6 @@ in {
 
   xdg.configFile = (themeJsonConfigs // yaziThemeConfigs) // {
     "kitty/kitty.conf".force = true;
-    "dunst/dunstrc".force = true;
     "gtk-3.0/settings.ini".force = true;
     "gtk-4.0/settings.ini".force = true;
     "quickshell/shell.qml".force = true;
@@ -100,31 +98,6 @@ in {
       color5 ${theme.colors.magenta}
       color6 ${theme.colors.cyan}
     '';
-  };
-
-  services.dunst = {
-    enable = true;
-    settings = {
-      global = {
-        font = "${theme.font.family} ${toString theme.font.size}";
-        background = "${theme.colors.background}";
-        foreground = "${theme.colors.text}";
-        frame_color = "${theme.colors.backgroundAccent}";
-        frame_width = 2;
-      };
-      urgency_low = {
-        background = "${theme.colors.background}";
-        foreground = "${theme.colors.text}";
-      };
-      urgency_normal = {
-        background = "${theme.colors.background}";
-        foreground = "${theme.colors.text}";
-      };
-      urgency_critical = {
-        background = "${theme.colors.backgroundAccent}";
-        foreground = "${theme.colors.text}";
-      };
-    };
   };
 
   gtk = {
