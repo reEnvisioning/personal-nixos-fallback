@@ -8,6 +8,11 @@
             url = "github:nix-community/home-manager/master";
             inputs.nixpkgs.follows = "nixpkgs";
         };
+
+        firefox-addons = {
+            url = "gitlab:rycee/nur-expressions?dir=firefox-addons";
+            inputs.nixpkgs.follows = "nixpkgs";
+        };
     };
 
     outputs = inputs: {
@@ -18,6 +23,7 @@
                 ./configuration.nix
                 inputs.home-manager.nixosModules.home-manager
                 {
+                    home-manager.extraSpecialArgs = {inherit inputs;};
                     home-manager.users.visionary = {
                         imports = [
                             ./home.nix

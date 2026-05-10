@@ -162,22 +162,23 @@ else
     echo "$scheme_line" >> "$gimprc"
 fi
 
-# 12. Firefox — write user.js for runtime theme for all profiles
+# 12. Firefox — update theme prefs in-place, preserving Nix-managed prefs
 grep '^Path=' "$HOME/.mozilla/firefox/profiles.ini" 2>/dev/null | cut -d= -f2 | while read -r profile; do
-    if [ -n "$profile" ] && [ -d "$HOME/.mozilla/firefox/$profile" ]; then
-        rm -f "$HOME/.mozilla/firefox/$profile/user.js"
-        if [ "$MODE" = "dark" ]; then
-            cat > "$HOME/.mozilla/firefox/$profile/user.js" << 'EOF'
-user_pref("ui.systemUsesDarkTheme", 1);
-user_pref("browser.theme.toolbar-theme", 1);
-user_pref("browser.theme.content-theme", 1);
-EOF
-        else
-            cat > "$HOME/.mozilla/firefox/$profile/user.js" << 'EOF'
-user_pref("ui.systemUsesDarkTheme", 0);
-user_pref("browser.theme.toolbar-theme", 0);
-user_pref("browser.theme.content-theme", 0);
-EOF
-        fi
+    userjs="$HOME/.mozilla/firefox/$profile/user.js"
+    if [ -z "$profile" ] || [ ! -d "$HOME/.mozilla/firefox/$profile" ]; then
+        continue
     fi
+    touch "$userjs"
+    if [ "$MODE" = "dark" ]; then val=1; else val=0; fi
+    for pref in \
+        "ui.systemUsesDarkTheme" \
+        "browser.theme.toolbar-theme" \
+        "browser.theme.content-theme"; do
+        line="user_pref(\"$pref\", $val);"
+        if grep -q "^user_pref(\"$pref\"," "$userjs" 2>/dev/null; then
+            sed -i "s|^user_pref(\"$pref\", .*|$line|" "$userjs"
+        else
+            echo "$line" >> "$userjs"
+        fi
+    done
 done
