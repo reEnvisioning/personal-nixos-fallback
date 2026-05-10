@@ -134,7 +134,7 @@ nohup quickshell >/dev/null 2>&1 & disown
 mkdir -p "$(dirname "$HOME/.config/headspace/current")"
 echo "$THEME_NAME" > "$HOME/.config/headspace/current"
 
-# 11. GIMP 3.0 — set internal theme, restart to pick up
+# 11. GIMP 3.0 — set theme + color scheme, restart to pick up
 pkill gimp 2>/dev/null || true
 sleep 0.2
 
@@ -143,15 +143,23 @@ gimprc="$gimp_dir/gimprc"
 mkdir -p "$gimp_dir"
 
 if [ "$MODE" = "dark" ]; then
-    theme_line='theme "Dark"'
+    theme_line='(theme "Default")'
+    scheme_line='(theme-color-scheme dark)'
 else
-    theme_line='theme "System"'
+    theme_line='(theme "Default")'
+    scheme_line='(theme-color-scheme light)'
 fi
 
-if grep -q '^theme ' "$gimprc" 2>/dev/null; then
-    sed -i 's|^theme .*|'"$theme_line"'|' "$gimprc"
+if grep -q '(theme ' "$gimprc" 2>/dev/null; then
+    sed -i 's|(theme .*)|'"$theme_line"'|' "$gimprc"
 else
     echo "$theme_line" >> "$gimprc"
+fi
+
+if grep -q '(theme-color-scheme ' "$gimprc" 2>/dev/null; then
+    sed -i 's|(theme-color-scheme .*)|'"$scheme_line"'|' "$gimprc"
+else
+    echo "$scheme_line" >> "$gimprc"
 fi
 
 # 12. Firefox — write user.js for runtime theme for all profiles
