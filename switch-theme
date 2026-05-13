@@ -92,6 +92,26 @@ for ver in 3.0 4.0; do
     printf "[Settings]\ngtk-application-prefer-dark-theme=%d\n" "$PREFER_DARK" > "$ini"
 done
 pkill libreoffice 2>/dev/null || true
+sleep 0.2
+
+lo_reg="$HOME/.config/libreoffice/4/user/registrymodifications.xcu"
+mkdir -p "$(dirname "$lo_reg")"
+
+if [ ! -f "$lo_reg" ]; then
+    cat > "$lo_reg" << 'EOF'
+<?xml version="1.0" encoding="UTF-8"?>
+<oor:items xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+</oor:items>
+EOF
+fi
+
+if [ "$MODE" = "dark" ]; then scheme="LibreOffice Dark"; else scheme="LibreOffice Light"; fi
+
+if grep -q 'CurrentColorScheme' "$lo_reg" 2>/dev/null; then
+    sed -i 's|<value>LibreOffice .*</value>|<value>'"$scheme"'</value>|' "$lo_reg"
+else
+    sed -i 's|</oor:items>|  <item oor:path="/org.openoffice.Office.UI/ColorScheme"><prop oor:name="CurrentColorScheme" oor:op="fuse"><value>'"$scheme"'</value></prop></item>\n</oor:items>|' "$lo_reg"
+fi
 
 # 7. Hyprland border colors
 BORDER_FOCUSED=$(jq -r '.colors.borderFocused' "$THEME_FILE" | sed 's/^#//')
