@@ -49,7 +49,7 @@ in {
     inotify-tools
     gimp
     jetbrains.idea-oss
-    libreoffice-qt
+    libreoffice
     obs-studio
     (writeShellScriptBin "switch-theme" (builtins.readFile ./switch-theme))
   ];

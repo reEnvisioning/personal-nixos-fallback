@@ -91,6 +91,7 @@ for ver in 3.0 4.0; do
     rm -f "$ini"
     printf "[Settings]\ngtk-application-prefer-dark-theme=%d\n" "$PREFER_DARK" > "$ini"
 done
+pkill libreoffice 2>/dev/null || true
 
 # 7. Hyprland border colors
 BORDER_FOCUSED=$(jq -r '.colors.borderFocused' "$THEME_FILE" | sed 's/^#//')
