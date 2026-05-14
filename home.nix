@@ -43,8 +43,8 @@ in {
     prismlauncher
     adwaita-qt
     adwaita-qt6
-    qt5ct
-    qt6ct
+    libsForQt5.qt5ct
+    libsForQt6.qt6ct
     localsend
     jq
     procps
