@@ -44,7 +44,7 @@ in {
     adwaita-qt
     adwaita-qt6
     libsForQt5.qt5ct
-    libsForQt6.qt6ct
+    kdePackages.qt6ct
     localsend
     jq
     procps
