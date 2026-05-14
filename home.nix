@@ -43,13 +43,15 @@ in {
     prismlauncher
     adwaita-qt
     adwaita-qt6
+    qt5ct
+    qt6ct
     localsend
     jq
     procps
     inotify-tools
     gimp
     jetbrains.idea-oss
-    libreoffice
+    libreoffice-qt
     obs-studio
     (writeShellScriptBin "switch-theme" (builtins.readFile ./switch-theme))
   ];

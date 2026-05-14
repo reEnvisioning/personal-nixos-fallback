@@ -91,26 +91,30 @@ for ver in 3.0 4.0; do
     rm -f "$ini"
     printf "[Settings]\ngtk-application-prefer-dark-theme=%d\n" "$PREFER_DARK" > "$ini"
 done
+for qtver in qt5ct qt6ct; do
+    conf_dir="$HOME/.config/$qtver"
+    mkdir -p "$conf_dir"
+    if [ "$MODE" = "dark" ]; then
+        qt_style="adwaita-dark"
+    else
+        qt_style="Adwaita"
+    fi
+    cat > "$conf_dir/$qtver.conf" << EOF
+[Appearance]
+color_scheme_path=
+custom_palette=false
+icon_theme=Adwaita
+style=$qt_style
+EOF
+done
 pkill libreoffice 2>/dev/null || true
-sleep 0.2
 
 lo_reg="$HOME/.config/libreoffice/4/user/registrymodifications.xcu"
-mkdir -p "$(dirname "$lo_reg")"
-
-if [ ! -f "$lo_reg" ]; then
-    cat > "$lo_reg" << 'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<oor:items xmlns:oor="http://openoffice.org/2001/registry" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-</oor:items>
-EOF
-fi
-
-if [ "$MODE" = "dark" ]; then scheme="LibreOffice Dark"; else scheme="LibreOffice Light"; fi
-
-if grep -q 'CurrentColorScheme' "$lo_reg" 2>/dev/null; then
-    sed -i 's|<value>LibreOffice .*</value>|<value>'"$scheme"'</value>|' "$lo_reg"
-else
-    sed -i 's|</oor:items>|  <item oor:path="/org.openoffice.Office.UI/ColorScheme"><prop oor:name="CurrentColorScheme" oor:op="fuse"><value>'"$scheme"'</value></prop></item>\n</oor:items>|' "$lo_reg"
+if [ -f "$lo_reg" ]; then
+    if [ "$MODE" = "dark" ]; then scheme="LibreOffice Dark"; else scheme="LibreOffice Light"; fi
+    if grep -q 'CurrentColorScheme' "$lo_reg" 2>/dev/null; then
+        sed -i 's|<value>LibreOffice .*</value>|<value>'"$scheme"'</value>|' "$lo_reg"
+    fi
 fi
 
 # 7. Hyprland border colors
