@@ -104,6 +104,7 @@ in {
 
             "exec-once" = [
                 "hyprpaper"
+                "hypridle"
                 "bash -c '~/.nix-profile/bin/switch-theme $(cat ~/.config/headspace/current 2>/dev/null || echo void) 2>/dev/null || true'"
             ];
 
@@ -129,44 +130,48 @@ in {
         };
     };
 
-    services.hypridle = {
-        enable = true;
-        settings = {
-            listeners = [
-                # uncomment for auto-lock after 5 minutes of inactivity:
-                # {
-                #     timeout = 300;
-                #     on-timeout = "hyprlock";
-                # }
-            ];
-        };
-    };
+    home.packages = with pkgs; [
+        hypridle
+        hyprlock
+    ];
 
-    services.hyprlock = {
-        enable = true;
-        settings = {
-            general = {
-                disable_loading_bar = true;
-                hide_cursor = true;
-            };
-            background = {
-                monitor = "";
-                path = "${theme.wallpaper}";
-                blur_passes = 2;
-                contrast = 0.8;
-                brightness = 0.5;
-                vibrancy = 0.2;
-            };
-            input-field = {
-                monitor = "";
-                size = 200, 50;
-                position = 0, -80;
-                dots_center = true;
-                fade_on_empty = true;
-                outline_thickness = 2;
-                dots_size = 0.3;
-                dots_spacing = 0.5;
-            };
-        };
-    };
+    xdg.configFile."hypr/hypridle.conf".text = ''
+        general {
+            # lock_cmd = hyprlock
+            # before_sleep_cmd = hyprlock
+        }
+
+        # uncomment for auto-lock after 5 minutes of inactivity:
+        # listener {
+        #     timeout = 300
+        #     on-timeout = hyprlock
+        # }
+    '';
+
+    xdg.configFile."hypr/hyprlock.conf".text = ''
+        general {
+            disable_loading_bar = true
+            hide_cursor = true
+        }
+
+        background {
+            monitor =
+            path = ${theme.wallpaper}
+            blur_passes = 2
+            contrast = 0.8
+            brightness = 0.5
+            vibrancy = 0.2
+        }
+
+        input-field {
+            monitor =
+            size = 200, 50
+            position = 0, -80
+            dots_center = true
+            fade_on_empty = true
+            outline_thickness = 2
+            dots_size = 0.3
+            dots_spacing = 0.5
+        }
+    '';
 }
