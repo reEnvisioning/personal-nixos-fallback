@@ -5,7 +5,6 @@ in {
         ./hardware-configuration.nix
         ./network.nix
         ./desktop.nix
-        ./plymouth.nix
     ];
 
     programs.hyprland = {
@@ -84,6 +83,10 @@ in {
     boot.kernelModules = [ "btusb" ];
 
     boot.initrd.luks.devices."luks-26fcc57f-6de2-4ea0-9c1e-9411b537d0ae".device = "/dev/disk/by-uuid/26fcc57f-6de2-4ea0-9c1e-9411b537d0ae";
+
+    boot.consoleLogLevel = 0;
+    boot.initrd.verbose = false;
+    boot.kernelParams = [ "quiet" ];
 
     virtualisation.virtualbox.host.enable = true;
 
