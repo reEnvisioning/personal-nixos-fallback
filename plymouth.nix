@@ -1,22 +1,25 @@
 { pkgs, ... }:
 
 let
-  simpleTheme = pkgs.stdenv.mkDerivation {
-    pname = "plymouth-theme-simple";
+  omarchyTheme = pkgs.stdenv.mkDerivation {
+    pname = "plymouth-theme-omarchy";
     version = "1.0";
     dontUnpack = true;
     installPhase = ''
-      mkdir -p $out/share/plymouth/themes/simple/resources
-      sed "s|@out@|$out|g" ${./simple.plymouth} \
-        > $out/share/plymouth/themes/simple/simple.plymouth
-      cp -r ${./resources}/* $out/share/plymouth/themes/simple/resources/
+      mkdir -p $out/share/plymouth/themes/omarchy
+      cp ${./plymouth/omarchy.plymouth} $out/share/plymouth/themes/omarchy/
+      cp ${./plymouth/omarchy.script} $out/share/plymouth/themes/omarchy/
+      cp ${./plymouth}/*.png $out/share/plymouth/themes/omarchy/
+      substituteInPlace $out/share/plymouth/themes/omarchy/omarchy.plymouth \
+        --replace "/usr/share/plymouth/themes/omarchy" "$out/share/plymouth/themes/omarchy" \
+        --replace "Cantarell" "DejaVu Sans"
     '';
   };
 in {
   boot.plymouth = {
     enable = true;
-    theme = "simple";
-    themePackages = [ simpleTheme ];
+    theme = "omarchy";
+    themePackages = [ omarchyTheme ];
   };
 
   boot.consoleLogLevel = 0;
