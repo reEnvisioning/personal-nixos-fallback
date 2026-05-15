@@ -84,6 +84,8 @@ in {
 
     boot.initrd.luks.devices."luks-26fcc57f-6de2-4ea0-9c1e-9411b537d0ae".device = "/dev/disk/by-uuid/26fcc57f-6de2-4ea0-9c1e-9411b537d0ae";
 
+    boot.initrd.systemd.enable = true;
+
     boot.plymouth = {
         enable = true;
         theme = "minimal";
@@ -151,11 +153,12 @@ PLYEND
         ];
     };
 
-    boot.consoleLogLevel = 0;
+    boot.consoleLogLevel = 3;
     boot.initrd.verbose = false;
     boot.kernelParams = [
         "quiet"
-        "splash"
+        "udev.log_level=3"
+        "systemd.show_status=auto"
     ];
 
     virtualisation.virtualbox.host.enable = true;
