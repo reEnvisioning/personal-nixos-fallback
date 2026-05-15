@@ -133,7 +133,7 @@ if [ -f "$idea_xml" ]; then
 fi
 other_xml="$idea_dir/other.xml"
 if [ -f "$other_xml" ]; then
-    sed -i 's|previousColorScheme: "[^"]*"|previousColorScheme: "_@user_'"$IDEA_THEME"'"|' "$other_xml"
+    sed -i 's|"previousColorScheme":"[^"]*"|"previousColorScheme":"_@user_'"$IDEA_THEME"'"|' "$other_xml"
 fi
 
 # 7. Hyprland border colors
