@@ -14,8 +14,8 @@ Name=omarchy
 ModuleName=script
 
 [script]
-ImageDir=$out/share/plymouth/themes/omarchy
-ScriptFile=$out/share/plymouth/themes/omarchy/omarchy.script
+ImageDir=@out@/share/plymouth/themes/omarchy
+ScriptFile=@out@/share/plymouth/themes/omarchy/omarchy.script
 PLYEND
 
       cat > $out/share/plymouth/themes/omarchy/omarchy.script << 'SCRIPTEND'
@@ -71,6 +71,9 @@ fun display_normal_callback() {
 Plymouth.SetDisplayPasswordFunction(display_password_callback);
 Plymouth.SetDisplayNormalFunction(display_normal_callback);
 SCRIPTEND
+
+      substituteInPlace $out/share/plymouth/themes/omarchy/omarchy.plymouth \
+        --replace "@out@" "$out"
 
       cp ${./plymouth}/*.png $out/share/plymouth/themes/omarchy/
     '';
