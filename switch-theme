@@ -109,7 +109,7 @@ EOF
 done
 
 # OBS Studio — set theme
-obs_ini="$HOME/.config/obs-studio/global.ini"
+obs_ini="$HOME/.config/obs-studio/user.ini"
 if [ -f "$obs_ini" ]; then
     if [ "$MODE" = "dark" ]; then
         obs_theme="com.obsproject.Yami.Acri"
