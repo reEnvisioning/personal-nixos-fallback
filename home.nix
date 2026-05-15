@@ -6,6 +6,7 @@ let
     name = name;
     mode = t.mode;
     localsend_color = t.localsend_color;
+    obs_style = t.obs_style;
     wallpaper = toString t.wallpaper;
     colors = t.colors;
   };
