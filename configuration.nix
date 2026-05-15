@@ -86,7 +86,6 @@ in {
 
     boot.plymouth = {
         enable = true;
-        quietBoot = true;
         theme = "minimal";
         themePackages = [
             (pkgs.stdenv.mkDerivation {
@@ -113,6 +112,13 @@ SCRIPTEND
             })
         ];
     };
+
+    boot.consoleLogLevel = 0;
+    boot.initrd.verbose = false;
+    boot.kernelParams = [
+        "quiet"
+        "splash"
+    ];
 
     virtualisation.virtualbox.host.enable = true;
 
