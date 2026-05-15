@@ -84,6 +84,36 @@ in {
 
     boot.initrd.luks.devices."luks-26fcc57f-6de2-4ea0-9c1e-9411b537d0ae".device = "/dev/disk/by-uuid/26fcc57f-6de2-4ea0-9c1e-9411b537d0ae";
 
+    boot.plymouth = {
+        enable = true;
+        quietBoot = true;
+        theme = "minimal";
+        themePackages = [
+            (pkgs.stdenv.mkDerivation {
+                pname = "plymouth-theme-minimal";
+                version = "1.0";
+                dontUnpack = true;
+                installPhase = ''
+                    mkdir -p $out/share/plymouth/themes/minimal
+                    cat > $out/share/plymouth/themes/minimal/minimal.plymouth << PLYEND
+[Plymouth Theme]
+Name = minimal
+Description = Minimal black background with password prompt
+ModuleName = script
+PLYEND
+                     cat > $out/share/plymouth/themes/minimal/minimal.script << SCRIPTEND
+Window.SetBackgroundTopColor (0.0, 0.0, 0.0);
+Window.SetBackgroundBottomColor (0.0, 0.0, 0.0);
+message = Dialog ();
+message.SetEntryMessage ("  ");
+message.SetKeyboardType ("password");
+Window.AddPasswordDialog (message, 0.3, 0.47, 0.4, 0.06);
+SCRIPTEND
+                '';
+            })
+        ];
+    };
+
     virtualisation.virtualbox.host.enable = true;
 
     time.timeZone = "Europe/Berlin";
