@@ -3,10 +3,18 @@
 {
   boot.plymouth = {
     enable = true;
-    theme = "rings";
-    themePackages = with pkgs; [
-      (adi1090x-plymouth-themes.override {
-        selected_themes = [ "rings" ];
+    theme = "connect";
+    themePackages = [
+      (pkgs.stdenv.mkDerivation {
+        pname = "plymouth-theme-connect";
+        version = "1.0";
+        src = ./connect;
+        installPhase = ''
+          mkdir -p $out/share/plymouth/themes/connect
+          cp -r * $out/share/plymouth/themes/connect/
+          substituteInPlace $out/share/plymouth/themes/connect/connect.plymouth \
+            --replace "/usr" "$out"
+        '';
       })
     ];
   };
