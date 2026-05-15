@@ -22,9 +22,10 @@ PLYEND
 Window.SetBackgroundTopColor(0.101, 0.105, 0.149);
 Window.SetBackgroundBottomColor(0.101, 0.105, 0.149);
 
-logo = Sprite(Image("logo.png"));
-logo.SetX(Window.GetWidth() / 2 - logo.GetImage().GetWidth() / 2);
-logo.SetY(Window.GetHeight() / 2 - logo.GetImage().GetHeight() / 2 - 30);
+logo_img = Image("logo.png");
+logo = Sprite(logo_img);
+logo.SetX(Window.GetWidth() / 2 - logo_img.GetWidth() / 2);
+logo.SetY(Window.GetHeight() / 2 - logo_img.GetHeight() / 2 - 30);
 
 message = Dialog();
 message.SetEntryMessage("");
