@@ -7,7 +7,6 @@ let
     mode = t.mode;
     localsend_color = t.localsend_color;
     obs_style = t.obs_style;
-    idea_theme = t.idea_theme;
     wallpaper = toString t.wallpaper;
     colors = t.colors;
   };
