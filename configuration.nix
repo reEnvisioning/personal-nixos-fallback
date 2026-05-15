@@ -84,7 +84,49 @@ in {
 
     boot.initrd.luks.devices."luks-26fcc57f-6de2-4ea0-9c1e-9411b537d0ae".device = "/dev/disk/by-uuid/26fcc57f-6de2-4ea0-9c1e-9411b537d0ae";
 
-    boot.plymouth.enable = true;
+    boot.plymouth = {
+        enable = true;
+        theme = "minimal";
+        themePackages = [
+            (pkgs.stdenv.mkDerivation {
+                pname = "plymouth-theme-minimal";
+                version = "1.0";
+                dontUnpack = true;
+                installPhase = ''
+                    mkdir -p $out/share/plymouth/themes/minimal
+                    cat > $out/share/plymouth/themes/minimal/minimal.plymouth << 'PLYEND'
+[Plymouth Theme]
+Name=minimal
+Description=Minimal black background
+ModuleName=two-step
+
+[two-step]
+Font=DejaVu Sans 12
+BackgroundStartColor=0x000000
+BackgroundEndColor=0x000000
+DialogHorizontalAlignment=.5
+DialogVerticalAlignment=.5
+Transition=none
+TransitionDuration=0.0
+MessageBelowAnimation=true
+DialogClearsFirmwareBackground=true
+
+[boot-up]
+UseFirmwareBackground=false
+UseEndAnimation=false
+
+[shutdown]
+UseFirmwareBackground=false
+UseEndAnimation=false
+
+[reboot]
+UseFirmwareBackground=false
+UseEndAnimation=false
+PLYEND
+                '';
+            })
+        ];
+    };
 
     boot.consoleLogLevel = 0;
     boot.initrd.verbose = false;
