@@ -6,6 +6,7 @@ let
       mode = "dark";
       localsend_color = "oled";
       obs_style = "Acri";
+      idea_theme = "High Contrast";
       wallpaper = ./wallpaper/void.png;
       yazi = ./yazi-themes/void.toml;
       colors = {
@@ -31,6 +32,7 @@ let
       mode = "light";
       localsend_color = "system";
       obs_style = "Light";
+      idea_theme = "Light";
       wallpaper = ./wallpaper/radiance.png;
       yazi = ./yazi-themes/radiance.toml;
       colors = {
