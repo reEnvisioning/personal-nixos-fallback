@@ -54,6 +54,8 @@ in {
     jetbrains.idea-oss
     libreoffice-qt
     obs-studio
+    davinci-resolve-studio
+    ocl-icd
     (writeShellScriptBin "switch-theme" (builtins.readFile ./switch-theme))
   ];
 
