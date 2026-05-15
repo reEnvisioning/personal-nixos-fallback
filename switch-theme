@@ -126,9 +126,14 @@ if [ -f "$obs_ini" ]; then
 fi
 
 # IntelliJ IDEA — set color scheme
-idea_xml="$HOME/.config/JetBrains/IdeaIC2025.3/options/colors.scheme.xml"
+idea_dir="$HOME/.config/JetBrains/IdeaIC2025.3/options"
+idea_xml="$idea_dir/colors.scheme.xml"
 if [ -f "$idea_xml" ]; then
     sed -i 's|<global_color_scheme name="[^"]*"|<global_color_scheme name="'"$IDEA_THEME"'"|' "$idea_xml"
+fi
+other_xml="$idea_dir/other.xml"
+if [ -f "$other_xml" ]; then
+    sed -i 's|previousColorScheme: "[^"]*"|previousColorScheme: "_@user_'"$IDEA_THEME"'"|' "$other_xml"
 fi
 
 # 7. Hyprland border colors
