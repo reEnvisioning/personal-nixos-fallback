@@ -97,17 +97,55 @@ in {
                     cat > $out/share/plymouth/themes/minimal/minimal.plymouth << PLYEND
 [Plymouth Theme]
 Name = minimal
-Description = Minimal black background with password prompt
-ModuleName = script
+ModuleName = two-step
+
+[two-step]
+BackgroundStartColor=0x000000
+BackgroundEndColor=0x000000
+DialogHorizontalAlignment=.5
+DialogVerticalAlignment=.5
+Transition=none
+TransitionDuration=0.0
+MessageBelowAnimation=true
+DialogClearsFirmwareBackground=true
+UseFirmwareBackground=true
+
+[boot-up]
+UseFirmwareBackground=true
+UseEndAnimation=false
+
+[shutdown]
+UseFirmwareBackground=true
+UseEndAnimation=false
+
+[reboot]
+UseFirmwareBackground=true
+UseEndAnimation=false
+
+[updates]
+UseFirmwareBackground=false
+SuppressMessages=true
+UseProgressBar=true
+ProgressBarShowPercentComplete=true
+Title=Updating...
+SubTitle=Do not turn off your computer.
+
+[system-upgrade]
+UseFirmwareBackground=false
+SuppressMessages=true
+UseProgressBar=true
+ProgressBarShowPercentComplete=true
+Title=Upgrading...
+SubTitle=Do not turn off your computer.
+
+[firmware-upgrade]
+UseFirmwareBackground=false
+SuppressMessages=true
+UseProgressBar=true
+ProgressBarShowPercentComplete=true
+Title=Upgrading firmware...
+SubTitle=Do not turn off your computer.
 PLYEND
-                     cat > $out/share/plymouth/themes/minimal/minimal.script << SCRIPTEND
-Window.SetBackgroundTopColor (0.0, 0.0, 0.0);
-Window.SetBackgroundBottomColor (0.0, 0.0, 0.0);
-message = Dialog ();
-message.SetEntryMessage ("  ");
-message.SetKeyboardType ("password");
-Window.AddPasswordDialog (message, 0.3, 0.47, 0.4, 0.06);
-SCRIPTEND
                 '';
             })
         ];
