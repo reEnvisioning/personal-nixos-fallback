@@ -81,6 +81,8 @@ in {
                     "SUPER, XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
                     "SUPER, XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
                     "SUPER, XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+                    # lock
+                    "SUPER SHIFT, O, exec, hyprlock"
                     # exit
                     "SUPER SHIFT, P, exit" # exit hyprland
                 ]
@@ -124,6 +126,47 @@ in {
                     fit_mode = "cover";
                 }
             ];
+        };
+    };
+
+    services.hypridle = {
+        enable = true;
+        settings = {
+            listeners = [
+                # uncomment for auto-lock after 5 minutes of inactivity:
+                # {
+                #     timeout = 300;
+                #     on-timeout = "hyprlock";
+                # }
+            ];
+        };
+    };
+
+    services.hyprlock = {
+        enable = true;
+        settings = {
+            general = {
+                disable_loading_bar = true;
+                hide_cursor = true;
+            };
+            background = {
+                monitor = "";
+                path = "${theme.wallpaper}";
+                blur_passes = 2;
+                contrast = 0.8;
+                brightness = 0.5;
+                vibrancy = 0.2;
+            };
+            input-field = {
+                monitor = "";
+                size = 200, 50;
+                position = 0, -80;
+                dots_center = true;
+                fade_on_empty = true;
+                outline_thickness = 2;
+                dots_size = 0.3;
+                dots_spacing = 0.5;
+            };
         };
     };
 }
