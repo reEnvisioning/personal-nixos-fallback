@@ -1,6 +1,7 @@
 { config, pkgs, inputs, lib, ... }:
 let
   theme = import ../theme/theme.nix;
+  xdgConfigRel = lib.removePrefix "${config.home.homeDirectory}/" config.xdg.configHome;
 
   mkThemeJson = name: t: builtins.toJSON {
     name = name;
@@ -67,8 +68,8 @@ in {
     "quickshell/shell.qml".force = true;
   };
 
-  home.file.".mozilla/firefox/profiles.ini".force = true;
-  home.file.".mozilla/firefox/default/user.js".force = true;
+  home.file."${xdgConfigRel}/mozilla/firefox/profiles.ini".force = true;
+  home.file."${xdgConfigRel}/mozilla/firefox/default/user.js".force = true;
 
   home.activation.applyDefaultTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     switch-theme "${theme.default}" 2>/dev/null || true
