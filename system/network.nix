@@ -39,8 +39,8 @@
     # DNS over TLS with systemd-resolved
     services.resolved = {
         enable = true;
-        fallbackDns = [ "9.9.9.9" "149.112.112.112" ];
-        domains = [ "~." ];  # Use these DNS for all domains
+        settings.Resolve.FallbackDNS = [ "9.9.9.9" "149.112.112.112" ];
+        settings.Resolve.Domains = [ "~." ];  # Use these DNS for all domains
     };
 
     environment.systemPackages = with pkgs; [
