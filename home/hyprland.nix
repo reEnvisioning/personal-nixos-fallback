@@ -1,0 +1,176 @@
+{ pkgs, ... }:
+let theme = import ../theme/theme.nix;
+in {
+    wayland.windowManager.hyprland = {
+        enable = true;
+        xwayland.enable = true;
+        systemd.enable = true;
+
+        settings = {
+            general = {
+                layout = "dwindle";
+                allow_tearing = false;
+                border_size = 1;
+                gaps_in = 2;
+                gaps_out = 2;
+                "col.active_border" = "0xff${theme.hex theme.colors.borderFocused}";
+                "col.inactive_border" = "0xff${theme.hex theme.colors.borderInactive}";
+            };
+
+            misc = {
+                disable_splash_rendering = true;
+            };
+
+            decoration = {
+                active_opacity = 0.9;
+                inactive_opacity = 0.85;
+            };
+
+            monitor = [
+                ",1920x1080@144,auto,1"
+            ];
+            dwindle.preserve_split = "yes";
+
+            input = {
+                kb_layout = "us";
+                kb_variant = "";
+                kb_model = "";
+                kb_options = "";
+                kb_rules = "";
+
+                numlock_by_default = true;
+                repeat_delay = 250;
+                repeat_rate = 25;
+
+                follow_mouse = 1;
+                mouse_refocus = 0;
+
+                touchpad.natural_scroll = false;
+                sensitivity = 0;
+                accel_profile = "flat";
+            };
+
+            bind = [
+                    # essential keybinds
+                    "SUPER, W, killactive"
+                    "SUPER, V, togglefloating"
+                    "SUPER, F, fullscreen"
+                    "SUPER, S, togglesplit"
+                    "SUPER, P, pin"
+                    # move focus with vim-like keybinds
+                    "SUPER, h, movefocus, l"
+                    "SUPER, j, movefocus, d"
+                    "SUPER, k, movefocus, u"
+                    "SUPER, l, movefocus, r"
+                    # move clients with vim-like keybinds
+                    "SUPER SHIFT, h, movewindow, l"
+                    "SUPER SHIFT, j, movewindow, d"
+                    "SUPER SHIFT, k, movewindow, u"
+                    "SUPER SHIFT, l, movewindow, r"
+                    # programs
+                    "SUPER, Q, exec, kitty" # terminal
+                    "SUPER, E, exec, kitty -e yazi" # file manager
+                    "SUPER, B, exec, firefox" # browser
+                    "SUPER SHIFT, Q, exec, kitty -e nvim" # neovim
+                    # screenshots
+                    ", Print, exec, sh -c 'hyprshot --mode region --freeze --output-folder /home/visionary/Pictures'"
+                    "SUPER, Print, exec, sh -c 'hyprshot --mode region --freeze --clipboard-only'"
+                    # audio controls
+                    "SUPER, XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+"
+                    "SUPER, XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+                    "SUPER, XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+                    "SUPER, XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+                    # lock
+                    "SUPER SHIFT, O, exec, hyprlock"
+                    # exit
+                    "SUPER SHIFT, P, exit" # exit hyprland
+                ]
+                ++ (builtins.concatLists (builtins.genList (
+                        x: let
+                            ws = let c = (x + 1) / 10; in builtins.toString (x + 1 - (c * 10));
+                        in [
+                            "SUPER, ${ws}, workspace, ${toString (x + 1)}"
+                            "SUPER Shift, ${ws}, movetoworkspace, ${toString (x + 1)}"
+                        ]
+                    )
+                    10));
+
+            bindm = [
+                # Move/resize windows with mainMod + LMB/RMB and dragging
+                "SUPER, mouse:272, movewindow"
+                "SUPER, mouse:273, resizewindow"
+            ];
+
+            "exec-once" = [
+                "hyprpaper"
+                "hypridle"
+                "bash -c '~/.nix-profile/bin/switch-theme $(cat ~/.config/headspace/current 2>/dev/null || echo void) 2>/dev/null || true'"
+            ];
+
+            extraConfig = ''
+                env = XCURSOR_THEME,Vanilla-DMZ
+                env = XCURSOR_SIZE,24
+            '';
+        };
+    };
+
+    services.hyprpaper = {
+        enable = true;
+        settings = {
+            splash = false;
+            preload = [ "${theme.wallpaper}" ];
+            wallpaper = [
+                {
+                    monitor = "";
+                    path = "${theme.wallpaper}";
+                    fit_mode = "cover";
+                }
+            ];
+        };
+    };
+
+    home.packages = with pkgs; [
+        hypridle
+        hyprlock
+    ];
+
+    xdg.configFile."hypr/hypridle.conf".text = ''
+        general {
+            # lock_cmd = hyprlock
+            # before_sleep_cmd = hyprlock
+        }
+
+        # uncomment for auto-lock after 5 minutes of inactivity:
+        # listener {
+        #     timeout = 300
+        #     on-timeout = hyprlock
+        # }
+    '';
+
+    xdg.configFile."hypr/hyprlock.conf".text = ''
+        general {
+            disable_loading_bar = true
+            hide_cursor = true
+        }
+
+        background {
+            monitor =
+            path = ${theme.wallpaper}
+            blur_passes = 2
+            contrast = 0.8
+            brightness = 0.5
+            vibrancy = 0.2
+        }
+
+        input-field {
+            monitor =
+            size = 200, 50
+            position = 0, -80
+            dots_center = true
+            fade_on_empty = true
+            outline_thickness = 2
+            dots_size = 0.3
+            dots_spacing = 0.5
+        }
+    '';
+}
