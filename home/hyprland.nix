@@ -106,11 +106,6 @@ in {
                 "hypridle"
                 "bash -c '~/.nix-profile/bin/switch-theme $(cat ~/.config/headspace/current 2>/dev/null || echo void) 2>/dev/null || true'"
             ];
-
-            extraConfig = ''
-                env = XCURSOR_THEME,Vanilla-DMZ
-                env = XCURSOR_SIZE,24
-            '';
         };
     };
 

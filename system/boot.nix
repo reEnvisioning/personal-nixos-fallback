@@ -5,5 +5,4 @@
   };
 
   boot.kernelPackages = pkgs.linuxPackages;
-  boot.kernelModules = [ "btusb" ];
 }
