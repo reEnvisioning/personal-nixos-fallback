@@ -1,59 +1,19 @@
-{pkgs, ...}:
-let theme = import ../theme/theme.nix;
-in {
+{pkgs, ...}: {
     imports = [
         ./hardware-configuration.nix
         ./network.nix
         ./desktop.nix
         ./plymouth.nix
+        ./boot.nix
+        ./greeter.nix
+        ./bluetooth.nix
+        ./audio.nix
+        ./compositor.nix
+        ./users.nix
+        ./virtualisation.nix
     ];
 
-    programs.hyprland = {
-        package = pkgs.hyprland;
-        enable = true;
-        xwayland.enable = true;
-    };
-
-    xdg.portal = {
-        enable = true;
-        extraPortals = [
-            pkgs.xdg-desktop-portal-gtk
-            pkgs.xdg-desktop-portal-hyprland
-        ];
-    };
-
     system.stateVersion = "25.11";
-
-    # Enable unfree software (required for NVIDIA proprietary drivers)
-    nixpkgs.config.allowUnfree = true;
-
-    networking.hostName = "headspace";
-
-    services.greetd = {
-        enable = true;
-        settings = {
-            default_session = {
-                command = "${pkgs.tuigreet}/bin/tuigreet --cmd start-hyprland";
-                user = "greeter";
-            };
-        };
-    };
-
-    hardware.bluetooth = {
-        enable = true;
-        powerOnBoot = true;
-    };
-
-    services.blueman.enable = true;
-
-    users.users.visionary = {
-        isNormalUser = true;
-        extraGroups = [
-            "wheel"
-            "networkmanager"
-            "vboxusers"
-        ];
-    };
 
     nix.settings = {
         experimental-features = [
@@ -65,48 +25,7 @@ in {
 
     };
 
-    # Audio
-    security.rtkit.enable = true;
-
-    services.pipewire = {
-        enable = true;
-        alsa.enable = true;
-        alsa.support32Bit = true;
-        pulse.enable = true;
-    };
-
-    boot.loader = {
-        systemd-boot.enable = true;
-        efi.canTouchEfiVariables = true;
-    };
-
-    boot.kernelPackages = pkgs.linuxPackages;
-    boot.kernelModules = [ "btusb" ];
-
-    boot.initrd.luks.devices."luks-26fcc57f-6de2-4ea0-9c1e-9411b537d0ae".device = "/dev/disk/by-uuid/26fcc57f-6de2-4ea0-9c1e-9411b537d0ae";
-
-    virtualisation.virtualbox.host.enable = true;
-
-    time.timeZone = "Europe/Berlin";
-
-    # console keyboard layout
-    console.keyMap = "us";
-
-    # Select internationalisation properties.
-    i18n.defaultLocale = "en_US.UTF-8";
-
-    i18n.extraLocaleSettings = {
-        LC_ADDRESS = "de_DE.UTF-8";
-        LC_IDENTIFICATION = "de_DE.UTF-8";
-        LC_MEASUREMENT = "de_DE.UTF-8";
-        LC_MONETARY = "de_DE.UTF-8";
-        LC_NAME = "de_DE.UTF-8";
-        LC_NUMERIC = "de_DE.UTF-8";
-        LC_PAPER = "de_DE.UTF-8";
-        LC_TELEPHONE = "de_DE.UTF-8";
-        LC_TIME = "de_DE.UTF-8";
-    };
-
+    nixpkgs.config.allowUnfree = true;
     environment.systemPackages = with pkgs; [
         vim
         git

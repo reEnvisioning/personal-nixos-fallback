@@ -5,6 +5,7 @@
     ...
 }: {
     networking = {
+        hostName = "headspace";
         networkmanager.enable = true;
         firewall.enable = true;
         firewall.allowedTCPPorts = [ 53317 ];
@@ -36,24 +37,18 @@
         };
     };
 
-    # DNS over TLS with systemd-resolved
     services.resolved = {
         enable = true;
-        settings.Resolve.FallbackDNS = [ "9.9.9.9" "149.112.112.112" ];
-        settings.Resolve.Domains = [ "~." ];  # Use these DNS for all domains
+        settings.Resolve = {
+            DNS = [ "9.9.9.9" "149.112.112.112" ];
+            DNSOverTLS = true;
+            Domains = [ "~." ];
+        };
     };
 
     environment.systemPackages = with pkgs; [
         wireguard-tools
     ];
-
-    # Configure systemd-resolved to use DNS over TLS (DoT) for Quad9
-    environment.etc."systemd/resolved.conf.d/quad9-dns.conf".text = ''
-        [Resolve]
-        DNS=9.9.9.9 149.112.112.112
-        DNSOverTLS=yes
-        Domains=~.
-    '';
 
     # Tell NetworkManager to use systemd-resolved
     environment.etc."NetworkManager/conf.d/dns.conf".text = ''

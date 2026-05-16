@@ -21,6 +21,7 @@
                     home-manager.users.visionary = {
                         imports = [
                             ./home/home.nix
+                            ./home/appearance.nix
                             ./home/hyprland.nix
                             ./home/yazi.nix
                             ./home/quickshell.nix
@@ -30,6 +31,15 @@
                     };
                 }
             ];
+        };
+
+        formatter.x86_64-linux = inputs.nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;
+
+        devShells.x86_64-linux = {
+            default = import ./devshells/default.nix { inherit inputs; };
+            python  = import ./devshells/python.nix { inherit inputs; };
+            rust    = import ./devshells/rust.nix { inherit inputs; };
+            web     = import ./devshells/web.nix { inherit inputs; };
         };
     };
 }
