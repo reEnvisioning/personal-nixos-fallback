@@ -10,9 +10,18 @@
         firewall.enable = true;
         firewall.allowedTCPPorts = [ 53317 ];
         firewall.allowedUDPPorts = [ 53317 ];
+        firewall.extraCommands = ''
+          iptables -A OUTPUT -p udp --dport 53 -j REJECT
+          ip6tables -A OUTPUT -p udp --dport 53 -j REJECT
+        '';
 
         # Quad9 DNS configuration
         nameservers = [ "9.9.9.9" "149.112.112.112" ];
+    };
+
+    networking.networkmanager.settings.main = {
+        connection-check-interval = 0;
+        wifi.scan-rand-mac-address = true;
     };
 
     services.openssh = {
@@ -22,6 +31,8 @@
             PermitRootLogin = "no";
         };
     };
+
+    services.fail2ban.enable = true;
 
     services.resolved = {
         enable = true;

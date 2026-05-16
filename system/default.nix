@@ -12,6 +12,7 @@
         ./users.nix
         ./virtualisation.nix
         ./polkit.nix
+        ./security.nix
     ];
 
     system.stateVersion = "25.11";
@@ -22,6 +23,7 @@
             "flakes"
         ];
 
+        allowed-users = ["visionary"];
         trusted-users = ["visionary"];
 
     };
