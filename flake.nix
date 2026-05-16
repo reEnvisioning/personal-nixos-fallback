@@ -25,6 +25,7 @@
                             ./yazi.nix
                             ./quickshell.nix
                             ./firefox.nix
+                            ./neovim.nix
                         ];
                     };
                 }

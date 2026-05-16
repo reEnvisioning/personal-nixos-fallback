@@ -40,7 +40,6 @@ in {
   nixpkgs.config.allowUnfree = true;
 
   home.packages = with pkgs; [
-    neovim
     mpv
     adw-gtk3
     prismlauncher
