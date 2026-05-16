@@ -15,17 +15,17 @@
             system = "x86_64-linux";
             specialArgs = {inherit inputs;};
             modules = [
-                ./configuration.nix
+                ./system/default.nix
                 inputs.home-manager.nixosModules.home-manager
                 {
                     home-manager.users.visionary = {
                         imports = [
-                            ./home.nix
-                            ./hyprland.nix
-                            ./yazi.nix
-                            ./quickshell.nix
-                            ./firefox.nix
-                            ./neovim.nix
+                            ./home/home.nix
+                            ./home/hyprland.nix
+                            ./home/yazi.nix
+                            ./home/quickshell.nix
+                            ./home/firefox.nix
+                            ./home/neovim.nix
                         ];
                     };
                 }
