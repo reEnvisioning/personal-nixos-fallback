@@ -87,6 +87,7 @@ local function apply_theme(data)
     color_overrides = { all = color_overrides },
     integrations = {
       cmp = true,
+      lualine = true,
       gitsigns = true,
       nvimtree = true,
       bufferline = true,
@@ -108,7 +109,8 @@ local function apply_theme(data)
 
   local ok_lualine, lualine = pcall(require, "lualine")
   if ok_lualine then
-    lualine.setup { options = { theme = 'catppuccin' } }
+    local ok_theme, lualine_theme = pcall(require, "catppuccin.groups.integrations.lualine")
+    lualine.setup { options = { theme = ok_theme and lualine_theme or 'auto' } }
   end
 
   vim.cmd("redraw!")
