@@ -33,6 +33,21 @@ local headspace_color_map = {
   blue = "blue",
   magenta = "pink",
   cyan = "teal",
+  mauve = "mauve",
+  lavender = "lavender",
+  pink = "pink",
+  rosewater = "rosewater",
+  flamingo = "flamingo",
+  maroon = "maroon",
+  peach = "peach",
+  sky = "sky",
+  sapphire = "sapphire",
+  surface2 = "surface2",
+  overlay1 = "overlay1",
+  overlay2 = "overlay2",
+  crust = "crust",
+  subtext0 = "subtext0",
+  subtext1 = "subtext1",
 }
 
 local function read_headspace_colors()
@@ -46,7 +61,7 @@ local function read_headspace_colors()
 end
 
 local function build_color_overrides(data)
-  if not data or not data.colors then return nil end
+  if not data then return nil end
   local overrides = {}
   for headspace_key, catppuccin_key in pairs(headspace_color_map) do
     local hex = data[headspace_key]
