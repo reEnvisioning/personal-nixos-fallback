@@ -4,6 +4,7 @@
   programs.neovim = {
     enable = true;
     withPython3 = true;
+    withRuby = true;
     defaultEditor = true;
     viAlias = true;
     vimAlias = true;
@@ -20,7 +21,6 @@
     plugins = with pkgs.vimPlugins; [
       catppuccin-nvim
       nvim-web-devicons
-      nvim-treesitter.withAllGrammars
       lualine-nvim
       bufferline-nvim
       indent-blankline-nvim

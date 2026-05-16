@@ -89,7 +89,6 @@ local function apply_theme(data)
       cmp = true,
       gitsigns = true,
       nvimtree = true,
-      treesitter = true,
       bufferline = true,
       telescope = { enabled = true },
       indent_blankline = { enabled = true },
@@ -114,11 +113,6 @@ local function apply_theme(data)
 
   vim.cmd("redraw!")
 end
-
-require('nvim-treesitter.configs').setup {
-  highlight = { enable = true },
-  indent = { enable = true },
-}
 
 local theme_data = read_headspace_colors()
 apply_theme(theme_data)
