@@ -21,7 +21,7 @@
 
     networking.networkmanager.settings.main = {
         connection-check-interval = 0;
-        wifi.scan-rand-mac-address = true;
+        "wifi.scan-rand-mac-address" = true;
     };
 
     services.openssh = {

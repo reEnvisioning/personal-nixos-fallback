@@ -41,5 +41,9 @@
             rust    = import ./devshells/rust.nix { inherit inputs; };
             web     = import ./devshells/web.nix { inherit inputs; };
         };
+
+        checks.x86_64-linux = {
+            build = inputs.self.nixosConfigurations.headspace.config.system.build.toplevel;
+        };
     };
 }
