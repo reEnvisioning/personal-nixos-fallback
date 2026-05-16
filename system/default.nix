@@ -26,6 +26,7 @@
     };
 
     nixpkgs.config.allowUnfree = true;
+    services.udisks2.enable = true;
     environment.systemPackages = with pkgs; [
         vim
         git
