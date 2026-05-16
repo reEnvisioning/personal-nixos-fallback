@@ -11,6 +11,7 @@
         ./compositor.nix
         ./users.nix
         ./virtualisation.nix
+        ./polkit.nix
     ];
 
     system.stateVersion = "25.11";
@@ -27,7 +28,6 @@
 
     nixpkgs.config.allowUnfree = true;
     services.udisks2.enable = true;
-    security.polkit.enable = true;
     environment.systemPackages = with pkgs; [
         vim
         git
