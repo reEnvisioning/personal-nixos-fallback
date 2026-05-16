@@ -11,8 +11,8 @@
     "net.ipv4.icmp_echo_ignore_broadcasts" = 1;
     "net.ipv4.tcp_syncookies" = 1;
     "kernel.kexec_load_disabled" = 1;
-    "net.ipv6.conf.all.use_tempaddr" = 2;
-    "net.ipv6.conf.default.use_tempaddr" = 2;
+    "net.ipv6.conf.all.use_tempaddr" = lib.mkForce "2";
+    "net.ipv6.conf.default.use_tempaddr" = lib.mkForce "2";
   };
 
   services.geoclue2.enable = lib.mkDefault false;
