@@ -169,9 +169,10 @@ else
 fi
 
 # 12. Firefox — update theme prefs in-place, preserving Nix-managed prefs
-grep '^Path=' "$HOME/.mozilla/firefox/profiles.ini" 2>/dev/null | cut -d= -f2 | while read -r profile; do
-    userjs="$HOME/.mozilla/firefox/$profile/user.js"
-    if [ -z "$profile" ] || [ ! -d "$HOME/.mozilla/firefox/$profile" ]; then
+FF_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/mozilla/firefox"
+grep '^Path=' "$FF_DIR/profiles.ini" 2>/dev/null | cut -d= -f2 | while read -r profile; do
+    userjs="$FF_DIR/$profile/user.js"
+    if [ -z "$profile" ] || [ ! -d "$FF_DIR/$profile" ]; then
         continue
     fi
     nix_content=$(cat "$userjs" 2>/dev/null || true)

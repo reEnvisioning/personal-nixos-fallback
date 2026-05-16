@@ -8,6 +8,10 @@ let
       obs_style = "Acri";
       wallpaper = ./resources/wallpaper/void.png;
       yazi = ./resources/yazi/void.toml;
+      active_opacity = 0.9;
+      inactive_opacity = 0.85;
+      cursor_theme = "Vanilla-DMZ";
+      cursor_size = 24;
       colors = {
         background = "#000000";
         backgroundAccent = "#494949";
@@ -48,6 +52,10 @@ let
       obs_style = "Light";
       wallpaper = ./resources/wallpaper/radiance.png;
       yazi = ./resources/yazi/radiance.toml;
+      active_opacity = 0.9;
+      inactive_opacity = 0.85;
+      cursor_theme = "Vanilla-DMZ";
+      cursor_size = 24;
       colors = {
         background = "#FFFFFF";
         backgroundAccent = "#E7E7E7";
@@ -89,6 +97,10 @@ in {
   mode = allThemes.void.mode;
   wallpaper = allThemes.void.wallpaper;
   localsend_color = allThemes.void.localsend_color;
+  active_opacity = allThemes.void.active_opacity;
+  inactive_opacity = allThemes.void.inactive_opacity;
+  cursor_theme = allThemes.void.cursor_theme;
+  cursor_size = allThemes.void.cursor_size;
   font = {
     family = "Monospace";
     size = 10;
