@@ -52,7 +52,7 @@ in {
 
             bind = [
                     # essential keybinds
-                    "SUPER, W, killactive"
+                    "SUPER, Q, killactive"
                     "SUPER, V, togglefloating"
                     "SUPER, F, fullscreen"
                     "SUPER, S, togglesplit"
@@ -63,23 +63,30 @@ in {
                     "SUPER, k, movefocus, u"
                     "SUPER, l, movefocus, r"
                     # move clients with vim-like keybinds
-                    "SUPER SHIFT, h, movewindow, l"
                     "SUPER SHIFT, j, movewindow, d"
                     "SUPER SHIFT, k, movewindow, u"
                     "SUPER SHIFT, l, movewindow, r"
                     # programs
-                    "SUPER, Q, exec, kitty" # terminal
+                    "SUPER, W, exec, kitty" # terminal
                     "SUPER, E, exec, kitty -e yazi" # file manager
                     "SUPER, B, exec, firefox" # browser
-                    "SUPER SHIFT, Q, exec, kitty -e nvim" # neovim
+                    "SUPER SHIFT, W, exec, kitty -e nvim" # neovim
                     # screenshots
                     ", Print, exec, sh -c 'hyprshot --mode region --freeze --output-folder /home/visionary/Pictures'"
                     "SUPER, Print, exec, sh -c 'hyprshot --mode region --freeze --clipboard-only'"
+                    # toggles
+                    "SUPER, I, exec, bash -c 'if pgrep -x hypridle >/dev/null; then pkill -x hypridle; else hypridle &; fi'"
+                    # app launchers
+                    "SUPER SHIFT, H, exec, localsend_app"
+                    "SUPER SHIFT, G, exec, gimp"
+                    "SUPER SHIFT, B, exec, blueman-manager"
+                    "SUPER SHIFT, M, exec, pavucontrol"
+                    "SUPER SHIFT, N, exec, nm-connection-editor"
                     # audio controls
-                    "SUPER, XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+"
-                    "SUPER, XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-                    "SUPER, XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
-                    "SUPER, XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+                    ", F22, exec, wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+"
+                    ", F23, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
+                    ", F24, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+                    ", F21, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
                     # lock
                     "SUPER SHIFT, O, exec, hyprlock"
                     # exit
@@ -131,15 +138,14 @@ in {
 
     xdg.configFile."hypr/hypridle.conf".text = ''
         general {
-            # lock_cmd = hyprlock
-            # before_sleep_cmd = hyprlock
+            lock_cmd = hyprlock
+            before_sleep_cmd = hyprlock
         }
 
-        # uncomment for auto-lock after 5 minutes of inactivity:
-        # listener {
-        #     timeout = 300
-        #     on-timeout = hyprlock
-        # }
+        listener {
+            timeout = 300
+            on-timeout = hyprlock
+        }
     '';
 
     xdg.configFile."hypr/hyprlock.conf".text = ''
