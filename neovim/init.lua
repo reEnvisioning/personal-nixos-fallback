@@ -49,7 +49,7 @@ local function build_color_overrides(data)
   if not data or not data.colors then return nil end
   local overrides = {}
   for headspace_key, catppuccin_key in pairs(headspace_color_map) do
-    local hex = data.colors[headspace_key]
+    local hex = data[headspace_key]
     if hex and type(hex) == "string" and hex:match("^#") then
       overrides[catppuccin_key] = hex
     end
