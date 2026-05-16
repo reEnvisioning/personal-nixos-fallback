@@ -27,6 +27,7 @@
       gitsigns-nvim
       which-key-nvim
       nvim-tree-lua
+      plenary-nvim
       telescope-nvim
       telescope-ui-select-nvim
       nvim-autopairs
