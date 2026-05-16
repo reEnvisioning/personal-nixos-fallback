@@ -115,13 +115,13 @@ local function apply_theme(data)
   vim.cmd("redraw!")
 end
 
-local theme_data = read_headspace_colors()
-apply_theme(theme_data)
-
 require('nvim-treesitter.configs').setup {
   highlight = { enable = true },
   indent = { enable = true },
 }
+
+local theme_data = read_headspace_colors()
+apply_theme(theme_data)
 
 require("ibl").setup()
 require('gitsigns').setup()
