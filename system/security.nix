@@ -17,4 +17,3 @@
 
   services.geoclue2.enable = lib.mkDefault false;
 }
-}
