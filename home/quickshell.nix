@@ -8,5 +8,6 @@ in {
     "quickshell/shell.qml".text = shellQml;
     "quickshell/lib".source = ../theme/resources/quickshell/lib;
     "quickshell/bar".source = ../theme/resources/quickshell/bar;
+    "quickshell/user".source = ../theme/resources/user;
   };
 }
