@@ -43,20 +43,6 @@ in {
     switch-theme "${theme.default}" 2>/dev/null || true
   '';
 
-  home.activation.setLocalSendTheme = lib.hm.dag.entryAfter [ "applyDefaultTheme" ] ''
-    file="$HOME/.local/share/org.localsend.localsend_app/shared_preferences.json"
-    mkdir -p "$(dirname "$file")"
-    if [ -f "$file" ]; then
-      ${pkgs.jq}/bin/jq -c \
-        --arg theme '${theme.mode}' \
-        --arg color '${theme.localsend_color}' \
-        '."flutter.ls_theme" = $theme | ."flutter.ls_color" = $color' "$file" > /tmp/localsend_prefs.json \
-        && mv /tmp/localsend_prefs.json "$file"
-    else
-      echo '{"flutter.ls_theme":"${theme.mode}","flutter.ls_color":"${theme.localsend_color}"}' > "$file"
-    fi
-  '';
-
   programs.kitty = {
     enable = true;
     settings = {
