@@ -92,7 +92,7 @@ let
 
     sakura = {
       mode = "light";
-      localsend_color = "Yaru";
+      localsend_color = "yaru";
       obs_style = "Light";
       wallpaper = ./resources/wallpaper/sakura.png;
       yazi = ./resources/yazi/sakura.toml;
