@@ -2,10 +2,11 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
-import "../lib"
 
 Item {
     id: root
+
+    required property var colors
 
     property real diskPct: 0
     property string diskUsed: ""
@@ -91,45 +92,45 @@ Item {
 
         RowLayout {
             Layout.fillWidth: true; spacing: 4
-            Text { text: "\u{1F4BE} Disk"; color: Colors.subtext0; font.pointSize: 10 }
+            Text { text: "\u{1F4BE} Disk"; color: root.colors.subtext0; font.pointSize: 10 }
             Item { Layout.fillWidth: true }
-            Text { text: root.diskUsed + " / " + root.diskTotal; color: Colors.text; font.pointSize: 10 }
+            Text { text: root.diskUsed + " / " + root.diskTotal; color: root.colors.text; font.pointSize: 10 }
         }
         Rectangle {
-            Layout.fillWidth: true; height: 8; radius: 4; color: Colors.surface2
+            Layout.fillWidth: true; height: 8; radius: 4; color: root.colors.surface2
             Rectangle {
                 width: parent.width * root.diskPct / 100; height: parent.height; radius: 4
-                color: Colors.blue
+                color: root.colors.blue
                 Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
             }
         }
 
         RowLayout {
             Layout.fillWidth: true; spacing: 4
-            Text { text: "\u{1F9E0} RAM"; color: Colors.subtext0; font.pointSize: 10 }
+            Text { text: "\u{1F9E0} RAM"; color: root.colors.subtext0; font.pointSize: 10 }
             Item { Layout.fillWidth: true }
-            Text { text: root.memUsed + " / " + root.memTotal; color: Colors.text; font.pointSize: 10 }
+            Text { text: root.memUsed + " / " + root.memTotal; color: root.colors.text; font.pointSize: 10 }
         }
         Rectangle {
-            Layout.fillWidth: true; height: 8; radius: 4; color: Colors.surface2
+            Layout.fillWidth: true; height: 8; radius: 4; color: root.colors.surface2
             Rectangle {
                 width: parent.width * root.memPct / 100; height: parent.height; radius: 4
-                color: Colors.green
+                color: root.colors.green
                 Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
             }
         }
 
         RowLayout {
             Layout.fillWidth: true; spacing: 4
-            Text { text: "\u2699 CPU"; color: Colors.subtext0; font.pointSize: 10 }
+            Text { text: "\u2699 CPU"; color: root.colors.subtext0; font.pointSize: 10 }
             Item { Layout.fillWidth: true }
-            Text { text: root.cpuPct + "%"; color: Colors.text; font.pointSize: 10 }
+            Text { text: root.cpuPct + "%"; color: root.colors.text; font.pointSize: 10 }
         }
         Rectangle {
-            Layout.fillWidth: true; height: 8; radius: 4; color: Colors.surface2
+            Layout.fillWidth: true; height: 8; radius: 4; color: root.colors.surface2
             Rectangle {
                 width: parent.width * root.cpuPct / 100; height: parent.height; radius: 4
-                color: Colors.magenta
+                color: root.colors.magenta
                 Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
             }
         }

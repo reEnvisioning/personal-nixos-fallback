@@ -1,10 +1,11 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import "../lib"
 
 Item {
     id: root
+
+    required property var colors
 
     ColumnLayout {
         anchors.centerIn: parent
@@ -27,7 +28,7 @@ Item {
                 Rectangle {
                     anchors.fill: parent
                     radius: 6
-                    color: ma.containsMouse ? Colors.highlighted : "transparent"
+                    color: ma.containsMouse ? root.colors.highlighted : "transparent"
 
                     Behavior on color {
                         ColorAnimation { duration: 100 }
@@ -39,7 +40,7 @@ Item {
                     anchors.leftMargin: 12
                     anchors.verticalCenter: parent.verticalCenter
                     text: modelData.label
-                    color: Colors.text
+                    color: root.colors.text
                     font.pointSize: 11
                 }
 

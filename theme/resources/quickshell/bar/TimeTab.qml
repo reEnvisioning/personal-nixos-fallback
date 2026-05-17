@@ -2,10 +2,11 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
-import "../lib"
 
 Item {
     id: root
+
+    required property var colors
 
     property string timeString: ""
     property string dateString: ""
@@ -80,7 +81,7 @@ Item {
         Text {
             Layout.alignment: Qt.AlignHCenter
             text: root.timeString
-            color: Colors.text
+            color: root.colors.text
             font.pointSize: 28
             font.family: "Monospace"
             font.weight: Font.Light
@@ -89,14 +90,14 @@ Item {
         Text {
             Layout.alignment: Qt.AlignHCenter
             text: root.dateString
-            color: Colors.subtext0
+            color: root.colors.subtext0
             font.pointSize: 10
         }
 
         Rectangle {
             Layout.alignment: Qt.AlignHCenter
             width: 160; height: 1
-            color: Colors.surface2
+            color: root.colors.surface2
             Layout.topMargin: 2; Layout.bottomMargin: 2
         }
 
@@ -109,12 +110,12 @@ Item {
                 Text {
                     Layout.alignment: Qt.AlignHCenter
                     text: "\u{1F50B} " + root.batteryPct + "%"
-                    color: Colors.text; font.pointSize: 11
+                    color: root.colors.text; font.pointSize: 11
                 }
                 Text {
                     Layout.alignment: Qt.AlignHCenter
                     text: root.batteryStatus
-                    color: Colors.subtext0; font.pointSize: 9
+                    color: root.colors.subtext0; font.pointSize: 9
                     visible: root.batteryStatus.length > 0
                 }
             }
@@ -124,12 +125,12 @@ Item {
                 Text {
                     Layout.alignment: Qt.AlignHCenter
                     text: "\u26A1 " + root.powerProfile
-                    color: Colors.text; font.pointSize: 11
+                    color: root.colors.text; font.pointSize: 11
                 }
                 Text {
                     Layout.alignment: Qt.AlignHCenter
                     text: "Power profile"
-                    color: Colors.subtext0; font.pointSize: 9
+                    color: root.colors.subtext0; font.pointSize: 9
                 }
             }
         }

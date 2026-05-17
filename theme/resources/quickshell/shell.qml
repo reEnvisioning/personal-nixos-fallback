@@ -8,5 +8,11 @@ import "bar"
 ShellRoot {
     settings.watchFiles: true
 
-    Bar {}
+    Colors {
+        id: colors
+    }
+
+    Bar {
+        colors: colors
+    }
 }

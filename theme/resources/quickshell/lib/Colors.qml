@@ -1,9 +1,8 @@
-pragma Singleton
 import QtQuick
 import Quickshell
 import Quickshell.Io
 
-QtObject {
+Item {
     id: root
 
     property color background: "#000000"

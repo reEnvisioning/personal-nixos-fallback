@@ -1,10 +1,11 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
-import "../lib"
 
 PanelWindow {
     id: root
+
+    required property var colors
 
     property real collapsedHeight: 2
     property real expandedHeight: 180
@@ -26,28 +27,25 @@ PanelWindow {
         NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
     }
 
-    // ---- background with rounded bottom corners ----
     Rectangle {
         id: bg
         y: -12
         width: parent.width
         height: parent.height + 12
         radius: 12
-        color: Colors.background
+        color: root.colors.background
 
         Behavior on color {
             ColorAnimation { duration: 150 }
         }
     }
 
-    // ---- content (visible only when expanded) ----
     Item {
         id: contentRoot
         anchors.fill: parent
         visible: root.isExpanded
         clip: true
 
-        // -- tab header row --
         Item {
             id: tabRow
             anchors.top: parent.top
@@ -71,7 +69,7 @@ PanelWindow {
                         Text {
                             anchors.centerIn: parent
                             text: modelData
-                            color: root.activeTab === index ? Colors.text : Colors.subtext0
+                            color: root.activeTab === index ? root.colors.text : root.colors.subtext0
                             font.pointSize: 10
                             font.weight: root.activeTab === index ? Font.DemiBold : Font.Normal
 
@@ -86,7 +84,7 @@ PanelWindow {
                             width: parent.width * 0.4
                             height: root.activeTab === index ? 2 : 0
                             radius: 1
-                            color: Colors.accent
+                            color: root.colors.accent
 
                             Behavior on height {
                                 NumberAnimation { duration: 100 }
@@ -97,16 +95,14 @@ PanelWindow {
             }
         }
 
-        // -- content separator --
         Rectangle {
             anchors.top: tabRow.bottom
             anchors.left: parent.left
             anchors.right: parent.right
             height: 1
-            color: Colors.surface2
+            color: root.colors.surface2
         }
 
-        // -- tab content area --
         Item {
             anchors.top: tabRow.bottom
             anchors.left: parent.left
@@ -118,23 +114,25 @@ PanelWindow {
                 anchors.fill: parent
                 anchors.margins: 8
                 visible: root.activeTab === 0
+                colors: root.colors
             }
 
             TimeTab {
                 anchors.fill: parent
                 anchors.margins: 8
                 visible: root.activeTab === 1
+                colors: root.colors
             }
 
             SysTab {
                 anchors.fill: parent
                 anchors.margins: 8
                 visible: root.activeTab === 2
+                colors: root.colors
             }
         }
     }
 
-    // ---- hover interaction ----
     MouseArea {
         id: hoverArea
         anchors.fill: parent
