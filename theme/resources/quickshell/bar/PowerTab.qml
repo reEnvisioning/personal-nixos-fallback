@@ -13,10 +13,10 @@ Item {
 
         Repeater {
             model: [
-                { label: "\u23FB Shutdown",   cmd: ["systemctl", "poweroff"] },
-                { label: "\u21BB Reboot",     cmd: ["systemctl", "reboot"] },
-                { label: "\u23FC Logout",     cmd: ["loginctl", "terminate-user", "visionary"] },
-                { label: "\u{1F512} Lock",    cmd: ["loginctl", "lock-session"] },
+                { label: "Shutdown",   cmd: ["systemctl", "poweroff"] },
+                { label: "Reboot",     cmd: ["systemctl", "reboot"] },
+                { label: "Logout",     cmd: ["loginctl", "terminate-user", "visionary"] },
+                { label: "Lock",       cmd: ["loginctl", "lock-session"] },
             ]
 
             delegate: Item {

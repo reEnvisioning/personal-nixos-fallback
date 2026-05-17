@@ -9,7 +9,7 @@ PanelWindow {
 
     property real collapsedHeight: 2
     property real expandedHeight: 180
-    property real panelWidth: 260
+    property real panelWidth: 520
     property bool isExpanded: false
     property int activeTab: 0
 
@@ -61,7 +61,7 @@ PanelWindow {
                 anchors.fill: parent
 
                 Repeater {
-                    model: ["\u23FB Power", "\u{1F550} Time", "\u2699 System"]
+                    model: ["Power", "Time", "System"]
 
                     delegate: Item {
                         required property int index

@@ -92,7 +92,7 @@ Item {
 
         RowLayout {
             Layout.fillWidth: true; spacing: 4
-            Text { text: "\u{1F4BE} Disk"; color: root.colors.subtext0; font.pointSize: 10 }
+            Text { text: "Disk"; color: root.colors.subtext0; font.pointSize: 10 }
             Item { Layout.fillWidth: true }
             Text { text: root.diskUsed + " / " + root.diskTotal; color: root.colors.text; font.pointSize: 10 }
         }
@@ -107,7 +107,7 @@ Item {
 
         RowLayout {
             Layout.fillWidth: true; spacing: 4
-            Text { text: "\u{1F9E0} RAM"; color: root.colors.subtext0; font.pointSize: 10 }
+            Text { text: "RAM"; color: root.colors.subtext0; font.pointSize: 10 }
             Item { Layout.fillWidth: true }
             Text { text: root.memUsed + " / " + root.memTotal; color: root.colors.text; font.pointSize: 10 }
         }
@@ -122,7 +122,7 @@ Item {
 
         RowLayout {
             Layout.fillWidth: true; spacing: 4
-            Text { text: "\u2699 CPU"; color: root.colors.subtext0; font.pointSize: 10 }
+            Text { text: "CPU"; color: root.colors.subtext0; font.pointSize: 10 }
             Item { Layout.fillWidth: true }
             Text { text: root.cpuPct + "%"; color: root.colors.text; font.pointSize: 10 }
         }
