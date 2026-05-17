@@ -14,6 +14,24 @@ PanelWindow {
     property real panelWidth: 520
     property bool isExpanded: false
     property int activeTab: 0
+    property real animHeight: root.collapsedHeight
+
+    onIsExpandedChanged: {
+        expandAnim.stop()
+        expandAnim.from = root.animHeight
+        expandAnim.to = root.isExpanded ? root.expandedHeight : root.collapsedHeight
+        expandAnim.duration = root.isExpanded ? 350 : 150
+        expandAnim.easing.type = root.isExpanded ? Easing.Bezier : Easing.OutQuad
+        if (root.isExpanded)
+            expandAnim.easing.bezierCurve = [0.34, 1.56, 0.25, 1.0]
+        expandAnim.start()
+    }
+
+    NumberAnimation {
+        id: expandAnim
+        target: root
+        property: "animHeight"
+    }
 
     anchors.top: true
     anchors.left: true
@@ -27,11 +45,7 @@ PanelWindow {
     focusable: false
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
 
-    implicitHeight: root.isExpanded ? root.expandedHeight : root.collapsedHeight
-
-    Behavior on implicitHeight {
-        Anim { animType: "spatial" }
-    }
+    implicitHeight: root.animHeight
 
     Rectangle {
         id: bg
