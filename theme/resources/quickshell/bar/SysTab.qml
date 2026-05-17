@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import "../lib"
 
 Item {
     id: root
@@ -101,7 +102,7 @@ Item {
             Rectangle {
                 width: parent.width * root.diskPct / 100; height: parent.height; radius: 4
                 color: root.colors.blue
-                Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                Behavior on width { Anim { animType: "progress" } }
             }
         }
 
@@ -116,7 +117,7 @@ Item {
             Rectangle {
                 width: parent.width * root.memPct / 100; height: parent.height; radius: 4
                 color: root.colors.green
-                Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                Behavior on width { Anim { animType: "progress" } }
             }
         }
 
@@ -131,7 +132,7 @@ Item {
             Rectangle {
                 width: parent.width * root.cpuPct / 100; height: parent.height; radius: 4
                 color: root.colors.magenta
-                Behavior on width { NumberAnimation { duration: 300; easing.type: Easing.OutCubic } }
+                Behavior on width { Anim { animType: "progress" } }
             }
         }
     }

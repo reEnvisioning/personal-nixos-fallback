@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
+import "../lib"
 
 PanelWindow {
     id: root
@@ -28,7 +29,7 @@ PanelWindow {
     implicitHeight: root.isExpanded ? root.expandedHeight : root.collapsedHeight
 
     Behavior on implicitHeight {
-        NumberAnimation { duration: 200; easing.type: Easing.InOutQuad }
+        Anim { animType: "spatial" }
     }
 
     Rectangle {
@@ -40,7 +41,7 @@ PanelWindow {
         color: root.colors.background
 
         Behavior on color {
-            ColorAnimation { duration: 150 }
+            CAnim {}
         }
     }
 
@@ -78,63 +79,65 @@ PanelWindow {
                             font.weight: root.activeTab === index ? Font.DemiBold : Font.Normal
 
                             Behavior on color {
-                                ColorAnimation { duration: 100 }
+                                CAnim {}
                             }
                         }
 
-                        Rectangle {
-                            anchors.horizontalCenter: parent.horizontalCenter
-                            anchors.bottom: parent.bottom
-                            width: parent.width * 0.4
-                            height: root.activeTab === index ? 2 : 0
-                            radius: 1
-                            color: root.colors.accent
-
-                            Behavior on height {
-                                NumberAnimation { duration: 100 }
-                            }
-                        }
+                        Item { width: 1; height: 1 }
                     }
                 }
             }
         }
 
-        Rectangle {
-            anchors.top: tabRow.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            height: 1
-            color: root.colors.surface2
-        }
+            Rectangle {
+                id: tabIndicator
+                anchors.bottom: parent.bottom
+                width: parent.width / 3 * 0.4
+                height: 2
+                radius: 1
+                color: root.colors.accent
 
-        Item {
-            anchors.top: tabRow.bottom
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.bottom: parent.bottom
-            anchors.topMargin: 1
+                readonly property real tabW: parent.width / 3
+                x: root.activeTab * tabW + (tabW - width) / 2
 
-            PowerTab {
-                anchors.fill: parent
-                anchors.margins: 8
-                visible: root.activeTab === 0
-                colors: root.colors
+                Behavior on x {
+                    NumberAnimation {
+                        duration: 250
+                        easing.type: Easing.Bezier
+                        easing.bezierCurve: [0.38, 1.21, 0.22, 1.0]
+                    }
+                }
+                Behavior on color { CAnim {} }
             }
 
-            TimeTab {
-                anchors.fill: parent
-                anchors.margins: 8
-                visible: root.activeTab === 1
-                colors: root.colors
+            Rectangle {
+                anchors.top: tabRow.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                height: 1
+                color: root.colors.surface2
             }
 
-            SysTab {
-                anchors.fill: parent
-                anchors.margins: 8
-                visible: root.activeTab === 2
-                colors: root.colors
+            Item {
+                anchors.top: tabRow.bottom
+                anchors.left: parent.left
+                anchors.right: parent.right
+                anchors.bottom: parent.bottom
+                anchors.topMargin: 1
+
+                Loader {
+                    id: tabLoader
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    sourceComponent: {
+                        if (root.activeTab === 0) return powerTabComp
+                        if (root.activeTab === 1) return timeTabComp
+                        return sysTabComp
+                    }
+                    opacity: status === Loader.Ready ? 1 : 0
+                    Behavior on opacity { Anim { animType: "effect" } }
+                }
             }
-        }
     }
 
     MouseArea {
@@ -168,3 +171,7 @@ PanelWindow {
         }
     }
 }
+
+Component { id: powerTabComp; PowerTab { colors: root.colors } }
+Component { id: timeTabComp;  TimeTab  { colors: root.colors } }
+Component { id: sysTabComp;   SysTab   { colors: root.colors } }

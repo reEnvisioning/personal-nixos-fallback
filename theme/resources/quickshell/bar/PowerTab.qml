@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import "../lib"
 
 Item {
     id: root
@@ -67,6 +68,7 @@ Item {
             color: "transparent"
             border.width: 2
             border.color: root.colors.accent
+            Behavior on border.color { CAnim {} }
 
             Image {
                 anchors.centerIn: parent

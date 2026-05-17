@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import "../lib"
 
 Item {
     id: root
@@ -85,6 +86,7 @@ Item {
             font.pointSize: 28
             font.family: "Monospace"
             font.weight: Font.Light
+            Behavior on color { CAnim {} }
         }
 
         Text {
@@ -92,6 +94,7 @@ Item {
             text: root.dateString
             color: root.colors.subtext0
             font.pointSize: 10
+            Behavior on color { CAnim {} }
         }
 
         Rectangle {
@@ -111,12 +114,14 @@ Item {
                     Layout.alignment: Qt.AlignHCenter
                     text: "\u{1F50B} " + root.batteryPct + "%"
                     color: root.colors.text; font.pointSize: 11
+                    Behavior on color { CAnim {} }
                 }
                 Text {
                     Layout.alignment: Qt.AlignHCenter
                     text: root.batteryStatus
                     color: root.colors.subtext0; font.pointSize: 9
                     visible: root.batteryStatus.length > 0
+                    Behavior on color { CAnim {} }
                 }
             }
 
@@ -126,11 +131,13 @@ Item {
                     Layout.alignment: Qt.AlignHCenter
                     text: "\u26A1 " + root.powerProfile
                     color: root.colors.text; font.pointSize: 11
+                    Behavior on color { CAnim {} }
                 }
                 Text {
                     Layout.alignment: Qt.AlignHCenter
                     text: "Power profile"
                     color: root.colors.subtext0; font.pointSize: 9
+                    Behavior on color { CAnim {} }
                 }
             }
         }
