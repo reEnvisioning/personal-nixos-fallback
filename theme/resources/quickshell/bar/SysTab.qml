@@ -42,7 +42,7 @@ Item {
 
     Process {
         id: diskReader
-        command: ["df", "--output=pcent,used,size", "/"]
+        command: ["df", "-h", "--output=pcent,used,size", "/"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
