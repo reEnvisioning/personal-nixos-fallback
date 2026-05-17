@@ -133,6 +133,50 @@ let
         subtext1 = "#616161";
       };
     };
+
+    bloody = {
+      mode = "dark";
+      localsend_color = "oled";
+      obs_style = "Acri";
+      wallpaper = ./resources/wallpaper/bloody.png;
+      yazi = ./resources/yazi/bloody.toml;
+      active_opacity = 0.9;
+      inactive_opacity = 0.85;
+      cursor_theme = "Vanilla-DMZ";
+      cursor_size = 24;
+      colors = {
+        background = "#0A0000";
+        backgroundAccent = "#1A0A08";
+        highlighted = "#2A1410";
+        text = "#C0B0B0";
+        borderInactive = "#120404";
+        borderFocused = "#3A1818";
+        accent = "#8B0000";
+        accent_light = "#A52A2A";
+        accent_dark = "#4A0000";
+        red = "#CC3333";
+        green = "#446644";
+        yellow = "#886644";
+        blue = "#445577";
+        magenta = "#883366";
+        cyan = "#446666";
+        mauve = "#774477";
+        lavender = "#554488";
+        pink = "#884466";
+        rosewater = "#553333";
+        flamingo = "#442222";
+        maroon = "#662222";
+        peach = "#774433";
+        sky = "#445566";
+        sapphire = "#335577";
+        surface2 = "#1A0A08";
+        overlay1 = "#150606";
+        overlay2 = "#100404";
+        crust = "#050000";
+        subtext0 = "#887777";
+        subtext1 = "#776666";
+      };
+    };
   };
 in {
   default = "void";
