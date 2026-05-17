@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
@@ -66,31 +65,41 @@ Item {
             height: 72
 
             Image {
-                id: profileImg
-                anchors.centerIn: parent
-                width: 72
-                height: 72
-                sourceSize { width: 72; height: 72 }
+                id: pfpLoader
                 source: "../user/visionary.png"
-                fillMode: Image.PreserveAspectCrop
                 asynchronous: true
-
-                layer.enabled: true
-                layer.effect: MultiEffect {
-                    maskEnabled: true
-                    maskSource: Rectangle {
-                        width: 72; height: 72; radius: 36
-                        color: "white"
-                    }
-                }
+                onStatusChanged: if (status === Image.Ready) canvas.requestPaint()
             }
 
-            Rectangle {
+            Canvas {
+                id: canvas
                 anchors.centerIn: parent
-                width: 72; height: 72; radius: 36
-                color: "transparent"
-                border.width: 2
-                border.color: root.colors.accent
+                width: 72; height: 72
+
+                onPaint: {
+                    const ctx = getContext("2d")
+                    ctx.clearRect(0, 0, width, height)
+
+                    ctx.save()
+                    ctx.beginPath()
+                    ctx.arc(width / 2, height / 2, width / 2, 0, Math.PI * 2)
+                    ctx.closePath()
+                    ctx.clip()
+
+                    ctx.drawImage("../user/visionary.png", 0, 0, width, height)
+                    ctx.restore()
+
+                    ctx.beginPath()
+                    ctx.arc(width / 2, height / 2, width / 2 - 1, 0, Math.PI * 2)
+                    ctx.strokeStyle = root.colors.accent
+                    ctx.lineWidth = 2
+                    ctx.stroke()
+                }
+
+                Connections {
+                    target: root.colors
+                    onAccentChanged: canvas.requestPaint()
+                }
             }
         }
 
