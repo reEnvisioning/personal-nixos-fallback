@@ -9,13 +9,17 @@ PanelWindow {
 
     property real collapsedHeight: 2
     property real expandedHeight: 180
+    property real panelWidth: 260
     property bool isExpanded: false
     property int activeTab: 0
 
     anchors.top: true
     anchors.left: true
     anchors.right: true
-    margins { left: 6; right: 6 }
+    margins {
+        left: (root.screen.width - root.panelWidth) / 2
+        right: (root.screen.width - root.panelWidth) / 2
+    }
 
     color: "transparent"
     focusable: false

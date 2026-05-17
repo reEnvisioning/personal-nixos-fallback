@@ -37,13 +37,6 @@ Item {
     property color subtext1: "#B6B6B6"
     property string mode: "dark"
 
-    FileView {
-        path: "/tmp/headspace-colors.json"
-        watchChanges: true
-        onFileChanged: reload()
-        onLoaded: root.parse(text)
-    }
-
     function parse(data: string): void {
         try {
             const j = JSON.parse(data.trim())
@@ -55,6 +48,31 @@ Item {
             }
         } catch (e) {
             console.log("Colors: parse error: " + e)
+        }
+    }
+
+    Process {
+        id: colorReader
+        command: ["cat", "/tmp/headspace-colors.json"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: root.parse(text)
+        }
+    }
+
+    Process {
+        id: colorWatcher
+        command: ["bash", "-c",
+            "while [ ! -f /tmp/headspace-colors.json ]; do sleep 1; done;" +
+            "inotifywait -qq -e close_write,modify /tmp/headspace-colors.json"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                colorReader.running = false
+                colorReader.running = true
+                colorWatcher.running = false
+                colorWatcher.running = true
+            }
         }
     }
 }
