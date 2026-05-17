@@ -40,7 +40,13 @@ in {
   home.file."${config.xdg.configHome}/mozilla/firefox/default/user.js".force = true;
 
   home.activation.applyDefaultTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    switch-theme "${theme.default}" 2>/dev/null || true
+    current="$HOME/.config/headspace/current"
+    if [ -f "$current" ]; then
+      t=$(cat "$current")
+    else
+      t="${theme.default}"
+    fi
+    switch-theme "$t" 2>/dev/null || true
   '';
 
   programs.kitty = {

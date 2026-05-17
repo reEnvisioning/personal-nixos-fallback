@@ -1,15 +1,20 @@
 { pkgs, ... }: {
   environment.systemPackages = with pkgs; [
     (writeShellScriptBin "upgrade-system" ''
-      #!/usr/bin/env bash
       set -x
 
-      nixos-rebuild switch --upgrade
-      nix-env --delete-generations 30d
-      nix-store --gc
+      FLAKE=''${1:-/headspace#headspace}
+      FLAKE_DIR=''${FLAKE%%#*}
 
-      files=$(find /nix/var/nix/profiles/system-* -maxdepth 1 -type l | sort | tail -n 2)
-      nvd diff ''${files}
+      nix flake update "''${FLAKE_DIR}"
+      nixos-rebuild switch --flake "''${FLAKE}"
+
+      nix-collect-garbage --delete-older-than 30d
+
+      files=$(ls -1t /nix/var/nix/profiles/system-*-link 2>/dev/null | head -2)
+      if [ "$(echo "$files" | wc -l)" -ge 2 ]; then
+        nvd diff $(echo "$files" | tail -2)
+      fi
     '')
   ];
 }
