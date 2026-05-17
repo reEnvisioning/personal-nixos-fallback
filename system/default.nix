@@ -13,6 +13,7 @@
         ./virtualisation.nix
         ./polkit.nix
         ./security.nix
+        ./shell.nix
     ];
 
     system.stateVersion = "25.11";
@@ -28,7 +29,16 @@
 
     };
 
-    nixpkgs.config.allowUnfree = true;
+    nixpkgs.config = {
+        allowUnfree = true;
+        auto-optimise-store = true;
+    };
+
+    nix.gc = {
+        automatic = true;
+        dates = "weekly";
+        options = "--delete-older-than 7d";
+    };
     services.udisks2.enable = true;
     services.power-profiles-daemon.enable = true;
     environment.systemPackages = with pkgs; [
@@ -41,6 +51,7 @@
         qt5.qtwayland
         qt6.qtwayland
         libnotify
+        brightnessctl
         temurin-bin-21
     ];
 

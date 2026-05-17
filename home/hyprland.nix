@@ -85,6 +85,10 @@ in {
                     "SUPER SHIFT, B, exec, blueman-manager"
                     "SUPER SHIFT, M, exec, pavucontrol"
 
+                    # brightness
+                    ", F13, exec, brightnessctl set 5%-"
+                    ", F14, exec, brightnessctl set +5%"
+                    # audio controls
                     ", F24, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
                     ", F23, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
                     ", F22, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
