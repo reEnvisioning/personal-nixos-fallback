@@ -13,6 +13,15 @@ Item {
 
     property bool dismissing: false
 
+    // Local copies — safe access, avoids crash reading raw Notification props
+    property string notifSummary: ""
+    property string notifBody: ""
+    property string notifAppName: ""
+    property int notifUrgency: 1
+    property var notifActions: []
+    property bool notifHasImage: false
+    property int notifExpireTimeout: -1
+
     width: parent ? parent.width : 380
     height: card.height
 
@@ -34,19 +43,37 @@ Item {
         }
     }
 
-    Component.onCompleted: { x = 0; opacity = 1 }
-
-    function startExit() {
-        if (root.dismissing) return
-        root.dismissing = true
-        hideTimer.stop()
-        x = 400
-        opacity = 0
+    Component.onCompleted: {
+        x = 0
+        opacity = 1
+        try {
+            var n = root.notif
+            notifSummary = n.summary || ""
+            notifBody = n.body || ""
+            notifAppName = n.appName || ""
+            notifUrgency = typeof n.urgency === "number" ? n.urgency : 1
+            notifExpireTimeout = typeof n.expireTimeout === "number" ? n.expireTimeout : -1
+            notifHasImage = !!n.image
+            if (n.actions) notifActions = n.actions
+        } catch (e) {
+            console.log("NotifCard: copy error", e)
+        }
     }
 
     Connections {
         target: root.notif
         function onClosed() { root.startExit() }
+    }
+
+    function startExit() {
+        if (root.dismissing) return
+        root.dismissing = true
+        height = 0
+        visible = false
+        x = 400
+        opacity = 0
+        hideTimer.start()
+        try { root.notif.dismiss() } catch (e) {}
     }
 
     Timer {
@@ -65,158 +92,92 @@ Item {
 
         Behavior on color { CAnim {} }
 
+        // Critical urgency subtle tint
         Rectangle {
-            x: 0; y: 0
-            width: 2; height: parent.height
-            radius: 1
-            color: {
-                const u = root.notif.urgency.toString()
-                if (u === "Low")      return root.colors.green
-                if (u === "Critical") return root.colors.red
-                return root.colors.accent
-            }
-            Behavior on color { CAnim {} }
+            anchors.fill: parent
+            radius: 12
+            color: root.colors.red
+            opacity: root.notifUrgency === 2 ? 0.08 : 0
+            Behavior on opacity { NumberAnimation { duration: 200 } }
         }
 
-        RowLayout {
+        ColumnLayout {
             id: innerLayout
-            x: 8; y: 8
-            width: parent.width - 16
-            spacing: 10
+            x: 12; y: 8
+            width: parent.width - 24
+            spacing: 4
+
+            Text {
+                Layout.fillWidth: true
+                text: root.notifSummary
+                color: root.colors.text
+                font.pointSize: 10
+                font.weight: Font.DemiBold
+                elide: Text.ElideRight
+                maximumLineCount: 1
+            }
+
+            Text {
+                Layout.fillWidth: true
+                text: root.notifBody
+                color: root.colors.subtext1
+                font.pointSize: 9
+                wrapMode: Text.WordWrap
+                maximumLineCount: 3
+                elide: Text.ElideRight
+                visible: root.notifBody !== ""
+            }
 
             Rectangle {
-                id: iconFrame
-                width: 36; height: 36; radius: 8
+                Layout.fillWidth: true
+                Layout.maximumHeight: 180
+                radius: 8
                 color: root.colors.surface2
-                visible: root.notif.appIcon !== "" || root.notif.appName !== ""
                 clip: true
+                visible: notifImg.status === Image.Ready
 
                 Image {
-                    id: iconImg
+                    id: notifImg
                     anchors.fill: parent
-                    source: root.notif.appIcon
-                    fillMode: Image.PreserveAspectCrop
+                    source: root.notif.image
+                    fillMode: Image.PreserveAspectFit
                     asynchronous: true
-                    visible: status === Image.Ready
-                }
-
-                Text {
-                    anchors.centerIn: parent
-                    text: root.notif.appName.length > 0 ? root.notif.appName.charAt(0).toUpperCase() : "?"
-                    color: root.colors.text
-                    font.pointSize: 14
-                    font.weight: Font.DemiBold
-                    visible: iconImg.status !== Image.Ready
                 }
             }
 
-            ColumnLayout {
+            Row {
                 Layout.fillWidth: true
-                spacing: 3
+                spacing: 6
+                visible: root.notifActions.length > 0
+                layoutDirection: Qt.RightToLeft
 
-                Item {
-                    Layout.fillWidth: true
-                    height: Math.max(summaryText.height, closeBtn.height)
+                Repeater {
+                    model: root.notifActions
 
-                    Text {
-                        id: summaryText
-                        anchors.left: parent.left
-                        anchors.right: closeBtn.left
-                        anchors.rightMargin: 4
-                        anchors.verticalCenter: parent.verticalCenter
-                        text: root.notif.summary
-                        color: root.colors.text
-                        font.pointSize: 10
-                        font.weight: Font.DemiBold
-                        elide: Text.ElideRight
-                        maximumLineCount: 1
-                    }
+                    delegate: Rectangle {
+                        required property var modelData
 
-                    Rectangle {
-                        id: closeBtn
-                        anchors.right: parent.right
-                        anchors.verticalCenter: parent.verticalCenter
-                        width: 18; height: 18; radius: 9
-                        color: closeBtnArea.containsMouse ? root.colors.highlighted : root.colors.surface2
+                        id: actionBtn
+                        height: 24
+                        radius: 6
+                        color: actionArea.containsMouse ? root.colors.highlighted : root.colors.surface2
+                        implicitWidth: actionLabel.width + 12
 
                         Text {
+                            id: actionLabel
                             anchors.centerIn: parent
-                            text: "\u00D7"
-                            color: root.colors.subtext0
-                            font.pointSize: 12
+                            text: modelData.text
+                            color: root.colors.text
+                            font.pointSize: 9
                         }
 
                         MouseArea {
-                            id: closeBtnArea
+                            id: actionArea
                             anchors.fill: parent
                             hoverEnabled: true
-                            onClicked: root.notif.dismiss()
-                        }
-                    }
-                }
-
-                Text {
-                    Layout.fillWidth: true
-                    text: root.notif.body
-                    color: root.colors.subtext1
-                    font.pointSize: 9
-                    wrapMode: Text.WordWrap
-                    maximumLineCount: 3
-                    elide: Text.ElideRight
-                    visible: root.notif.body !== ""
-                }
-
-                Rectangle {
-                    Layout.fillWidth: true
-                    Layout.maximumHeight: 200
-                    radius: 8
-                    color: root.colors.surface2
-                    clip: true
-                    visible: notifImg.status === Image.Ready
-
-                    Image {
-                        id: notifImg
-                        anchors.fill: parent
-                        source: root.notif.image
-                        fillMode: Image.PreserveAspectFit
-                        asynchronous: true
-                    }
-                }
-
-                Row {
-                    Layout.fillWidth: true
-                    spacing: 6
-                    visible: root.notif.actions.length > 0
-                    layoutDirection: Qt.RightToLeft
-
-                    Repeater {
-                        model: root.notif.actions
-
-                        delegate: Rectangle {
-                            required property var modelData
-
-                            id: actionBtn
-                            height: 24
-                            radius: 6
-                            color: actionArea.containsMouse ? root.colors.highlighted : root.colors.surface2
-                            implicitWidth: actionLabel.width + 12
-
-                            Text {
-                                id: actionLabel
-                                anchors.centerIn: parent
-                                text: modelData.text
-                                color: root.colors.text
-                                font.pointSize: 9
-                            }
-
-                            MouseArea {
-                                id: actionArea
-                                anchors.fill: parent
-                                hoverEnabled: true
-                                onClicked: {
-                                    modelData.invoke()
-                                    root.notif.dismiss()
-                                }
+                            onClicked: {
+                                try { modelData.invoke() } catch (e) {}
+                                root.startExit()
                             }
                         }
                     }
@@ -227,17 +188,15 @@ Item {
         Timer {
             id: dismissTimer
             interval: {
-                if (root.notif.expireTimeout >= 0 && root.notif.expireTimeout !== 0)
-                    return root.notif.expireTimeout
-
-                const u = root.notif.urgency.toString()
-                if (u === "Low")      return 5000
-                if (u === "Critical") return 0
+                if (root.notifExpireTimeout > 0)
+                    return root.notifExpireTimeout
+                if (root.notifUrgency === 0) return 5000
+                if (root.notifUrgency === 2) return 0
                 return 7000
             }
             running: interval > 0 && !root.dismissing
             repeat: false
-            onTriggered: root.notif.dismiss()
+            onTriggered: root.startExit()
         }
 
         MouseArea {

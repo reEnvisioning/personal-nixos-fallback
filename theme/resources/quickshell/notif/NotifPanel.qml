@@ -63,6 +63,8 @@ PanelWindow {
         }
     }
 
+    // --- DnD ---
+
     property bool dndActive: false
 
     Process {
@@ -93,10 +95,42 @@ PanelWindow {
     }
 
     onDndActiveChanged: {
-        if (root.dndActive) {
-            var children = notifColumn.children
-            for (var i = children.length - 1; i >= 0; i--)
-                children[i].startExit()
+        if (root.dndActive) root.dismissAll()
+    }
+
+    // --- Dismiss-all IPC ---
+
+    function dismissAll() {
+        var children = notifColumn.children
+        for (var i = children.length - 1; i >= 0; i--)
+            children[i].startExit()
+    }
+
+    Process {
+        id: dismissWatcher
+        command: ["bash", "-c",
+            "while [ ! -f /tmp/headspace-notif-dismiss ]; do sleep 1; done;" +
+            "inotifywait -qq -e close_write,modify /tmp/headspace-notif-dismiss"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                dismissReader.running = false
+                dismissReader.running = true
+                dismissWatcher.running = false
+                dismissWatcher.running = true
+            }
+        }
+    }
+
+    Process {
+        id: dismissReader
+        command: ["cat", "/tmp/headspace-notif-dismiss"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var v = parseInt(text.trim())
+                if (v === 1) root.dismissAll()
+            }
         }
     }
 }
