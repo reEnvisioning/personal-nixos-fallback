@@ -89,6 +89,50 @@ let
         subtext1 = "#828282";
       };
     };
+
+    sakura = {
+      mode = "light";
+      localsend_color = "Yaru";
+      obs_style = "Light";
+      wallpaper = ./resources/wallpaper/sakura.png;
+      yazi = ./resources/yazi/sakura.toml;
+      active_opacity = 0.9;
+      inactive_opacity = 0.85;
+      cursor_theme = "Vanilla-DMZ";
+      cursor_size = 24;
+      colors = {
+        background = "#FFFFFF";
+        backgroundAccent = "#FFF0F0";
+        highlighted = "#FFD6D6";
+        text = "#2D2D2D";
+        borderInactive = "#FFE0E0";
+        borderFocused = "#FFB3B3";
+        accent = "#E91E63";
+        accent_light = "#FF80AB";
+        accent_dark = "#AD1457";
+        red = "#FF6B6B";
+        green = "#66BB6A";
+        yellow = "#FFD54F";
+        blue = "#64B5F6";
+        magenta = "#FF4081";
+        cyan = "#4DD0E1";
+        mauve = "#CE93D8";
+        lavender = "#E1BEE7";
+        pink = "#F48FB1";
+        rosewater = "#FCE4EC";
+        flamingo = "#FFCDD2";
+        maroon = "#EF5350";
+        peach = "#FFAB91";
+        sky = "#81D4FA";
+        sapphire = "#4FC3F7";
+        surface2 = "#FFF5F5";
+        overlay1 = "#FFEBEE";
+        overlay2 = "#FFE0E0";
+        crust = "#FFFFFF";
+        subtext0 = "#757575";
+        subtext1 = "#616161";
+      };
+    };
   };
 in {
   default = "void";
