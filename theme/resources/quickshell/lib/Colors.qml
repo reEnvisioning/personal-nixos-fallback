@@ -35,13 +35,16 @@ Item {
     property color crust: "#000000"
     property color subtext0: "#AAAAAA"
     property color subtext1: "#B6B6B6"
+    property string themeName: ""
     property string mode: "dark"
 
     function parse(data: string): void {
         try {
             const j = JSON.parse(data.trim())
             for (const key in j) {
-                if (key === "mode")
+                if (key === "name")
+                    root.themeName = j.name
+                else if (key === "mode")
                     root.mode = j.mode
                 else if (root.hasOwnProperty(key))
                     root[key] = j[key]
