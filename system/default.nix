@@ -30,6 +30,7 @@
 
     nixpkgs.config.allowUnfree = true;
     services.udisks2.enable = true;
+    services.power-profiles-daemon.enable = true;
     environment.systemPackages = with pkgs; [
         vim
         git

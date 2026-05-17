@@ -58,46 +58,41 @@ in {
             };
 
             bind = [
-                    # essential keybinds
                     "SUPER, Q, killactive"
-                    "SUPER, V, togglefloating"
+                    "SUPER SHIFT, F, togglefloating"
                     "SUPER, F, fullscreen"
-                    "SUPER, S, togglesplit"
+                    "SUPER, T, togglesplit"
                     "SUPER, P, pin"
-                    # move focus with vim-like keybinds
+
                     "SUPER, h, movefocus, l"
                     "SUPER, j, movefocus, d"
                     "SUPER, k, movefocus, u"
                     "SUPER, l, movefocus, r"
-                    # move clients with vim-like keybinds
+
                     "SUPER SHIFT, j, movewindow, d"
                     "SUPER SHIFT, k, movewindow, u"
                     "SUPER SHIFT, l, movewindow, r"
-                    # programs
-                    "SUPER, W, exec, kitty" # terminal
-                    "SUPER, E, exec, kitty -e yazi" # file manager
-                    "SUPER, B, exec, firefox" # browser
-                    "SUPER SHIFT, W, exec, kitty -e nvim" # neovim
-                    # screenshots
+
                     ", Print, exec, sh -c 'hyprshot --mode region --freeze --output-folder /home/visionary/Pictures'"
                     "SUPER, Print, exec, sh -c 'hyprshot --mode region --freeze --clipboard-only'"
-                    # toggles
-                    "SUPER, I, exec, bash -c 'if pgrep -x hypridle >/dev/null; then pkill -x hypridle; else hypridle &; fi'"
-                    # app launchers
+
+		    "SUPER, W, exec, kitty"
+                    "SUPER, E, exec, kitty -e yazi"
+                    "SUPER, B, exec, firefox"
+                    "SUPER SHIFT, W, exec, kitty -e nvim"
                     "SUPER SHIFT, H, exec, localsend_app"
                     "SUPER SHIFT, G, exec, gimp"
                     "SUPER SHIFT, B, exec, blueman-manager"
                     "SUPER SHIFT, M, exec, pavucontrol"
-                    "SUPER SHIFT, N, exec, nm-connection-editor"
-                    # audio controls
-                    ", F22, exec, wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+"
+
+                    ", F24, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
                     ", F23, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-                    ", F24, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+                    ", F22, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
                     ", F21, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
-                    # lock
+
                     "SUPER SHIFT, O, exec, hyprlock"
-                    # exit
-                    "SUPER SHIFT, P, exit" # exit hyprland
+                    "SUPER SHIFT, P, exit"
+                    "SUPER, I, exec, bash -c 'if pgrep -x hypridle >/dev/null; then pkill -x hypridle; else hypridle &; fi'"
                 ]
                 ++ (builtins.concatLists (builtins.genList (
                         x: let
