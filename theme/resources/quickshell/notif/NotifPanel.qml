@@ -46,10 +46,10 @@ PanelWindow {
 
             if (root.dndActive) return
 
-            var children = notifColumn.children
-            while (children.length >= 5) {
-                children[0].startExit()
-                children = notifColumn.children
+            while (notifColumn.children.length >= 5) {
+                var oldest = notifColumn.children[0]
+                if (oldest.dismissing) oldest.destroy()
+                else oldest.startExit()
             }
 
             var card = notifCardComponent.createObject(notifColumn, {
