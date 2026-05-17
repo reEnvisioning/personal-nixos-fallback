@@ -10,6 +10,13 @@ PanelWindow {
 
     required property var colors
 
+    function activeCount() {
+        var c = 0
+        for (var i = 0; i < notifColumn.children.length; i++)
+            if (!notifColumn.children[i].dismissing) c++
+        return c
+    }
+
     anchors.top: true
     anchors.right: true
     margins { top: 8; right: 8 }
@@ -46,10 +53,13 @@ PanelWindow {
 
             if (root.dndActive) return
 
-            while (notifColumn.children.length >= 5) {
-                var oldest = notifColumn.children[0]
-                if (oldest.dismissing) oldest.destroy()
-                else oldest.startExit()
+            while (root.activeCount() >= 4) {
+                for (var i = 0; i < notifColumn.children.length; i++) {
+                    if (!notifColumn.children[i].dismissing) {
+                        notifColumn.children[i].startExit()
+                        break
+                    }
+                }
             }
 
             var card = notifCardComponent.createObject(notifColumn, {
