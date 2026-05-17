@@ -16,5 +16,18 @@
         nvd diff $(echo "$files" | tail -2)
       fi
     '')
+
+    (writeShellScriptBin "nr" ''
+      set -x
+
+      THEME=''${1:-$(cat "$HOME/.config/headspace/current" 2>/dev/null || echo void)}
+
+      git clone https://github.com/reEnvisioning/personal-nixos-fallback.git
+      sudo rm -rf /headspace/*
+      sudo cp -rf ~/personal-nixos-fallback/* /headspace/
+      rm -rf ~/personal-nixos-fallback
+      sudo nixos-rebuild switch --flake /headspace#headspace
+      switch-theme "$THEME"
+    '')
   ];
 }
