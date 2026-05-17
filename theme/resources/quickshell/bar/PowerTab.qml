@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Effects
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
@@ -60,17 +61,12 @@ Item {
         spacing: 16
         width: parent.width - 16
 
-        Rectangle {
-            id: pfpFrame
-            width: 72
+        Item {
+            width: 76
             height: 72
-            radius: 36
-            clip: true
-            color: "transparent"
-            border.width: 2
-            border.color: root.colors.accent
 
             Image {
+                id: profileImg
                 anchors.centerIn: parent
                 width: 72
                 height: 72
@@ -78,6 +74,21 @@ Item {
                 source: "../user/visionary.png"
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
+
+                layer.enabled: true
+                layer.effect: OpacityMask {
+                    maskSource: Rectangle {
+                        width: 72; height: 72; radius: 36
+                    }
+                }
+            }
+
+            Rectangle {
+                anchors.centerIn: parent
+                width: 72; height: 72; radius: 36
+                color: "transparent"
+                border.width: 2
+                border.color: root.colors.accent
             }
         }
 
@@ -117,7 +128,7 @@ Item {
             RowLayout {
                 spacing: 4
                 Text { text: "Theme"; color: root.colors.subtext0; font.pointSize: 9; font.weight: Font.DemiBold }
-                Text { text: root.colors.themeName; color: root.colors.accent; font.pointSize: 9; font.weight: Font.DemiBold; elide: Text.ElideRight }
+                Text { text: root.colors.themeName; color: root.colors.text; font.pointSize: 9; font.weight: Font.DemiBold; elide: Text.ElideRight }
             }
         }
     }
