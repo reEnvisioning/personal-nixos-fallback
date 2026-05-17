@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Wayland
+import Quickshell.Io
 import "../lib"
 
 PanelWindow {
@@ -125,7 +126,7 @@ PanelWindow {
                 anchors.bottom: parent.bottom
                 anchors.topMargin: 1
 
-                PowerTab {
+                ProfileTab {
                     anchors.fill: parent
                     anchors.margins: 8
                     opacity: root.activeTab === 0 ? 1 : 0
@@ -182,4 +183,34 @@ PanelWindow {
         }
     }
 
+    Process {
+        id: tabTriggerWatcher
+        command: ["bash", "-c",
+            "while [ ! -f /tmp/headspace-tab-trigger ]; do sleep 1; done;" +
+            "inotifywait -qq -e close_write,modify /tmp/headspace-tab-trigger"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                triggerReader.running = false
+                triggerReader.running = true
+                tabTriggerWatcher.running = false
+                tabTriggerWatcher.running = true
+            }
+        }
+    }
+
+    Process {
+        id: triggerReader
+        command: ["cat", "/tmp/headspace-tab-trigger"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                const val = parseInt(text.trim())
+                if (val >= 0 && val <= 2) {
+                    root.isExpanded = true
+                    root.activeTab = val
+                }
+            }
+        }
+    }
 }

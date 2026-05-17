@@ -94,6 +94,11 @@ in {
                     ", F22, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
                     ", F21, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
 
+                    # tab bar shortcuts
+                    "SUPER ALT, 1, exec, sh -c 'echo 0 > /tmp/headspace-tab-trigger'"
+                    "SUPER ALT, 2, exec, sh -c 'echo 1 > /tmp/headspace-tab-trigger'"
+                    "SUPER ALT, 3, exec, sh -c 'echo 2 > /tmp/headspace-tab-trigger'"
+
                     "SUPER SHIFT, O, exec, hyprlock"
                     "SUPER SHIFT, P, exit"
                     "SUPER, I, exec, bash -c 'if pgrep -x hypridle >/dev/null; then pkill -x hypridle; else hypridle &; fi'"
