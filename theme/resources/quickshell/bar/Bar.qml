@@ -170,8 +170,8 @@ PanelWindow {
                 root.isExpanded = false
         }
     }
-}
 
-Component { id: powerTabComp; PowerTab { colors: root.colors } }
-Component { id: timeTabComp;  TimeTab  { colors: root.colors } }
-Component { id: sysTabComp;   SysTab   { colors: root.colors } }
+    Component { id: powerTabComp; PowerTab { colors: root.colors } }
+    Component { id: timeTabComp;  TimeTab  { colors: root.colors } }
+    Component { id: sysTabComp;   SysTab   { colors: root.colors } }
+}
