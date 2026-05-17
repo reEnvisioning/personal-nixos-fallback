@@ -115,7 +115,7 @@ Item {
             }
             RowLayout {
                 spacing: 4
-                Text { text: "Theme"; color: root.colors.subtext0; font.pointSize: 9 }
+                Text { text: "Theme"; color: root.colors.subtext0; font.pointSize: 9; font.weight: Font.DemiBold }
                 Text { text: root.colors.themeName; color: root.colors.text; font.pointSize: 9; elide: Text.ElideRight }
             }
         }
