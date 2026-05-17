@@ -158,6 +158,7 @@ PanelWindow {
         hoverEnabled: true
 
         onEntered: {
+            autoCollapseTimer.stop()
             collapseTimer.stop()
             root.isExpanded = true
             root.activeTab = Math.floor(mouseX / width * 3)
@@ -181,6 +182,12 @@ PanelWindow {
             if (!hoverArea.containsMouse)
                 root.isExpanded = false
         }
+    }
+
+    Timer {
+        id: autoCollapseTimer
+        interval: 3000
+        onTriggered: root.isExpanded = false
     }
 
     Process {
@@ -209,6 +216,7 @@ PanelWindow {
                 if (val >= 0 && val <= 2) {
                     root.isExpanded = true
                     root.activeTab = val
+                    autoCollapseTimer.restart()
                 }
             }
         }
