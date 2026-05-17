@@ -76,9 +76,11 @@ Item {
                 asynchronous: true
 
                 layer.enabled: true
-                layer.effect: OpacityMask {
+                layer.effect: MultiEffect {
+                    maskEnabled: true
                     maskSource: Rectangle {
                         width: 72; height: 72; radius: 36
+                        color: "white"
                     }
                 }
             }
