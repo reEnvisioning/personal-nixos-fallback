@@ -45,7 +45,14 @@ in {
                 follow_mouse = 1;
                 mouse_refocus = 0;
 
-                touchpad.natural_scroll = false;
+                touchpad = {
+                    natural_scroll = false;
+                    tap-to-click = true;
+                    disable_while_typing = true;
+                    clickfinger_behavior = true;
+                    drag_lock = true;
+                    scroll_factor = 1.0;
+                };
                 sensitivity = 0;
                 accel_profile = "flat";
             };
