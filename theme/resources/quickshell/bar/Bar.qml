@@ -58,6 +58,27 @@ PanelWindow {
             anchors.right: parent.right
             height: 26
 
+            Rectangle {
+                id: tabIndicator
+                anchors.bottom: parent.bottom
+                width: parent.width / 3 * 0.4
+                height: 2
+                radius: 1
+                color: root.colors.accent
+
+                readonly property real tabW: parent.width / 3
+                x: root.activeTab * tabW + (tabW - width) / 2
+
+                Behavior on x {
+                    NumberAnimation {
+                        duration: 250
+                        easing.type: Easing.Bezier
+                        easing.bezierCurve: [0.38, 1.21, 0.22, 1.0]
+                    }
+                }
+                Behavior on color { CAnim {} }
+            }
+
             Row {
                 anchors.fill: parent
 
@@ -90,27 +111,6 @@ PanelWindow {
         }
 
             Rectangle {
-                id: tabIndicator
-                anchors.bottom: parent.bottom
-                width: parent.width / 3 * 0.4
-                height: 2
-                radius: 1
-                color: root.colors.accent
-
-                readonly property real tabW: parent.width / 3
-                x: root.activeTab * tabW + (tabW - width) / 2
-
-                Behavior on x {
-                    NumberAnimation {
-                        duration: 250
-                        easing.type: Easing.Bezier
-                        easing.bezierCurve: [0.38, 1.21, 0.22, 1.0]
-                    }
-                }
-                Behavior on color { CAnim {} }
-            }
-
-            Rectangle {
                 anchors.top: tabRow.bottom
                 anchors.left: parent.left
                 anchors.right: parent.right
@@ -125,16 +125,27 @@ PanelWindow {
                 anchors.bottom: parent.bottom
                 anchors.topMargin: 1
 
-                Loader {
-                    id: tabLoader
+                PowerTab {
                     anchors.fill: parent
                     anchors.margins: 8
-                    sourceComponent: {
-                        if (root.activeTab === 0) return powerTabComp
-                        if (root.activeTab === 1) return timeTabComp
-                        return sysTabComp
-                    }
-                    opacity: status === Loader.Ready ? 1 : 0
+                    opacity: root.activeTab === 0 ? 1 : 0
+                    colors: root.colors
+                    Behavior on opacity { Anim { animType: "effect" } }
+                }
+
+                TimeTab {
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    opacity: root.activeTab === 1 ? 1 : 0
+                    colors: root.colors
+                    Behavior on opacity { Anim { animType: "effect" } }
+                }
+
+                SysTab {
+                    anchors.fill: parent
+                    anchors.margins: 8
+                    opacity: root.activeTab === 2 ? 1 : 0
+                    colors: root.colors
                     Behavior on opacity { Anim { animType: "effect" } }
                 }
             }
@@ -171,7 +182,4 @@ PanelWindow {
         }
     }
 
-    Component { id: powerTabComp; PowerTab { colors: root.colors } }
-    Component { id: timeTabComp;  TimeTab  { colors: root.colors } }
-    Component { id: sysTabComp;   SysTab   { colors: root.colors } }
 }
