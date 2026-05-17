@@ -117,7 +117,7 @@ in {
             "exec-once" = [
                 "hyprpaper"
                 "hypridle"
-                "bash -c '~/.nix-profile/bin/switch-theme $(cat ~/.config/headspace/current 2>/dev/null || echo void) 2>/dev/null || true'"
+                "bash -c 'for i in 1 2 3; do hyprctl hyprpaper reload >/dev/null 2>&1 && break; sleep 0.3; done; switch-theme $(cat ~/.config/headspace/current 2>/dev/null || echo void)'"
             ];
         };
     };
@@ -126,14 +126,6 @@ in {
         enable = true;
         settings = {
             splash = false;
-            preload = [ "${theme.wallpaper}" ];
-            wallpaper = [
-                {
-                    monitor = "";
-                    path = "${theme.wallpaper}";
-                    fit_mode = "cover";
-                }
-            ];
         };
     };
 
