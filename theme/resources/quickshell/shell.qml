@@ -4,6 +4,7 @@
 import Quickshell
 import "lib"
 import "bar"
+import "notif"
 
 ShellRoot {
     settings.watchFiles: true
@@ -13,6 +14,10 @@ ShellRoot {
     }
 
     Bar {
+        colors: colors
+    }
+
+    NotifPanel {
         colors: colors
     }
 }

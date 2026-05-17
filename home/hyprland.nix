@@ -99,6 +99,9 @@ in {
                     "SUPER ALT, 2, exec, sh -c 'echo 1 > /tmp/headspace-tab-trigger'"
                     "SUPER ALT, 3, exec, sh -c 'echo 2 > /tmp/headspace-tab-trigger'"
 
+                    # notification: toggle DnD
+                    "SUPER ALT, N, exec, sh -c 'f=/tmp/headspace-dnd; v=$(cat $f 2>/dev/null || echo 0); echo $((1 - v)) > $f'"
+
                     "SUPER SHIFT, O, exec, hyprlock"
                     "SUPER SHIFT, P, exit"
                     "SUPER, I, exec, bash -c 'if pgrep -x hypridle >/dev/null; then pkill -x hypridle; else hypridle &; fi'"
@@ -122,7 +125,7 @@ in {
             "exec-once" = [
                 "hyprpaper"
                 "hypridle"
-                "bash -c 'for i in 1 2 3; do hyprctl hyprpaper reload >/dev/null 2>&1 && break; sleep 0.3; done; switch-theme $(cat ~/.config/headspace/current 2>/dev/null || echo void)'"
+                "bash -c 'echo 0 > /tmp/headspace-dnd; for i in 1 2 3; do hyprctl hyprpaper reload >/dev/null 2>&1 && break; sleep 0.3; done; switch-theme $(cat ~/.config/headspace/current 2>/dev/null || echo void)'"
             ];
         };
     };
