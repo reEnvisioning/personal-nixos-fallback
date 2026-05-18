@@ -8,6 +8,7 @@ Item {
 
     required property var notif
     required property var colors
+    required property real uiScale
 
     signal dismissed()
 
@@ -25,7 +26,7 @@ Item {
     width: parent ? parent.width : 380
     height: card.height
 
-    x: parent ? parent.width : 400
+    x: parent ? parent.width : Math.round(380 * root.uiScale)
     opacity: 0
 
     Behavior on x {
@@ -70,7 +71,7 @@ Item {
         root.dismissing = true
         height = 0
         visible = false
-        x = 400
+        x = Math.round(380 * root.uiScale)
         opacity = 0
         hideTimer.start()
         try { root.notif.dismiss() } catch (e) {}
@@ -85,8 +86,8 @@ Item {
     Rectangle {
         id: card
         width: parent.width
-        height: innerLayout.height + 16
-        radius: 12
+        height: innerLayout.height + Math.round(16 * root.uiScale)
+        radius: Math.round(12 * root.uiScale)
         color: root.colors.background
         clip: true
 
@@ -95,7 +96,7 @@ Item {
         // Critical urgency subtle tint
         Rectangle {
             anchors.fill: parent
-            radius: 12
+            radius: Math.round(12 * root.uiScale)
             color: root.colors.red
             opacity: root.notifUrgency === 2 ? 0.08 : 0
             Behavior on opacity { NumberAnimation { duration: 200 } }
@@ -103,9 +104,9 @@ Item {
 
         ColumnLayout {
             id: innerLayout
-            x: 12; y: 8
-            width: parent.width - 24
-            spacing: 4
+            x: Math.round(12 * root.uiScale); y: Math.round(8 * root.uiScale)
+            width: parent.width - Math.round(24 * root.uiScale)
+            spacing: Math.round(4 * root.uiScale)
 
             Text {
                 Layout.fillWidth: true
@@ -130,8 +131,8 @@ Item {
 
             Rectangle {
                 Layout.fillWidth: true
-                Layout.maximumHeight: 180
-                radius: 8
+                Layout.maximumHeight: Math.round(180 * root.uiScale)
+                radius: Math.round(8 * root.uiScale)
                 color: root.colors.surface2
                 clip: true
                 visible: notifImg.status === Image.Ready
@@ -158,10 +159,10 @@ Item {
                         required property var modelData
 
                         id: actionBtn
-                        height: 24
-                        radius: 6
+                        height: Math.round(24 * root.uiScale)
+                        radius: Math.round(6 * root.uiScale)
                         color: actionArea.containsMouse ? root.colors.highlighted : root.colors.surface2
-                        implicitWidth: actionLabel.width + 12
+                        implicitWidth: actionLabel.width + Math.round(12 * root.uiScale)
 
                         Text {
                             id: actionLabel

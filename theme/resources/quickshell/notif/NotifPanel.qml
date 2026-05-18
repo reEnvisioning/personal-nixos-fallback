@@ -10,6 +10,8 @@ PanelWindow {
 
     required property var colors
 
+    property real uiScale: Screen.devicePixelRatio
+
     function activeCount() {
         var c = 0
         for (var i = 0; i < notifColumn.children.length; i++)
@@ -19,9 +21,9 @@ PanelWindow {
 
     anchors.top: true
     anchors.right: true
-    margins { top: 8; right: 8 }
+    margins { top: Math.round(8 * root.uiScale); right: Math.round(8 * root.uiScale) }
 
-    width: 380
+    width: Math.round(380 * root.uiScale)
     implicitHeight: notifColumn.height
 
     color: "transparent"
@@ -33,7 +35,7 @@ PanelWindow {
     Column {
         id: notifColumn
         width: parent.width
-        spacing: 6
+        spacing: Math.round(6 * root.uiScale)
     }
 
     Component {
@@ -64,7 +66,8 @@ PanelWindow {
 
             var card = notifCardComponent.createObject(notifColumn, {
                 notif: notification,
-                colors: root.colors
+                colors: root.colors,
+                uiScale: root.uiScale
             })
 
             card.dismissed.connect(function() {

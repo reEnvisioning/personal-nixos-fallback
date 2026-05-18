@@ -9,9 +9,11 @@ PanelWindow {
 
     required property var colors
 
-    property real collapsedHeight: 2
-    property real expandedHeight: 180
-    property real panelWidth: 520
+    property real uiScale: Screen.devicePixelRatio
+
+    property real collapsedHeight: Math.round(2 * root.uiScale)
+    property real expandedHeight: Math.round(180 * root.uiScale)
+    property real panelWidth: Math.round(520 * root.uiScale)
     property bool isExpanded: false
     property int activeTab: 0
     property real animHeight: root.collapsedHeight
@@ -49,10 +51,10 @@ PanelWindow {
 
     Rectangle {
         id: bg
-        y: -12
+        y: Math.round(-12 * root.uiScale)
         width: parent.width
-        height: parent.height + 12
-        radius: 12
+        height: parent.height + Math.round(12 * root.uiScale)
+        radius: Math.round(12 * root.uiScale)
         color: root.colors.background
 
         Behavior on color {
@@ -71,14 +73,14 @@ PanelWindow {
             anchors.top: parent.top
             anchors.left: parent.left
             anchors.right: parent.right
-            height: 26
+            height: Math.round(26 * root.uiScale)
 
             Rectangle {
                 id: tabIndicator
                 anchors.bottom: parent.bottom
                 width: parent.width / 3 * 0.4
-                height: 2
-                radius: 1
+                height: Math.round(2 * root.uiScale)
+                radius: Math.round(1 * root.uiScale)
                 color: root.colors.accent
 
                 readonly property real tabW: parent.width / 3
@@ -129,7 +131,7 @@ PanelWindow {
                 anchors.top: tabRow.bottom
                 anchors.left: parent.left
                 anchors.right: parent.right
-                height: 1
+                height: Math.round(1 * root.uiScale)
                 color: root.colors.surface2
             }
 
@@ -138,11 +140,11 @@ PanelWindow {
                 anchors.left: parent.left
                 anchors.right: parent.right
                 anchors.bottom: parent.bottom
-                anchors.topMargin: 1
+                anchors.topMargin: Math.round(1 * root.uiScale)
 
                 ProfileTab {
                     anchors.fill: parent
-                    anchors.margins: 8
+                    anchors.margins: Math.round(8 * root.uiScale)
                     opacity: root.activeTab === 0 ? 1 : 0
                     colors: root.colors
                     Behavior on opacity { Anim { animType: "effect" } }
@@ -150,7 +152,7 @@ PanelWindow {
 
                 TimeTab {
                     anchors.fill: parent
-                    anchors.margins: 8
+                    anchors.margins: Math.round(8 * root.uiScale)
                     opacity: root.activeTab === 1 ? 1 : 0
                     colors: root.colors
                     Behavior on opacity { Anim { animType: "effect" } }
@@ -158,7 +160,7 @@ PanelWindow {
 
                 SysTab {
                     anchors.fill: parent
-                    anchors.margins: 8
+                    anchors.margins: Math.round(8 * root.uiScale)
                     opacity: root.activeTab === 2 ? 1 : 0
                     colors: root.colors
                     Behavior on opacity { Anim { animType: "effect" } }
