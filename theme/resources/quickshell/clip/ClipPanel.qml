@@ -23,10 +23,12 @@ PanelWindow {
 
     property real slideOffset: root.hiddenX
 
-    anchors.leftMargin: root.slideOffset
-    anchors.bottomMargin: Math.round(8 * root.uiScale)
+    margins {
+        left: root.slideOffset
+        bottom: Math.round(8 * root.uiScale)
+    }
 
-    Behavior on anchors.leftMargin {
+    Behavior on margins.left {
         NumberAnimation {
             duration: 300
             easing.type: Easing.Bezier
