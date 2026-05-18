@@ -2,9 +2,10 @@ import QtQuick
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Io
+import qs.components
 import "../lib"
 
-ShellWindow {
+FloatingWindow {
     id: root
 
     required property var colors
