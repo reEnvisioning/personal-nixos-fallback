@@ -137,6 +137,14 @@ in {
         enable = true;
         settings = {
             splash = false;
+            preload = [ "${theme.wallpaper}" ];
+            wallpaper = [
+                {
+                    monitor = "";
+                    path = "${theme.wallpaper}";
+                    fit_mode = "cover";
+                }
+            ];
         };
     };
 
