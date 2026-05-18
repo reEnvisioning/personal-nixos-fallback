@@ -14,6 +14,8 @@ Item {
     required property int clipIndex
     required property bool selected
 
+    signal copyRequested()
+
     width: parent ? parent.width : 380
     height: Math.round(48 * root.uiScale)
 
@@ -82,7 +84,9 @@ Item {
 
             Text {
                 Layout.fillWidth: true
-                text: root.clipPreview
+                text: root.clipPreview.length > 0
+                    ? root.clipPreview
+                    : (root.clipType === "text" ? "(text)" : root.clipType === "file" ? "(files)" : "Image")
                 color: root.colors.text
                 font.pointSize: 9
                 elide: Text.ElideRight
@@ -90,7 +94,7 @@ Item {
             }
 
             Text {
-                text: relativeTime(root.clipTimestamp)
+                text: root.clipType === "image" ? "Image" : relativeTime(root.clipTimestamp)
                 color: root.colors.subtext0
                 font.pointSize: 8
             }
@@ -119,12 +123,12 @@ Item {
         cursorShape: Qt.PointingHandCursor
         z: 2
         onClicked: {
-            var lv = root.ListView ? root.ListView.view : null
-            if (lv) lv.currentIndex = root.clipIndex
-            if (mouse.x > root.width - Math.round(24 * root.uiScale))
+            if (mouse.x > root.width - Math.round(24 * root.uiScale)) {
                 root.clipMon.removeAt(root.clipIndex)
-            else
+            } else {
                 root.clipMon.copyAt(root.clipIndex)
+                root.copyRequested()
+            }
         }
     }
 

@@ -12,19 +12,8 @@ PanelWindow {
     required property var clipMon
     required property real uiScale
 
-    anchors.top: true
-    anchors.left: true
-
     property bool showPanel: false
     property bool pinned: false
-
-    property real offsetX: Math.round(8 * root.uiScale)
-    property real offsetY: Math.round(8 * root.uiScale)
-
-    margins {
-        left: root.offsetX
-        top: root.offsetY
-    }
 
     width: Math.round(380 * root.uiScale)
     implicitHeight: Math.min(header.height + listContent, Math.round(500 * root.uiScale))
@@ -42,8 +31,10 @@ PanelWindow {
 
     onShowPanelChanged: {
         if (root.showPanel) {
-            root.offsetX = Math.round(8 * root.uiScale)
-            root.offsetY = Math.round(8 * root.uiScale)
+            root.x = Math.round(8 * root.uiScale)
+            root.y = root.screen
+                ? root.screen.height - root.height - Math.round(8 * root.uiScale)
+                : Math.round(8 * root.uiScale)
         }
     }
 
@@ -81,7 +72,6 @@ PanelWindow {
                 anchors.verticalCenter: parent.verticalCenter
                 spacing: Math.round(4 * root.uiScale)
 
-                // Pin button
                 Rectangle {
                     width: Math.round(24 * root.uiScale)
                     height: Math.round(24 * root.uiScale)
@@ -103,7 +93,6 @@ PanelWindow {
                     }
                 }
 
-                // Clear button
                 Text {
                     anchors.verticalCenter: parent.verticalCenter
                     text: "Clear"
@@ -123,14 +112,11 @@ PanelWindow {
             // Drag handle
             MouseArea {
                 anchors.fill: parent
-                property real sx
-                property real sy
-                property real sl
-                property real st
-                onPressed: { sx = mouse.x; sy = mouse.y; sl = root.offsetX; st = root.offsetY }
+                property real sx, sy
+                onPressed: { sx = mouse.x; sy = mouse.y }
                 onPositionChanged: {
-                    root.offsetX = sl + (mouse.x - sx)
-                    root.offsetY = st + (mouse.y - sy)
+                    root.x += mouse.x - sx
+                    root.y += mouse.y - sy
                 }
             }
         }
@@ -189,26 +175,29 @@ PanelWindow {
                     selected: ListView.isCurrentItem
                     width: listView.width - Math.round(8 * root.uiScale)
                     x: Math.round(4 * root.uiScale)
+                    onCopyRequested: root.showPanel = false
                 }
 
                 Keys.onPressed: {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         if (currentIndex >= 0) {
                             root.clipMon.copyAt(currentIndex)
+                            root.showPanel = false
                         }
                         event.accepted = true
-                    } else if (event.key === Qt.Key_D && (event.modifiers & Qt.ControlModifier)) {
+                    } else if (event.key === Qt.Key_D && (event.modifiers & Qt.ControlModifier) && (event.modifiers & Qt.ShiftModifier)) {
+                        root.clipMon.clearAll()
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_D && (event.modifiers & Qt.ControlModifier) && !(event.modifiers & Qt.ShiftModifier)) {
                         if (currentIndex >= 0) {
                             root.clipMon.removeAt(currentIndex)
                         }
                         event.accepted = true
                     } else if (event.key === Qt.Key_Up) {
                         if (currentIndex > 0) currentIndex--
-                        else currentIndex = 0
                         event.accepted = true
                     } else if (event.key === Qt.Key_Down) {
                         if (currentIndex < root.clipMon.history.count - 1) currentIndex++
-                        else currentIndex = root.clipMon.history.count - 1
                         event.accepted = true
                     }
                 }

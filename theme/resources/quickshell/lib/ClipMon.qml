@@ -107,7 +107,12 @@ Item {
 
     function clearAll() {
         clipModel.clear()
-        save()
+        saveProcess.command = ["sh", "-c",
+            "mkdir -p $HOME/.local/share/headspace && " +
+            "echo '[]' > $HOME/.local/share/headspace/clip-history.json;" +
+            "rm -rf $HOME/.local/share/headspace/clips"]
+        saveProcess.running = false
+        saveProcess.running = true
     }
 
     function copyAt(index) {
