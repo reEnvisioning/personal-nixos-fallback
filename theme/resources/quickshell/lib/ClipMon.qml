@@ -33,14 +33,14 @@ Item {
         command: ["sh", "-c",
             'uri=$(wl-paste --type text/uri-list 2>/dev/null); ' +
             'if [ -n "$uri" ]; then echo "TYPE:uri"; echo "$uri"; exit 0; fi; ' +
+            'txt=$(wl-paste --type text/plain 2>/dev/null); ' +
+            'if [ -n "$txt" ]; then echo "TYPE:text"; echo "$txt"; exit 0; fi; ' +
             'chk=$(wl-paste --type image/png 2>/dev/null | head -c 1); ' +
             'if [ -n "$chk" ]; then ' +
             '  ts=$(date +%s%N); p="$HOME/.local/share/headspace/clips/img_${ts}.png"; ' +
             '  mkdir -p "$HOME/.local/share/headspace/clips"; ' +
             '  wl-paste --type image/png > "$p" 2>/dev/null; echo "TYPE:image"; echo "$p"; exit 0; ' +
             'fi; ' +
-            'txt=$(wl-paste --type text/plain 2>/dev/null); ' +
-            'if [ -n "$txt" ]; then echo "TYPE:text"; echo "$txt"; exit 0; fi; ' +
             'echo "TYPE:none"']
         running: false
         stdout: StdioCollector {
