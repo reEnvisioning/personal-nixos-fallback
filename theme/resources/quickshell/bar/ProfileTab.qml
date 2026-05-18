@@ -63,6 +63,7 @@ Item {
 
         Rectangle {
             id: pfpFrame
+            Layout.leftMargin: 8
             width: 72; height: 72; radius: 36
             clip: true
             color: "transparent"
@@ -72,8 +73,8 @@ Item {
 
             Image {
                 anchors.centerIn: parent
-                width: 72; height: 72
-                sourceSize { width: 72; height: 72 }
+                width: 68; height: 68
+                sourceSize { width: 68; height: 68 }
                 source: "../user/visionary.png"
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
