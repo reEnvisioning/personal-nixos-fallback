@@ -57,7 +57,7 @@ Item {
                         var uris = uri.split("\n")
                         var preview = ""
                         for (var i = 0; i < uris.length; i++) {
-                            var name = uris[i].replace(/\\/?file:\\/\\//, "").split("/").pop()
+                            var name = uris[i].replace(/^file:\/\//, "").split("/").pop()
                             if (i > 0) preview += ", "
                             preview += name
                         }
