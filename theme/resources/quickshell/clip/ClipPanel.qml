@@ -1,52 +1,32 @@
 import QtQuick
 import QtQuick.Layouts
 import Quickshell
-import Quickshell.Wayland
 import Quickshell.Io
 import "../lib"
 
-PanelWindow {
+ShellWindow {
     id: root
 
     required property var colors
     required property var clipMon
     required property real uiScale
 
-    anchors.bottom: true
-    anchors.left: true
-
     property bool showPanel: false
-    property bool pinned: false
 
-    readonly property real panelW: Math.round(380 * root.uiScale)
-    readonly property real hiddenX: -(root.panelW + Math.round(20 * root.uiScale))
+    width: Math.round(380 * root.uiScale)
+    height: Math.min(content.height + Math.round(44 * root.uiScale), Math.round(500 * root.uiScale))
+    color: "transparent"
+    flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+    visible: root.showPanel
 
-    property real slideOffset: root.hiddenX
-
-    margins {
-        left: root.slideOffset
-        bottom: Math.round(8 * root.uiScale)
-    }
-
-    Behavior on margins.left {
-        NumberAnimation {
-            duration: 300
-            easing.type: Easing.Bezier
-            easing.bezierCurve: [0.34, 1.56, 0.25, 1.0]
+    onShowPanelChanged: {
+        if (root.showPanel) {
+            root.x = Math.round(8 * root.uiScale)
+            root.y = root.screen.height - root.height - Math.round(8 * root.uiScale)
         }
     }
 
-    width: root.panelW
-    implicitHeight: Math.min(content.height + Math.round(44 * root.uiScale), Math.round(500 * root.uiScale))
-
-    color: "transparent"
-    focusable: false
-    WlrLayershell.layer: WlrLayer.Overlay
-    WlrLayershell.exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.namespace: "headspace-clipboard"
-
     Rectangle {
-        id: panelBg
         anchors.fill: parent
         radius: Math.round(12 * root.uiScale)
         color: root.colors.background
@@ -56,11 +36,9 @@ PanelWindow {
 
     ColumnLayout {
         id: content
-        x: 0; y: 0
         width: parent.width
         spacing: 0
 
-        // Header row: title + pin button
         Item {
             Layout.fillWidth: true
             height: Math.round(36 * root.uiScale)
@@ -75,32 +53,35 @@ PanelWindow {
                 font.weight: Font.DemiBold
             }
 
-            Rectangle {
+            Text {
                 anchors.right: parent.right
-                anchors.rightMargin: Math.round(6 * root.uiScale)
+                anchors.rightMargin: Math.round(8 * root.uiScale)
                 anchors.verticalCenter: parent.verticalCenter
-                width: Math.round(24 * root.uiScale)
-                height: Math.round(24 * root.uiScale)
-                radius: Math.round(6 * root.uiScale)
-                color: pinArea.containsMouse ? root.colors.surface2 : "transparent"
-
-                Text {
-                    anchors.centerIn: parent
-                    text: root.pinned ? "\u{1F4CC}" : "\u{1F4CE}"
-                    color: root.pinned ? root.colors.accent : root.colors.subtext0
-                    font.pointSize: 11
-                }
+                text: "Clear"
+                color: clearArea.containsMouse ? root.colors.red : root.colors.subtext0
+                font.pointSize: 9
 
                 MouseArea {
-                    id: pinArea
+                    id: clearArea
                     anchors.fill: parent
+                    anchors.margins: -Math.round(4 * root.uiScale)
                     hoverEnabled: true
-                    onClicked: root.pinned = !root.pinned
+                    onClicked: root.clipMon.clearAll()
+                }
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                property real dragX
+                property real dragY
+                onPressed: { dragX = mouse.x; dragY = mouse.y }
+                onPositionChanged: {
+                    root.x += mouse.x - dragX
+                    root.y += mouse.y - dragY
                 }
             }
         }
 
-        // Clip list or empty state
         Item {
             Layout.fillWidth: true
             Layout.preferredHeight: root.clipMon.history.count > 0 ? listArea.height : emptyText.height
@@ -122,11 +103,13 @@ PanelWindow {
                 visible: root.clipMon.history.count > 0
 
                 Repeater {
-                    id: clipRepeater
                     model: root.clipMon.history
 
                     delegate: ClipItem {
-                        clipData: model
+                        clipType: type
+                        clipContent: content
+                        clipPreview: preview
+                        clipTimestamp: timestamp
                         clipMon: root.clipMon
                         colors: root.colors
                         uiScale: root.uiScale
@@ -138,8 +121,6 @@ PanelWindow {
             }
         }
     }
-
-    // --- IPC: toggle watcher/reader ---
 
     Process {
         id: toggleWatcher
@@ -163,13 +144,8 @@ PanelWindow {
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
-                if (!root.pinned)
-                    root.showPanel = !root.showPanel
+                root.showPanel = !root.showPanel
             }
         }
-    }
-
-    onShowPanelChanged: {
-        root.slideOffset = root.showPanel ? Math.round(8 * root.uiScale) : root.hiddenX
     }
 }

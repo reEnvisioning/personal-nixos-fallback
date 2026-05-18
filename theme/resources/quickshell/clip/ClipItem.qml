@@ -1,17 +1,17 @@
 import QtQuick
 import QtQuick.Layouts
-import "../lib"
 
 Item {
     id: root
 
-    required property var clipData
+    required property string clipType
+    required property var clipContent
+    required property string clipPreview
+    required property int clipTimestamp
     required property var clipMon
     required property var colors
     required property real uiScale
     required property int clipIndex
-
-    signal remove()
 
     width: parent ? parent.width : 380
     height: Math.round(48 * root.uiScale)
@@ -21,8 +21,6 @@ Item {
         anchors.fill: parent
         radius: Math.round(8 * root.uiScale)
         color: mouseArea.containsMouse ? root.colors.surface2 : "transparent"
-
-        Behavior on color { CAnim {} }
     }
 
     RowLayout {
@@ -30,11 +28,10 @@ Item {
         anchors.margins: Math.round(6 * root.uiScale)
         spacing: Math.round(8 * root.uiScale)
 
-        // Type indicator
         Loader {
             Layout.preferredWidth: Math.round(36 * root.uiScale)
             Layout.preferredHeight: Math.round(36 * root.uiScale)
-            sourceComponent: root.clipData.type === "image" ? imgComp : labelComp
+            sourceComponent: root.clipType === "image" ? imgComp : labelComp
 
             Component {
                 id: labelComp
@@ -45,7 +42,7 @@ Item {
                     color: root.colors.surface2
                     Text {
                         anchors.centerIn: parent
-                        text: root.clipData.type === "file" ? "F" : "T"
+                        text: root.clipType === "file" ? "F" : "T"
                         color: root.colors.text
                         font.pointSize: 12
                         font.weight: Font.DemiBold
@@ -63,9 +60,8 @@ Item {
                         radius: Math.round(6 * root.uiScale)
                         color: root.colors.surface2
                         Image {
-                            anchors.fill: parent
-                            anchors.margins: 2
-                            source: "file://" + root.clipData.content
+                            anchors.fill: parent; anchors.margins: 2
+                            source: "file://" + root.clipContent
                             fillMode: Image.PreserveAspectCrop
                             asynchronous: true
                             sourceSize { width: 64; height: 64 }
@@ -75,7 +71,6 @@ Item {
             }
         }
 
-        // Preview + timestamp
         ColumnLayout {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignVCenter
@@ -83,7 +78,7 @@ Item {
 
             Text {
                 Layout.fillWidth: true
-                text: root.clipData.preview
+                text: root.clipPreview
                 color: root.colors.text
                 font.pointSize: 9
                 elide: Text.ElideRight
@@ -91,39 +86,24 @@ Item {
             }
 
             Text {
-                text: relativeTime(root.clipData.timestamp)
+                text: relativeTime(root.clipTimestamp)
                 color: root.colors.subtext0
                 font.pointSize: 8
             }
         }
 
-        // Delete button
-        Item {
+        Rectangle {
             Layout.preferredWidth: Math.round(18 * root.uiScale)
             Layout.preferredHeight: Math.round(18 * root.uiScale)
             visible: mouseArea.containsMouse
+            radius: Math.round(4 * root.uiScale)
+            color: "transparent"
 
-            Rectangle {
-                anchors.fill: parent
-                radius: Math.round(4 * root.uiScale)
-                color: delArea.containsMouse ? root.colors.red : "transparent"
-
-                Text {
-                    anchors.centerIn: parent
-                    text: "\u00D7"
-                    color: root.colors.text
-                    font.pointSize: 11
-                }
-
-                MouseArea {
-                    id: delArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: {
-                        root.clipMon.removeAt(root.clipIndex)
-                        root.remove()
-                    }
-                }
+            Text {
+                anchors.centerIn: parent
+                text: "\u00D7"
+                color: root.colors.text
+                font.pointSize: 11
             }
         }
     }
@@ -133,7 +113,12 @@ Item {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
-        onClicked: root.clipMon.copyAt(root.clipIndex)
+        onClicked: {
+            if (mouse.x > root.width - Math.round(24 * root.uiScale))
+                root.clipMon.removeAt(root.clipIndex)
+            else
+                root.clipMon.copyAt(root.clipIndex)
+        }
     }
 
     function relativeTime(ts) {

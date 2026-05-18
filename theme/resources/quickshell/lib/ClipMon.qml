@@ -105,6 +105,15 @@ Item {
         save()
     }
 
+    function clearAll() {
+        clipModel.clear()
+        saveProcess.command = ["sh", "-c",
+            "rm -f $HOME/.local/share/headspace/clip-history.json;" +
+            "rm -rf $HOME/.local/share/headspace/clips"]
+        saveProcess.running = false
+        saveProcess.running = true
+    }
+
     function copyAt(index) {
         var item = clipModel.get(index)
         if (item.type === "text") {
