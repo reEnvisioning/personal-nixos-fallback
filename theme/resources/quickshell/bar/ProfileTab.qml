@@ -63,7 +63,7 @@ Item {
 
         Rectangle {
             id: pfpFrame
-            Layout.leftMargin: 8
+            Layout.leftMargin: 35
             width: 72; height: 72; radius: 36
             clip: true
             color: "transparent"
