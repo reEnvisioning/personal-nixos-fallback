@@ -1,30 +1,49 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Window
+import Quickshell
+import Quickshell.Wayland
 import Quickshell.Io
 import "../lib"
 
-Window {
+PanelWindow {
     id: root
 
     required property var colors
     required property var clipMon
     required property real uiScale
 
+    anchors.top: true
+    anchors.left: true
+
     property bool showPanel: false
+    property bool pinned: false
+
+    property real offsetX: Math.round(8 * root.uiScale)
+    property real offsetY: Math.round(8 * root.uiScale)
+
+    margins {
+        left: root.offsetX
+        top: root.offsetY
+    }
 
     width: Math.round(380 * root.uiScale)
-    height: Math.min(content.height + Math.round(44 * root.uiScale), Math.round(500 * root.uiScale))
+    implicitHeight: Math.min(header.height + listContent, Math.round(500 * root.uiScale))
+
+    readonly property real listContent: root.clipMon.history.count > 0
+        ? Math.max(listView.contentHeight, Math.round(20 * root.uiScale)) + Math.round(8 * root.uiScale)
+        : Math.round(40 * root.uiScale)
+
     color: "transparent"
-    flags: Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint
+    focusable: true
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.exclusionMode: ExclusionMode.Ignore
+    WlrLayershell.namespace: "headspace-clipboard"
     visible: root.showPanel
 
     onShowPanelChanged: {
         if (root.showPanel) {
-            root.x = Math.round(8 * root.uiScale)
-            root.y = root.screen
-                ? root.screen.height - root.height - Math.round(8 * root.uiScale)
-                : Math.round(8 * root.uiScale)
+            root.offsetX = Math.round(8 * root.uiScale)
+            root.offsetY = Math.round(8 * root.uiScale)
         }
     }
 
@@ -37,11 +56,12 @@ Window {
     }
 
     ColumnLayout {
-        id: content
         width: parent.width
         spacing: 0
 
+        // Header
         Item {
+            id: header
             Layout.fillWidth: true
             height: Math.round(36 * root.uiScale)
 
@@ -55,39 +75,83 @@ Window {
                 font.weight: Font.DemiBold
             }
 
-            Text {
+            Row {
                 anchors.right: parent.right
-                anchors.rightMargin: Math.round(8 * root.uiScale)
+                anchors.rightMargin: Math.round(6 * root.uiScale)
                 anchors.verticalCenter: parent.verticalCenter
-                text: "Clear"
-                color: clearArea.containsMouse ? root.colors.red : root.colors.subtext0
-                font.pointSize: 9
+                spacing: Math.round(4 * root.uiScale)
 
-                MouseArea {
-                    id: clearArea
-                    anchors.fill: parent
-                    anchors.margins: -Math.round(4 * root.uiScale)
-                    hoverEnabled: true
-                    onClicked: root.clipMon.clearAll()
+                // Pin button
+                Rectangle {
+                    width: Math.round(24 * root.uiScale)
+                    height: Math.round(24 * root.uiScale)
+                    radius: Math.round(6 * root.uiScale)
+                    color: pinArea.containsMouse ? root.colors.surface2 : "transparent"
+
+                    Text {
+                        anchors.centerIn: parent
+                        text: root.pinned ? "\u25C9" : "\u25CB"
+                        color: root.pinned ? root.colors.accent : root.colors.subtext0
+                        font.pointSize: 11
+                    }
+
+                    MouseArea {
+                        id: pinArea
+                        anchors.fill: parent
+                        hoverEnabled: true
+                        onClicked: root.pinned = !root.pinned
+                    }
+                }
+
+                // Clear button
+                Text {
+                    anchors.verticalCenter: parent.verticalCenter
+                    text: "Clear"
+                    color: clearArea.containsMouse ? root.colors.red : root.colors.subtext0
+                    font.pointSize: 9
+
+                    MouseArea {
+                        id: clearArea
+                        anchors.fill: parent
+                        anchors.margins: -Math.round(4 * root.uiScale)
+                        hoverEnabled: true
+                        onClicked: root.clipMon.clearAll()
+                    }
                 }
             }
 
+            // Drag handle
             MouseArea {
                 anchors.fill: parent
-                property real dragX
-                property real dragY
-                onPressed: { dragX = mouse.x; dragY = mouse.y }
+                property real sx
+                property real sy
+                property real sl
+                property real st
+                onPressed: { sx = mouse.x; sy = mouse.y; sl = root.offsetX; st = root.offsetY }
                 onPositionChanged: {
-                    root.x += mouse.x - dragX
-                    root.y += mouse.y - dragY
+                    root.offsetX = sl + (mouse.x - sx)
+                    root.offsetY = st + (mouse.y - sy)
                 }
             }
         }
 
+        // Divider
+        Rectangle {
+            Layout.fillWidth: true
+            height: 1
+            color: root.colors.surface2
+            Layout.leftMargin: Math.round(8 * root.uiScale)
+            Layout.rightMargin: Math.round(8 * root.uiScale)
+        }
+
+        // Clip list or empty
         Item {
             Layout.fillWidth: true
-            Layout.preferredHeight: root.clipMon.history.count > 0 ? listArea.height : emptyText.height
+            Layout.preferredHeight: root.clipMon.history.count > 0
+                ? Math.max(listView.contentHeight, Math.round(20 * root.uiScale))
+                : Math.round(40 * root.uiScale)
             Layout.bottomMargin: Math.round(6 * root.uiScale)
+            clip: true
 
             Text {
                 id: emptyText
@@ -98,31 +162,61 @@ Window {
                 visible: root.clipMon.history.count === 0
             }
 
-            Column {
-                id: listArea
+            ListView {
+                id: listView
                 width: parent.width
+                height: parent.height
+                model: root.clipMon.history
                 spacing: Math.round(2 * root.uiScale)
                 visible: root.clipMon.history.count > 0
+                boundsBehavior: Flickable.StopAtBounds
+                focus: true
+                highlightMoveDuration: 100
+                highlight: Rectangle {
+                    color: "transparent"
+                    border.color: "transparent"
+                }
 
-                Repeater {
-                    model: root.clipMon.history
+                delegate: ClipItem {
+                    clipType: model.type
+                    clipContent: model.content
+                    clipPreview: model.preview
+                    clipTimestamp: model.timestamp
+                    clipMon: root.clipMon
+                    colors: root.colors
+                    uiScale: root.uiScale
+                    clipIndex: index
+                    selected: ListView.isCurrentItem
+                    width: listView.width - Math.round(8 * root.uiScale)
+                    x: Math.round(4 * root.uiScale)
+                }
 
-                    delegate: ClipItem {
-                        clipType: type
-                        clipContent: content
-                        clipPreview: preview
-                        clipTimestamp: timestamp
-                        clipMon: root.clipMon
-                        colors: root.colors
-                        uiScale: root.uiScale
-                        clipIndex: index
-                        width: listArea.width - Math.round(8 * root.uiScale)
-                        x: Math.round(4 * root.uiScale)
+                Keys.onPressed: {
+                    if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                        if (currentIndex >= 0) {
+                            root.clipMon.copyAt(currentIndex)
+                        }
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_D && (event.modifiers & Qt.ControlModifier)) {
+                        if (currentIndex >= 0) {
+                            root.clipMon.removeAt(currentIndex)
+                        }
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_Up) {
+                        if (currentIndex > 0) currentIndex--
+                        else currentIndex = 0
+                        event.accepted = true
+                    } else if (event.key === Qt.Key_Down) {
+                        if (currentIndex < root.clipMon.history.count - 1) currentIndex++
+                        else currentIndex = root.clipMon.history.count - 1
+                        event.accepted = true
                     }
                 }
             }
         }
     }
+
+    // --- IPC: toggle watcher/reader ---
 
     Process {
         id: toggleWatcher
@@ -146,7 +240,8 @@ Window {
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
-                root.showPanel = !root.showPanel
+                if (!root.pinned)
+                    root.showPanel = !root.showPanel
             }
         }
     }

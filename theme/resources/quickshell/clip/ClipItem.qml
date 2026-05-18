@@ -7,11 +7,12 @@ Item {
     required property string clipType
     required property var clipContent
     required property string clipPreview
-    required property int clipTimestamp
+    required property var clipTimestamp
     required property var clipMon
     required property var colors
     required property real uiScale
     required property int clipIndex
+    required property bool selected
 
     width: parent ? parent.width : 380
     height: Math.round(48 * root.uiScale)
@@ -20,13 +21,16 @@ Item {
         id: bg
         anchors.fill: parent
         radius: Math.round(8 * root.uiScale)
-        color: mouseArea.containsMouse ? root.colors.surface2 : "transparent"
+        color: root.selected
+            ? (mouseArea.containsMouse ? root.colors.highlighted : root.colors.overlay1)
+            : (mouseArea.containsMouse ? root.colors.surface2 : "transparent")
     }
 
     RowLayout {
         anchors.fill: parent
         anchors.margins: Math.round(6 * root.uiScale)
         spacing: Math.round(8 * root.uiScale)
+        z: 1
 
         Loader {
             Layout.preferredWidth: Math.round(36 * root.uiScale)
@@ -113,7 +117,10 @@ Item {
         anchors.fill: parent
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
+        z: 2
         onClicked: {
+            var lv = root.ListView ? root.ListView.view : null
+            if (lv) lv.currentIndex = root.clipIndex
             if (mouse.x > root.width - Math.round(24 * root.uiScale))
                 root.clipMon.removeAt(root.clipIndex)
             else
@@ -122,13 +129,16 @@ Item {
     }
 
     function relativeTime(ts) {
+        if (typeof ts !== "number" || ts <= 0) return "now"
         var diff = Date.now() - ts
+        if (diff < 0) return "now"
         var mins = Math.floor(diff / 60000)
         if (mins < 1) return "now"
         if (mins < 60) return mins + "m ago"
         var hrs = Math.floor(mins / 60)
         if (hrs < 24) return hrs + "h ago"
         var days = Math.floor(hrs / 24)
+        if (days > 365) return "old"
         return days + "d ago"
     }
 }
