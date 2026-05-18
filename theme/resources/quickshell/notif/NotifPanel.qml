@@ -10,7 +10,7 @@ PanelWindow {
 
     required property var colors
 
-    property real uiScale: Screen.devicePixelRatio
+    required property real uiScale
 
     function activeCount() {
         var c = 0

@@ -9,7 +9,7 @@ PanelWindow {
 
     required property var colors
 
-    property real uiScale: Screen.devicePixelRatio
+    required property real uiScale
 
     property real collapsedHeight: Math.round(2 * root.uiScale)
     property real expandedHeight: Math.round(180 * root.uiScale)

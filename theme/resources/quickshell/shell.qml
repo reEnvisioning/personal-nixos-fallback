@@ -7,17 +7,24 @@ import "bar"
 import "notif"
 
 ShellRoot {
+    id: root
     settings.watchFiles: true
+
+    property real uiScale: 1 // scale-config
 
     Colors {
         id: colors
     }
 
+    BatteryMonitor {}
+
     Bar {
         colors: colors
+        uiScale: root.uiScale
     }
 
     NotifPanel {
         colors: colors
+        uiScale: root.uiScale
     }
 }
