@@ -7,13 +7,14 @@ let
     ["${uiScale} // scale-config"]
     (builtins.readFile ../theme/resources/quickshell/shell.qml);
 in {
-  home.packages = with pkgs; [ quickshell libnotify ];
+  home.packages = with pkgs; [ quickshell libnotify wl-clipboard ];
 
   xdg.configFile = {
     "quickshell/shell.qml".text = shellQml;
     "quickshell/lib".source = ../theme/resources/quickshell/lib;
     "quickshell/bar".source = ../theme/resources/quickshell/bar;
     "quickshell/notif".source = ../theme/resources/quickshell/notif;
+    "quickshell/clip".source = ../theme/resources/quickshell/clip;
     "quickshell/user".source = ../theme/resources/user;
   };
 }

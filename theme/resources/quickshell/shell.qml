@@ -5,6 +5,7 @@ import Quickshell
 import "lib"
 import "bar"
 import "notif"
+import "clip"
 
 ShellRoot {
     id: root
@@ -17,6 +18,16 @@ ShellRoot {
     }
 
     BatteryMonitor {}
+
+    ClipMon {
+        id: clipMon
+    }
+
+    ClipPanel {
+        colors: colors
+        clipMon: clipMon
+        uiScale: root.uiScale
+    }
 
     Bar {
         colors: colors
