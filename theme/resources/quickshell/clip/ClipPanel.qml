@@ -1,11 +1,10 @@
 import QtQuick
 import QtQuick.Layouts
-import Quickshell
+import QtQuick.Window
 import Quickshell.Io
-import qs.components
 import "../lib"
 
-FloatingWindow {
+Window {
     id: root
 
     required property var colors
@@ -23,7 +22,9 @@ FloatingWindow {
     onShowPanelChanged: {
         if (root.showPanel) {
             root.x = Math.round(8 * root.uiScale)
-            root.y = root.screen.height - root.height - Math.round(8 * root.uiScale)
+            root.y = root.screen
+                ? root.screen.height - root.height - Math.round(8 * root.uiScale)
+                : Math.round(8 * root.uiScale)
         }
     }
 
