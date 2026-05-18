@@ -112,7 +112,8 @@ PanelWindow {
             // Drag handle
             MouseArea {
                 anchors.fill: parent
-                property real sx, sy
+                property real sx
+                property real sy
                 onPressed: { sx = mouse.x; sy = mouse.y }
                 onPositionChanged: {
                     root.x += mouse.x - sx
