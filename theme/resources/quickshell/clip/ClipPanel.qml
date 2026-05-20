@@ -166,9 +166,7 @@ PanelWindow {
 
                 delegate: ClipItem {
                     clipType: model.type
-                    clipContent: model.content
                     clipPreview: model.preview
-                    clipTimestamp: model.timestamp
                     clipMon: root.clipMon
                     colors: root.colors
                     uiScale: root.uiScale
