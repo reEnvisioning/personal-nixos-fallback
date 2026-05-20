@@ -29,15 +29,6 @@ PanelWindow {
     WlrLayershell.namespace: "headspace-clipboard"
     visible: root.showPanel
 
-    onShowPanelChanged: {
-        if (root.showPanel) {
-            root.x = Math.round(8 * root.uiScale)
-            root.y = root.screen
-                ? root.screen.height - root.height - Math.round(8 * root.uiScale)
-                : Math.round(8 * root.uiScale)
-        }
-    }
-
     Rectangle {
         anchors.fill: parent
         radius: Math.round(12 * root.uiScale)
@@ -66,33 +57,28 @@ PanelWindow {
                 font.weight: Font.DemiBold
             }
 
-            Row {
+            Rectangle {
                 anchors.right: parent.right
                 anchors.rightMargin: Math.round(6 * root.uiScale)
                 anchors.verticalCenter: parent.verticalCenter
-                spacing: Math.round(4 * root.uiScale)
+                width: Math.round(24 * root.uiScale)
+                height: Math.round(24 * root.uiScale)
+                radius: Math.round(6 * root.uiScale)
+                color: pinArea.containsMouse ? root.colors.surface2 : "transparent"
 
-                Rectangle {
-                    width: Math.round(24 * root.uiScale)
-                    height: Math.round(24 * root.uiScale)
-                    radius: Math.round(6 * root.uiScale)
-                    color: pinArea.containsMouse ? root.colors.surface2 : "transparent"
-
-                    Text {
-                        anchors.centerIn: parent
-                        text: root.pinned ? "\u25C9" : "\u25CB"
-                        color: root.pinned ? root.colors.accent : root.colors.subtext0
-                        font.pointSize: 11
-                    }
-
-                    MouseArea {
-                        id: pinArea
-                        anchors.fill: parent
-                        hoverEnabled: true
-                        onClicked: root.pinned = !root.pinned
-                    }
+                Text {
+                    anchors.centerIn: parent
+                    text: root.pinned ? "\u25C9" : "\u25CB"
+                    color: root.pinned ? root.colors.accent : root.colors.subtext0
+                    font.pointSize: 11
                 }
 
+                MouseArea {
+                    id: pinArea
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    onClicked: root.pinned = !root.pinned
+                }
             }
         }
 

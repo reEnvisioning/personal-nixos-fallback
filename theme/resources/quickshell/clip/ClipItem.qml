@@ -64,7 +64,7 @@ Item {
         hoverEnabled: true
         cursorShape: Qt.PointingHandCursor
         z: 2
-        onClicked: {
+        onClicked: function(mouse) {
             if (mouse.x > root.width - Math.round(24 * root.uiScale)) {
                 root.clipMon.removeAt(root.clipIndex)
             } else {
