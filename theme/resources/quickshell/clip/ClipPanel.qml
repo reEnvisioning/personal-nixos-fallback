@@ -107,12 +107,12 @@ PanelWindow {
                     spacing: Math.round(2 * root.uiScale)
 
                     Repeater {
-                        model: root.clipMon.entries.length
+                        model: root.clipMon.entries
 
                         ClipItem {
                             width: clipFlickable.width - Math.round(8 * root.uiScale)
                             x: Math.round(4 * root.uiScale)
-                            entry: root.clipMon.entries[index]
+                            entry: modelData
                             clipMon: root.clipMon
                             colors: root.colors
                             uiScale: root.uiScale
