@@ -5,7 +5,9 @@ import Quickshell.Io
 Item {
     id: root
 
-    property var entries: []
+    ListModel {
+        id: entriesModel
+    }
 
     property string _lastText: ""
 
@@ -19,66 +21,48 @@ Item {
     }
 
     function poll() {
-        pollProcess.running = false
-        pollProcess.running = true
-    }
-
-    Process {
-        id: pollProcess
-        command: ["sh", "-c",
-            'txt=$(timeout 1 wl-paste --type text/plain 2>/dev/null); ' +
-            'if [ -n "$txt" ]; then echo "TYPE:text"; echo "$txt"; exit 0; fi; ' +
-            'echo "TYPE:none"']
-        running: false
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var lines = text.trim().split("\n")
-                if (lines.length < 1) return
-                var typeLine = lines[0]
-                if (typeLine === "TYPE:none") return
-
-                if (typeLine === "TYPE:text") {
-                    var txt = lines.slice(1).join("\n")
-                    if (txt.length > 0 && txt !== root._lastText) {
-                        root._lastText = txt
-                        root.addClip(txt)
-                    }
-                }
-            }
+        var txt = Quickshell.clipboardText
+        if (txt && txt.length > 0 && txt !== root._lastText) {
+            root._lastText = txt
+            root.addClip(txt)
         }
     }
 
     function addClip(txt) {
-        if (root.entries.length > 0 && root.entries[0].content === txt)
+        if (entriesModel.count > 0 && entriesModel.get(0).content === txt)
             return
 
-        root.entries = [{ type: "text", content: txt, preview: txt.substring(0, 80), timestamp: Date.now() }].concat(root.entries)
+        entriesModel.insert(0, { type: "text", content: txt, preview: txt.substring(0, 80), timestamp: Date.now() })
 
-        if (root.entries.length > 50)
-            root.entries = root.entries.slice(0, 50)
+        while (entriesModel.count > 50)
+            entriesModel.remove(50, 1)
 
         save()
     }
 
     function removeAt(index) {
-        root.entries = root.entries.filter(function(_, i) { return i !== index })
+        entriesModel.remove(index, 1)
         save()
     }
 
     function clearAll() {
-        root.entries = []
+        entriesModel.clear()
         Quickshell.execDetached(["sh", "-c",
             "echo '[]' > $HOME/.local/share/headspace/clip-history.json && " +
             "rm -rf $HOME/.local/share/headspace/clips"])
     }
 
     function copyAt(index) {
-        if (index < 0 || index >= root.entries.length) return
-        Quickshell.clipboardText = root.entries[index].content
+        if (index < 0 || index >= entriesModel.count) return
+        Quickshell.clipboardText = entriesModel.get(index).content
     }
 
     function save() {
-        var json = JSON.stringify(root.entries)
+        var arr = []
+        for (var i = 0; i < entriesModel.count; i++)
+            arr.push(entriesModel.get(i))
+
+        var json = JSON.stringify(arr)
         var delim = "HS" + Math.random().toString(36).substring(2, 10) + "EOF"
         saveProcess.command = ["sh", "-c",
             "mkdir -p $HOME/.local/share/headspace && " +
@@ -108,8 +92,11 @@ Item {
             onStreamFinished: {
                 try {
                     var arr = JSON.parse(text.trim())
-                    if (Array.isArray(arr))
-                        root.entries = arr
+                    if (Array.isArray(arr)) {
+                        entriesModel.clear()
+                        for (var i = 0; i < arr.length; i++)
+                            entriesModel.append(arr[i])
+                    }
                 } catch (e) {
                     console.log("ClipMon: load error: " + e)
                 }
