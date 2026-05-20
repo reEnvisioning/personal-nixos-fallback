@@ -13,7 +13,6 @@ PanelWindow {
     required property real uiScale
 
     property bool showPanel: false
-    property bool pinned: false
     property int currentIndex: 0
 
     width: Math.round(380 * root.uiScale)
@@ -55,30 +54,6 @@ PanelWindow {
                 color: root.colors.text
                 font.pointSize: 10
                 font.weight: Font.DemiBold
-            }
-
-            Rectangle {
-                anchors.right: parent.right
-                anchors.rightMargin: Math.round(6 * root.uiScale)
-                anchors.verticalCenter: parent.verticalCenter
-                width: Math.round(24 * root.uiScale)
-                height: Math.round(24 * root.uiScale)
-                radius: Math.round(6 * root.uiScale)
-                color: pinArea.containsMouse ? root.colors.surface2 : "transparent"
-
-                Text {
-                    anchors.centerIn: parent
-                    text: root.pinned ? "\u25C9" : "\u25CB"
-                    color: root.pinned ? root.colors.accent : root.colors.subtext0
-                    font.pointSize: 11
-                }
-
-                MouseArea {
-                    id: pinArea
-                    anchors.fill: parent
-                    hoverEnabled: true
-                    onClicked: root.pinned = !root.pinned
-                }
             }
         }
 
@@ -124,9 +99,9 @@ PanelWindow {
                     spacing: Math.round(2 * root.uiScale)
 
                     Repeater {
-                        model: root.clipMon.entries
+                        model: root.clipMon.entries.length
                         delegate: ClipItem {
-                            entry: modelData
+                            entry: root.clipMon.entries[index]
                             clipMon: root.clipMon
                             colors: root.colors
                             uiScale: root.uiScale
@@ -196,8 +171,7 @@ PanelWindow {
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
-                if (!root.pinned)
-                    root.showPanel = !root.showPanel
+                root.showPanel = !root.showPanel
             }
         }
     }
