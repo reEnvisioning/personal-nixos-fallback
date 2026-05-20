@@ -1,4 +1,5 @@
 import QtQuick
+import Quickshell
 import Quickshell.Io
 
 Item {
@@ -107,33 +108,20 @@ Item {
 
     function clearAll() {
         clipModel.clear()
-        saveProcess.command = ["sh", "-c",
-            "mkdir -p $HOME/.local/share/headspace && " +
-            "echo '[]' > $HOME/.local/share/headspace/clip-history.json;" +
-            "rm -rf $HOME/.local/share/headspace/clips"]
-        saveProcess.running = false
-        saveProcess.running = true
+        Quickshell.execDetached(["sh", "-c",
+            "echo '[]' > $HOME/.local/share/headspace/clip-history.json && " +
+            "rm -rf $HOME/.local/share/headspace/clips"])
     }
 
     function copyAt(index) {
         var item = clipModel.get(index)
         if (item.type === "text") {
-            var escaped = item.content.replace(/'/g, "'\\''")
-            copyProcess.command = ["sh", "-c", "printf '%s' '" + escaped + "' | wl-copy"]
+            Quickshell.execDetached(["wl-copy", item.content])
         } else if (item.type === "file") {
-            var uris = item.content.join("\n").replace(/'/g, "'\\''")
-            copyProcess.command = ["sh", "-c", "printf '%s' '" + uris + "' | wl-copy --type text/uri-list"]
+            Quickshell.execDetached(["wl-copy", "--type", "text/uri-list", item.content.join("\n")])
         } else if (item.type === "image") {
-            copyProcess.command = ["sh", "-c", "wl-copy --type image/png < '" + item.content.replace(/'/g, "'\\''") + "'"]
+            Quickshell.execDetached(["wl-copy", "--type", "image/png", item.content])
         }
-        copyProcess.running = false
-        copyProcess.running = true
-    }
-
-    Process {
-        id: copyProcess
-        command: ["true"]
-        running: false
     }
 
     function save() {

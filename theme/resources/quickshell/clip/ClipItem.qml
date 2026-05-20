@@ -35,7 +35,7 @@ Item {
         Text {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignVCenter
-            text: root.clipPreview
+            text: root.clipPreview.length > 0 ? root.clipPreview : root.clipType
             color: root.colors.text
             font.pointSize: 10
             elide: Text.ElideRight

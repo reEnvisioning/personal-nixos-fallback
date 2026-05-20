@@ -93,32 +93,6 @@ PanelWindow {
                     }
                 }
 
-                Text {
-                    anchors.verticalCenter: parent.verticalCenter
-                    text: "Clear"
-                    color: clearArea.containsMouse ? root.colors.red : root.colors.subtext0
-                    font.pointSize: 9
-
-                    MouseArea {
-                        id: clearArea
-                        anchors.fill: parent
-                        anchors.margins: -Math.round(4 * root.uiScale)
-                        hoverEnabled: true
-                        onClicked: root.clipMon.clearAll()
-                    }
-                }
-            }
-
-            // Drag handle
-            MouseArea {
-                anchors.fill: parent
-                property real sx
-                property real sy
-                onPressed: { sx = mouse.x; sy = mouse.y }
-                onPositionChanged: {
-                    root.x += mouse.x - sx
-                    root.y += mouse.y - sy
-                }
             }
         }
 
@@ -166,7 +140,7 @@ PanelWindow {
 
                 delegate: ClipItem {
                     clipType: model.type
-                    clipPreview: model.preview
+                    clipPreview: model["preview"]
                     clipMon: root.clipMon
                     colors: root.colors
                     uiScale: root.uiScale
