@@ -90,29 +90,39 @@ PanelWindow {
                 visible: root.clipMon.entries.length === 0
             }
 
-            ListView {
-                id: listView
+            Flickable {
+                id: clipFlickable
                 width: parent.width
                 height: parent.height
-                model: ScriptModel {
-                    values: root.clipMon.entries
-                }
-                delegate: ClipItem {
-                    entry: modelData
-                    clipMon: root.clipMon
-                    colors: root.colors
-                    uiScale: root.uiScale
-                    clipIndex: index
-                    selected: index === root.currentIndex
-                    width: listView.width - Math.round(8 * root.uiScale)
-                    x: Math.round(4 * root.uiScale)
-                    onItemClicked: root.currentIndex = index
-                    onCopyRequested: root.showPanel = false
-                }
-                spacing: Math.round(2 * root.uiScale)
+                contentHeight: clipColumn.height
                 boundsBehavior: Flickable.StopAtBounds
-                focus: true
+                interactive: root.clipMon.entries.length > 0
+                clip: true
                 visible: root.clipMon.entries.length > 0
+                focus: true
+
+                Column {
+                    id: clipColumn
+                    width: parent.width
+                    spacing: Math.round(2 * root.uiScale)
+
+                    Repeater {
+                        model: root.clipMon.entries.length
+
+                        ClipItem {
+                            width: clipFlickable.width - Math.round(8 * root.uiScale)
+                            x: Math.round(4 * root.uiScale)
+                            entry: root.clipMon.entries[index]
+                            clipMon: root.clipMon
+                            colors: root.colors
+                            uiScale: root.uiScale
+                            clipIndex: index
+                            selected: index === root.currentIndex
+                            onItemClicked: root.currentIndex = index
+                            onCopyRequested: root.showPanel = false
+                        }
+                    }
+                }
 
                 Keys.onPressed: {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
