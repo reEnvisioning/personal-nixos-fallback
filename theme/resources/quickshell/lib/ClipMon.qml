@@ -9,6 +9,8 @@ Item {
         id: entriesModel
     }
 
+    property alias entriesModel: entriesModel
+
     property string _lastText: ""
 
     Component.onCompleted: load()
