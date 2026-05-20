@@ -7,8 +7,6 @@ Item {
 
     property var entries: []
 
-    signal entriesChanged()
-
     property string _lastText: ""
     property string _lastUris: ""
     property int _lastImgSize: -1
