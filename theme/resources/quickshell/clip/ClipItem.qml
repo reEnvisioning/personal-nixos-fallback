@@ -94,9 +94,11 @@ Item {
             }
 
             Text {
-                text: root.clipType === "image" ? "Image" : relativeTime(root.clipTimestamp)
+                text: root.clipContent
                 color: root.colors.subtext0
                 font.pointSize: 8
+                elide: Text.ElideRight
+                maximumLineCount: 1
             }
         }
 
@@ -132,17 +134,5 @@ Item {
         }
     }
 
-    function relativeTime(ts) {
-        if (typeof ts !== "number" || ts <= 0) return "now"
-        var diff = Date.now() - ts
-        if (diff < 0) return "now"
-        var mins = Math.floor(diff / 60000)
-        if (mins < 1) return "now"
-        if (mins < 60) return mins + "m ago"
-        var hrs = Math.floor(mins / 60)
-        if (hrs < 24) return hrs + "h ago"
-        var days = Math.floor(hrs / 24)
-        if (days > 365) return "old"
-        return days + "d ago"
-    }
+
 }

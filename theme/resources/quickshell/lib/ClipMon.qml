@@ -66,7 +66,7 @@ Item {
                 } else if (typeLine === "TYPE:image") {
                     var imgPath = lines.slice(1).join("\n").trim()
                     if (imgPath.length > 0) {
-                        root.addClip("image", imgPath, "Image")
+                        root.addClip("image", imgPath, imgPath.split("/").pop())
                     }
                 } else if (typeLine === "TYPE:text") {
                     var txt = lines.slice(1).join("\n").trim()
