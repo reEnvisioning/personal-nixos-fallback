@@ -45,7 +45,6 @@ PanelWindow {
         width: parent.width
         spacing: 0
 
-        // Header
         Item {
             id: header
             Layout.fillWidth: true
@@ -62,7 +61,6 @@ PanelWindow {
             }
         }
 
-        // Divider
         Rectangle {
             Layout.fillWidth: true
             height: 1
@@ -71,7 +69,6 @@ PanelWindow {
             Layout.rightMargin: Math.round(8 * root.uiScale)
         }
 
-        // Clip list area
         Item {
             id: listArea
             Layout.fillWidth: true
@@ -105,26 +102,9 @@ PanelWindow {
                     id: clipColumn
                     width: parent.width
                     spacing: Math.round(2 * root.uiScale)
-
-                    Repeater {
-                        model: root.clipMon.entries
-
-                        ClipItem {
-                            width: clipFlickable.width - Math.round(8 * root.uiScale)
-                            x: Math.round(4 * root.uiScale)
-                            entry: modelData
-                            clipMon: root.clipMon
-                            colors: root.colors
-                            uiScale: root.uiScale
-                            clipIndex: index
-                            selected: index === root.currentIndex
-                            onItemClicked: root.currentIndex = index
-                            onCopyRequested: root.showPanel = false
-                        }
-                    }
                 }
 
-                Keys.onPressed: {
+                Keys.onPressed: function(event) {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         if (root.currentIndex >= 0 && root.currentIndex < root.clipMon.entries.length) {
                             root.clipMon.copyAt(root.currentIndex)
@@ -148,6 +128,53 @@ PanelWindow {
                     }
                 }
             }
+        }
+    }
+
+    Component {
+        id: itemComponent
+        ClipItem {}
+    }
+
+    Component.onCompleted: rebuildClipItems()
+
+    onCurrentIndexChanged: {
+        for (var i = 0; i < clipColumn.children.length; i++) {
+            var child = clipColumn.children[i]
+            if (child.clipIndex !== undefined)
+                child.selected = child.clipIndex === root.currentIndex
+        }
+    }
+
+    Connections {
+        target: root.clipMon
+        function onEntriesChanged() {
+            rebuildClipItems()
+        }
+    }
+
+    function rebuildClipItems() {
+        var children = clipColumn.children
+        for (var i = children.length - 1; i >= 0; i--)
+            children[i].destroy()
+
+        for (var i = 0; i < root.clipMon.entries.length; i++) {
+            var item = itemComponent.createObject(clipColumn, {
+                x: Math.round(4 * root.uiScale),
+                width: root.width - Math.round(8 * root.uiScale),
+                entry: root.clipMon.entries[i],
+                clipMon: root.clipMon,
+                colors: root.colors,
+                uiScale: root.uiScale,
+                clipIndex: i,
+                selected: i === root.currentIndex
+            })
+            item.itemClicked.connect(function(idx) {
+                root.currentIndex = idx
+            })
+            item.copyRequested.connect(function() {
+                root.showPanel = false
+            })
         }
     }
 
