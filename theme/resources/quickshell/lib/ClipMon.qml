@@ -5,11 +5,7 @@ import Quickshell.Io
 Item {
     id: root
 
-    ListModel {
-        id: entriesModel
-    }
-
-    property alias entriesModel: entriesModel
+    property var entries: []
 
     property string _lastText: ""
 
@@ -31,40 +27,36 @@ Item {
     }
 
     function addClip(txt) {
-        if (entriesModel.count > 0 && entriesModel.get(0).content === txt)
+        if (root.entries.length > 0 && root.entries[0].content === txt)
             return
 
-        entriesModel.insert(0, { type: "text", content: txt, preview: txt.substring(0, 80), timestamp: Date.now() })
+        root.entries = [{ type: "text", content: txt, preview: txt.substring(0, 80), timestamp: Date.now() }].concat(root.entries)
 
-        while (entriesModel.count > 50)
-            entriesModel.remove(50, 1)
+        if (root.entries.length > 50)
+            root.entries = root.entries.slice(0, 50)
 
         save()
     }
 
     function removeAt(index) {
-        entriesModel.remove(index, 1)
+        root.entries = root.entries.filter(function(_, i) { return i !== index })
         save()
     }
 
     function clearAll() {
-        entriesModel.clear()
+        root.entries = []
         Quickshell.execDetached(["sh", "-c",
             "echo '[]' > $HOME/.local/share/headspace/clip-history.json && " +
             "rm -rf $HOME/.local/share/headspace/clips"])
     }
 
     function copyAt(index) {
-        if (index < 0 || index >= entriesModel.count) return
-        Quickshell.clipboardText = entriesModel.get(index).content
+        if (index < 0 || index >= root.entries.length) return
+        Quickshell.clipboardText = root.entries[index].content
     }
 
     function save() {
-        var arr = []
-        for (var i = 0; i < entriesModel.count; i++)
-            arr.push(entriesModel.get(i))
-
-        var json = JSON.stringify(arr)
+        var json = JSON.stringify(root.entries)
         var delim = "HS" + Math.random().toString(36).substring(2, 10) + "EOF"
         saveProcess.command = ["sh", "-c",
             "mkdir -p $HOME/.local/share/headspace && " +
@@ -94,11 +86,8 @@ Item {
             onStreamFinished: {
                 try {
                     var arr = JSON.parse(text.trim())
-                    if (Array.isArray(arr)) {
-                        entriesModel.clear()
-                        for (var i = 0; i < arr.length; i++)
-                            entriesModel.append(arr[i])
-                    }
+                    if (Array.isArray(arr))
+                        root.entries = arr
                 } catch (e) {
                     console.log("ClipMon: load error: " + e)
                 }

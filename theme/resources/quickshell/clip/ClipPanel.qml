@@ -17,8 +17,8 @@ PanelWindow {
 
     width: Math.round(380 * root.uiScale)
     implicitHeight: Math.round(36 * root.uiScale) + 1
-        + (root.clipMon.entriesModel.count > 0
-            ? Math.min(root.clipMon.entriesModel.count * Math.round(50 * root.uiScale),
+        + (root.clipMon.entries.length > 0
+            ? Math.min(root.clipMon.entries.length * Math.round(50 * root.uiScale),
                        Math.round(420 * root.uiScale))
             : Math.round(40 * root.uiScale))
         + Math.round(6 * root.uiScale)
@@ -75,8 +75,8 @@ PanelWindow {
         Item {
             id: listArea
             Layout.fillWidth: true
-            Layout.preferredHeight: root.clipMon.entriesModel.count > 0
-                ? Math.min(root.clipMon.entriesModel.count * Math.round(50 * root.uiScale),
+            Layout.preferredHeight: root.clipMon.entries.length > 0
+                ? Math.min(root.clipMon.entries.length * Math.round(50 * root.uiScale),
                            Math.round(420 * root.uiScale))
                 : Math.round(40 * root.uiScale)
             Layout.bottomMargin: Math.round(6 * root.uiScale)
@@ -87,14 +87,16 @@ PanelWindow {
                 text: "Clipboard is empty"
                 color: root.colors.subtext0
                 font.pointSize: 9
-                visible: root.clipMon.entriesModel.count === 0
+                visible: root.clipMon.entries.length === 0
             }
 
             ListView {
                 id: listView
                 width: parent.width
                 height: parent.height
-                model: root.clipMon.entriesModel
+                model: ScriptModel {
+                    values: root.clipMon.entries
+                }
                 delegate: ClipItem {
                     entry: modelData
                     clipMon: root.clipMon
@@ -110,11 +112,11 @@ PanelWindow {
                 spacing: Math.round(2 * root.uiScale)
                 boundsBehavior: Flickable.StopAtBounds
                 focus: true
-                visible: root.clipMon.entriesModel.count > 0
+                visible: root.clipMon.entries.length > 0
 
                 Keys.onPressed: {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                        if (root.currentIndex >= 0 && root.currentIndex < root.clipMon.entriesModel.count) {
+                        if (root.currentIndex >= 0 && root.currentIndex < root.clipMon.entries.length) {
                             root.clipMon.copyAt(root.currentIndex)
                             root.showPanel = false
                         }
@@ -123,7 +125,7 @@ PanelWindow {
                         root.clipMon.clearAll()
                         event.accepted = true
                     } else if (event.key === Qt.Key_D && (event.modifiers & Qt.ControlModifier) && !(event.modifiers & Qt.ShiftModifier)) {
-                        if (root.currentIndex >= 0 && root.currentIndex < root.clipMon.entriesModel.count) {
+                        if (root.currentIndex >= 0 && root.currentIndex < root.clipMon.entries.length) {
                             root.clipMon.removeAt(root.currentIndex)
                         }
                         event.accepted = true
@@ -131,7 +133,7 @@ PanelWindow {
                         if (root.currentIndex > 0) root.currentIndex--
                         event.accepted = true
                     } else if (event.key === Qt.Key_Down) {
-                        if (root.currentIndex < root.clipMon.entriesModel.count - 1) root.currentIndex++
+                        if (root.currentIndex < root.clipMon.entries.length - 1) root.currentIndex++
                         event.accepted = true
                     }
                 }
