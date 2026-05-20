@@ -16,7 +16,12 @@ PanelWindow {
     property int currentIndex: 0
 
     width: Math.round(380 * root.uiScale)
-    implicitHeight: header.height + listArea.height + Math.round(6 * root.uiScale)
+    implicitHeight: Math.round(36 * root.uiScale) + 1
+        + (root.clipMon.entriesModel.count > 0
+            ? Math.min(root.clipMon.entriesModel.count * Math.round(50 * root.uiScale),
+                       Math.round(420 * root.uiScale))
+            : Math.round(40 * root.uiScale))
+        + Math.round(6 * root.uiScale)
 
     color: "transparent"
     focusable: true
