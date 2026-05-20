@@ -85,34 +85,28 @@ PanelWindow {
                 visible: root.clipMon.entries.length === 0
             }
 
-            Flickable {
-                id: flick
+            ListView {
+                id: listView
                 width: parent.width
                 height: parent.height
-                contentHeight: clipColumn.height
-                boundsBehavior: Flickable.StopAtBounds
-                visible: root.clipMon.entries.length > 0
-
-                Column {
-                    id: clipColumn
-                    width: parent.width
-                    spacing: Math.round(2 * root.uiScale)
-
-                    Repeater {
-                        model: root.clipMon.entries.length
-                        delegate: ClipItem {
-                            entry: root.clipMon.entries[index]
-                            clipMon: root.clipMon
-                            colors: root.colors
-                            uiScale: root.uiScale
-                            clipIndex: index
-                            selected: index === root.currentIndex
-                            width: clipColumn.width - Math.round(8 * root.uiScale)
-                            x: Math.round(4 * root.uiScale)
-                            onCopyRequested: root.showPanel = false
-                        }
-                    }
+                model: ScriptModel {
+                    values: root.clipMon.entries
                 }
+                delegate: ClipItem {
+                    entry: modelData
+                    clipMon: root.clipMon
+                    colors: root.colors
+                    uiScale: root.uiScale
+                    clipIndex: index
+                    selected: index === root.currentIndex
+                    width: listView.width - Math.round(8 * root.uiScale)
+                    x: Math.round(4 * root.uiScale)
+                    onCopyRequested: root.showPanel = false
+                }
+                spacing: Math.round(2 * root.uiScale)
+                boundsBehavior: Flickable.StopAtBounds
+                focus: true
+                visible: root.clipMon.entries.length > 0
 
                 Keys.onPressed: {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
@@ -130,17 +124,10 @@ PanelWindow {
                         }
                         event.accepted = true
                     } else if (event.key === Qt.Key_Up) {
-                        if (root.currentIndex > 0) {
-                            root.currentIndex--
-                            flick.contentY = Math.max(0, root.currentIndex * Math.round(50 * root.uiScale) - flick.height / 3)
-                        }
+                        if (root.currentIndex > 0) root.currentIndex--
                         event.accepted = true
                     } else if (event.key === Qt.Key_Down) {
-                        if (root.currentIndex < root.clipMon.entries.length - 1) {
-                            root.currentIndex++
-                            flick.contentY = Math.min(flick.contentHeight - flick.height,
-                                                      root.currentIndex * Math.round(50 * root.uiScale) - flick.height / 3)
-                        }
+                        if (root.currentIndex < root.clipMon.entries.length - 1) root.currentIndex++
                         event.accepted = true
                     }
                 }
