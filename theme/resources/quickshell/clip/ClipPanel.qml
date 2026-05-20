@@ -14,12 +14,14 @@ PanelWindow {
 
     property bool showPanel: false
     property bool pinned: false
+    property int currentIndex: 0
 
     width: Math.round(380 * root.uiScale)
-    implicitHeight: Math.min(header.height + listContent, Math.round(500 * root.uiScale))
+    implicitHeight: Math.min(header.height + listHeight, Math.round(500 * root.uiScale))
 
-    readonly property real listContent: root.clipMon.history.count > 0
-        ? Math.max(listView.contentHeight, Math.round(20 * root.uiScale)) + Math.round(8 * root.uiScale)
+    readonly property real listHeight: root.clipMon.entries.length > 0
+        ? Math.min(root.clipMon.entries.length * Math.round(50 * root.uiScale) + Math.round(6 * root.uiScale),
+                   Math.round(460 * root.uiScale))
         : Math.round(40 * root.uiScale)
 
     color: "transparent"
@@ -28,6 +30,10 @@ PanelWindow {
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
     WlrLayershell.namespace: "headspace-clipboard"
     visible: root.showPanel
+
+    onShowPanelChanged: {
+        if (root.showPanel) root.currentIndex = 0
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -94,9 +100,7 @@ PanelWindow {
         // Clip list or empty
         Item {
             Layout.fillWidth: true
-            Layout.preferredHeight: root.clipMon.history.count > 0
-                ? Math.max(listView.contentHeight, Math.round(20 * root.uiScale))
-                : Math.round(40 * root.uiScale)
+            Layout.preferredHeight: root.listHeight
             Layout.bottomMargin: Math.round(6 * root.uiScale)
             clip: true
 
@@ -106,41 +110,42 @@ PanelWindow {
                 text: "Clipboard is empty"
                 color: root.colors.subtext0
                 font.pointSize: 9
-                visible: root.clipMon.history.count === 0
+                visible: root.clipMon.entries.length === 0
             }
 
-            ListView {
-                id: listView
+            Flickable {
+                id: flick
                 width: parent.width
                 height: parent.height
-                model: root.clipMon.history
-                spacing: Math.round(2 * root.uiScale)
-                visible: root.clipMon.history.count > 0
+                contentHeight: clipColumn.height
                 boundsBehavior: Flickable.StopAtBounds
-                focus: true
-                highlightMoveDuration: 100
-                highlight: Rectangle {
-                    color: "transparent"
-                    border.color: "transparent"
-                }
+                visible: root.clipMon.entries.length > 0
 
-                delegate: ClipItem {
-                    clipType: model.type
-                    clipPreview: model["preview"]
-                    clipMon: root.clipMon
-                    colors: root.colors
-                    uiScale: root.uiScale
-                    clipIndex: index
-                    selected: ListView.isCurrentItem
-                    width: listView.width - Math.round(8 * root.uiScale)
-                    x: Math.round(4 * root.uiScale)
-                    onCopyRequested: root.showPanel = false
+                Column {
+                    id: clipColumn
+                    width: parent.width
+                    spacing: Math.round(2 * root.uiScale)
+
+                    Repeater {
+                        model: root.clipMon.entries
+                        delegate: ClipItem {
+                            entry: modelData
+                            clipMon: root.clipMon
+                            colors: root.colors
+                            uiScale: root.uiScale
+                            clipIndex: index
+                            selected: index === root.currentIndex
+                            width: clipColumn.width - Math.round(8 * root.uiScale)
+                            x: Math.round(4 * root.uiScale)
+                            onCopyRequested: root.showPanel = false
+                        }
+                    }
                 }
 
                 Keys.onPressed: {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
-                        if (currentIndex >= 0) {
-                            root.clipMon.copyAt(currentIndex)
+                        if (root.currentIndex >= 0 && root.currentIndex < root.clipMon.entries.length) {
+                            root.clipMon.copyAt(root.currentIndex)
                             root.showPanel = false
                         }
                         event.accepted = true
@@ -148,15 +153,22 @@ PanelWindow {
                         root.clipMon.clearAll()
                         event.accepted = true
                     } else if (event.key === Qt.Key_D && (event.modifiers & Qt.ControlModifier) && !(event.modifiers & Qt.ShiftModifier)) {
-                        if (currentIndex >= 0) {
-                            root.clipMon.removeAt(currentIndex)
+                        if (root.currentIndex >= 0 && root.currentIndex < root.clipMon.entries.length) {
+                            root.clipMon.removeAt(root.currentIndex)
                         }
                         event.accepted = true
                     } else if (event.key === Qt.Key_Up) {
-                        if (currentIndex > 0) currentIndex--
+                        if (root.currentIndex > 0) {
+                            root.currentIndex--
+                            flick.contentY = Math.max(0, root.currentIndex * Math.round(50 * root.uiScale) - flick.height / 2)
+                        }
                         event.accepted = true
                     } else if (event.key === Qt.Key_Down) {
-                        if (currentIndex < root.clipMon.history.count - 1) currentIndex++
+                        if (root.currentIndex < root.clipMon.entries.length - 1) {
+                            root.currentIndex++
+                            flick.contentY = Math.min(flick.contentHeight - flick.height,
+                                                      root.currentIndex * Math.round(50 * root.uiScale) - flick.height / 2)
+                        }
                         event.accepted = true
                     }
                 }

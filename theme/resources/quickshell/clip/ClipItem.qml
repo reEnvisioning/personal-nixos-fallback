@@ -4,8 +4,7 @@ import QtQuick.Layouts
 Item {
     id: root
 
-    required property string clipType
-    required property string clipPreview
+    required property var entry
     required property var clipMon
     required property var colors
     required property real uiScale
@@ -35,7 +34,7 @@ Item {
         Text {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignVCenter
-            text: root.clipPreview.length > 0 ? root.clipPreview : root.clipType
+            text: root.entry.preview
             color: root.colors.text
             font.pointSize: 10
             elide: Text.ElideRight

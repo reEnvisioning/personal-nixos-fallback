@@ -5,15 +5,13 @@ import Quickshell.Io
 Item {
     id: root
 
-    ListModel { id: clipModel }
+    property var entries: []
 
-    property alias history: clipModel
+    signal entriesChanged()
 
     property string _lastText: ""
     property string _lastUris: ""
     property int _lastImgSize: -1
-
-    signal clipAdded(int index)
 
     Component.onCompleted: load()
 
@@ -81,40 +79,43 @@ Item {
     }
 
     function addClip(type, content, preview) {
-        if (clipModel.count > 0) {
-            var first = clipModel.get(0)
+        if (root.entries.length > 0) {
+            var first = root.entries[0]
             if (first.type === type && JSON.stringify(first.content) === JSON.stringify(content))
                 return
         }
 
-        clipModel.insert(0, {
+        root.entries.unshift({
             type: type,
             content: content,
             preview: preview,
             timestamp: Date.now()
         })
 
-        while (clipModel.count > 50)
-            clipModel.remove(clipModel.count - 1, 1)
+        while (root.entries.length > 50)
+            root.entries.pop()
 
-        clipAdded(0)
+        root.entriesChanged()
         save()
     }
 
     function removeAt(index) {
-        clipModel.remove(index, 1)
+        root.entries.splice(index, 1)
+        root.entriesChanged()
         save()
     }
 
     function clearAll() {
-        clipModel.clear()
+        root.entries = []
+        root.entriesChanged()
         Quickshell.execDetached(["sh", "-c",
             "echo '[]' > $HOME/.local/share/headspace/clip-history.json && " +
             "rm -rf $HOME/.local/share/headspace/clips"])
     }
 
     function copyAt(index) {
-        var item = clipModel.get(index)
+        if (index < 0 || index >= root.entries.length) return
+        var item = root.entries[index]
         if (item.type === "text") {
             Quickshell.execDetached(["wl-copy", item.content])
         } else if (item.type === "file") {
@@ -125,10 +126,7 @@ Item {
     }
 
     function save() {
-        var arr = []
-        for (var i = 0; i < clipModel.count; i++)
-            arr.push(clipModel.get(i))
-        var json = JSON.stringify(arr)
+        var json = JSON.stringify(root.entries)
         var delim = "HS" + Math.random().toString(36).substring(2, 10) + "EOF"
         saveProcess.command = ["sh", "-c",
             "mkdir -p $HOME/.local/share/headspace && " +
@@ -159,9 +157,8 @@ Item {
                 try {
                     var arr = JSON.parse(text.trim())
                     if (Array.isArray(arr)) {
-                        clipModel.clear()
-                        for (var i = 0; i < arr.length; i++)
-                            clipModel.append(arr[i])
+                        root.entries = arr
+                        root.entriesChanged()
                     }
                 } catch (e) {
                     console.log("ClipMon: load error: " + e)
