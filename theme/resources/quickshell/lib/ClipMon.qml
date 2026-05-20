@@ -26,7 +26,7 @@ Item {
     Process {
         id: pollProcess
         command: ["sh", "-c",
-            'txt=$(wl-paste --type text/plain 2>/dev/null); ' +
+            'txt=$(timeout 1 wl-paste --type text/plain 2>/dev/null); ' +
             'if [ -n "$txt" ]; then echo "TYPE:text"; echo "$txt"; exit 0; fi; ' +
             'echo "TYPE:none"']
         running: false
@@ -38,7 +38,7 @@ Item {
                 if (typeLine === "TYPE:none") return
 
                 if (typeLine === "TYPE:text") {
-                    var txt = lines.slice(1).join("\n").trim()
+                    var txt = lines.slice(1).join("\n")
                     if (txt.length > 0 && txt !== root._lastText) {
                         root._lastText = txt
                         root.addClip(txt)
@@ -74,7 +74,7 @@ Item {
 
     function copyAt(index) {
         if (index < 0 || index >= root.entries.length) return
-        Quickshell.execDetached(["wl-copy", root.entries[index].content])
+        Quickshell.clipboardText = root.entries[index].content
     }
 
     function save() {

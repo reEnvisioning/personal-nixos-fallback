@@ -101,6 +101,7 @@ PanelWindow {
                     selected: index === root.currentIndex
                     width: listView.width - Math.round(8 * root.uiScale)
                     x: Math.round(4 * root.uiScale)
+                    onItemClicked: root.currentIndex = index
                     onCopyRequested: root.showPanel = false
                 }
                 spacing: Math.round(2 * root.uiScale)

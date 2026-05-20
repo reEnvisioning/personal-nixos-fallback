@@ -12,6 +12,7 @@ Item {
     required property bool selected
 
     signal copyRequested()
+    signal itemClicked(int index)
 
     width: parent ? parent.width : 380
     height: Math.round(48 * root.uiScale)
@@ -70,6 +71,7 @@ Item {
                 root.clipMon.removeAt(root.clipIndex)
             } else {
                 root.clipMon.copyAt(root.clipIndex)
+                root.itemClicked(root.clipIndex)
                 root.copyRequested()
             }
         }
