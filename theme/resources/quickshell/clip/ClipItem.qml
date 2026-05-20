@@ -27,8 +27,10 @@ Item {
 
     RowLayout {
         anchors.fill: parent
-        anchors.margins: Math.round(6 * root.uiScale)
-        spacing: Math.round(8 * root.uiScale)
+        anchors.leftMargin: Math.round(10 * root.uiScale)
+        anchors.rightMargin: Math.round(6 * root.uiScale)
+        anchors.verticalCenter: parent.verticalCenter
+        spacing: 0
         z: 1
 
         Text {

@@ -17,12 +17,7 @@ PanelWindow {
     property int currentIndex: 0
 
     width: Math.round(380 * root.uiScale)
-    implicitHeight: Math.min(header.height + listHeight, Math.round(500 * root.uiScale))
-
-    readonly property real listHeight: root.clipMon.entries.length > 0
-        ? Math.min(root.clipMon.entries.length * Math.round(50 * root.uiScale) + Math.round(6 * root.uiScale),
-                   Math.round(460 * root.uiScale))
-        : Math.round(40 * root.uiScale)
+    implicitHeight: header.height + listArea.height + Math.round(6 * root.uiScale)
 
     color: "transparent"
     focusable: true
@@ -39,7 +34,6 @@ PanelWindow {
         anchors.fill: parent
         radius: Math.round(12 * root.uiScale)
         color: root.colors.background
-
         Behavior on color { CAnim {} }
     }
 
@@ -97,15 +91,18 @@ PanelWindow {
             Layout.rightMargin: Math.round(8 * root.uiScale)
         }
 
-        // Clip list or empty
+        // Clip list area
         Item {
+            id: listArea
             Layout.fillWidth: true
-            Layout.preferredHeight: root.listHeight
+            Layout.preferredHeight: root.clipMon.entries.length > 0
+                ? Math.min(root.clipMon.entries.length * Math.round(50 * root.uiScale),
+                           Math.round(420 * root.uiScale))
+                : Math.round(40 * root.uiScale)
             Layout.bottomMargin: Math.round(6 * root.uiScale)
             clip: true
 
             Text {
-                id: emptyText
                 anchors.centerIn: parent
                 text: "Clipboard is empty"
                 color: root.colors.subtext0
@@ -160,14 +157,14 @@ PanelWindow {
                     } else if (event.key === Qt.Key_Up) {
                         if (root.currentIndex > 0) {
                             root.currentIndex--
-                            flick.contentY = Math.max(0, root.currentIndex * Math.round(50 * root.uiScale) - flick.height / 2)
+                            flick.contentY = Math.max(0, root.currentIndex * Math.round(50 * root.uiScale) - flick.height / 3)
                         }
                         event.accepted = true
                     } else if (event.key === Qt.Key_Down) {
                         if (root.currentIndex < root.clipMon.entries.length - 1) {
                             root.currentIndex++
                             flick.contentY = Math.min(flick.contentHeight - flick.height,
-                                                      root.currentIndex * Math.round(50 * root.uiScale) - flick.height / 2)
+                                                      root.currentIndex * Math.round(50 * root.uiScale) - flick.height / 3)
                         }
                         event.accepted = true
                     }
@@ -176,8 +173,7 @@ PanelWindow {
         }
     }
 
-    // --- IPC: toggle watcher/reader ---
-
+    // IPC toggle
     Process {
         id: toggleWatcher
         command: ["bash", "-c",
