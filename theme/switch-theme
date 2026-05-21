@@ -109,40 +109,22 @@ style=$qt_style
 EOF
 done
 
-# 10. KDE color scheme — for Kdenlive and other KDE apps
+# 10. Kdenlive — color scheme
+KDENLIVE_RC="$HOME/.config/kdenliverc"
+mkdir -p "$(dirname "$KDENLIVE_RC")"
 if [ "$MODE" = "dark" ]; then
-    KDE_SCHEME="BreezeDark"
+    SCHEME="BreezeDark"
+    SCHEME_PATH="BreezeDark.colors"
 else
-    KDE_SCHEME="BreezeLight"
+    SCHEME="BreezeLight"
+    SCHEME_PATH="BreezeLight.colors"
 fi
-KDE_GLOBALS="$HOME/.config/kdeglobals"
-mkdir -p "$(dirname "$KDE_GLOBALS")"
-jq -r --arg scheme "$KDE_SCHEME" '
-  .colors as $c |
-  "[General]",
-  "ColorScheme=\($scheme)",
-  "",
-  "[KDE]",
-  "widgetStyle=Breeze",
-  "",
-  "[Colors:Window]",
-  "BackgroundNormal=\($c.background)",
-  "ForegroundNormal=\($c.text)",
-  "BackgroundAlternate=\($c.backgroundAccent)",
-  "",
-  "[Colors:View]",
-  "BackgroundNormal=\($c.background)",
-  "ForegroundNormal=\($c.text)",
-  "BackgroundAlternate=\($c.backgroundAccent)",
-  "",
-  "[Colors:Button]",
-  "BackgroundNormal=\($c.background)",
-  "ForegroundNormal=\($c.text)",
-  "",
-  "[Colors:Selection]",
-  "BackgroundNormal=\($c.highlighted)",
-  "ForegroundNormal=\($c.text)"
-' "$THEME_FILE" > "$KDE_GLOBALS"
+if grep -q '^\[UiSettings\]' "$KDENLIVE_RC" 2>/dev/null; then
+    sed -i '/^\[UiSettings\]/,/^\[/ s|^ColorScheme=.*|ColorScheme='"$SCHEME"'|' "$KDENLIVE_RC"
+    sed -i '/^\[UiSettings\]/,/^\[/ s|^ColorSchemePath=.*|ColorSchemePath='"$SCHEME_PATH"'|' "$KDENLIVE_RC"
+else
+    printf '\n[UiSettings]\nColorScheme=%s\nColorSchemePath=%s\n' "$SCHEME" "$SCHEME_PATH" >> "$KDENLIVE_RC"
+fi
 
 # OBS Studio — set theme
 obs_ini="$HOME/.config/obs-studio/user.ini"
