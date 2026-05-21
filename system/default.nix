@@ -56,7 +56,7 @@
     ];
 
     environment.variables = {
-        "QT_QPA_PLATFORM" = "wayland;xcb";
+        "QT_QPA_PLATFORM" = "xcb";
         "ADW_DISABLE_PORTAL" = "1";
         "QT_QPA_PLATFORMTHEME" = "qt5ct";
         "XDG_CURRENT_DESKTOP" = "Hyprland";
