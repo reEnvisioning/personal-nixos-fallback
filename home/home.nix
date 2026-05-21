@@ -23,7 +23,7 @@
     inotify-tools
     gimp
     jetbrains.idea-oss
-    kdenlive
+    kdePackages.kdenlive
     libreoffice-qt
     obs-studio
     davinci-resolve-studio
