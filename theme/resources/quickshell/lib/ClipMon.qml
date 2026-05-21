@@ -204,8 +204,6 @@ Item {
             root._skipNextImage = true
             Quickshell.execDetached(["sh", "-c",
                 "wl-copy --type image/png < \"$HOME/.local/share/headspace/" + entry.storagePath + "\""])
-        } else if (entry.mimeType === "text/uri-list") {
-            Quickshell.execDetached(["wl-copy", "-t", "text/uri-list", entry.content])
         } else {
             Quickshell.execDetached(["wl-copy", entry.content])
         }
