@@ -42,12 +42,6 @@
     services.udisks2.enable = true;
     services.power-profiles-daemon.enable = true;
 
-    # Force 48kHz sample rate for PipeWire (required by DaVinci Resolve)
-    environment.etc."pipewire/pipewire.conf.d/10-sample-rate.conf".text = ''
-      context.properties = {
-        default.clock.rate = 48000
-      }
-    '';
     environment.systemPackages = with pkgs; [
         vim
         git
