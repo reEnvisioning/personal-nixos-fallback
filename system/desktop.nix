@@ -17,8 +17,8 @@
   services.xserver.videoDrivers = [ "nvidia" ];
 
   hardware.nvidia = {
-    # Proprietary kernel module (required for full CUDA/OpenCL support in DaVinci Resolve)
-    open = false;
+    # Open-source kernel module (Turing/RTX 20+ series and newer)
+    open = true;
 
     # Enable kernel modesetting (prevents tearing)
     modesetting.enable = true;
