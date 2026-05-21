@@ -32,10 +32,11 @@ Item {
             "  echo text/uri-list > /tmp/headspace-clip-mime\n" +
             "  echo ok > /tmp/headspace-clip-trigger\n" +
             "elif echo \"$types\" | grep -q \"image/png\"; then\n" +
-            "  ts=$(date +%s%3N)\n" +
             "  mkdir -p $HOME/.local/share/headspace/clips\n" +
-            "  wl-paste -t image/png > $HOME/.local/share/headspace/clips/$ts.png\n" +
-            "  echo \"$ts.png\" > /tmp/headspace-clip-data\n" +
+            "  wl-paste -t image/png > /tmp/headspace-clip-img-tmp.png\n" +
+            "  hash=$(sha256sum /tmp/headspace-clip-img-tmp.png | cut -d' ' -f1)\n" +
+            "  mv /tmp/headspace-clip-img-tmp.png $HOME/.local/share/headspace/clips/$hash.png\n" +
+            "  echo \"$hash.png\" > /tmp/headspace-clip-data\n" +
             "  echo image/png > /tmp/headspace-clip-mime\n" +
             "  echo ok > /tmp/headspace-clip-trigger\n" +
             "fi"
@@ -82,13 +83,32 @@ Item {
     // Seed: captures current clipboard content on startup
     Process {
         id: seedProcess
-        command: ["wl-paste", "-t", "text/plain"]
+        command: ["sh", "-c",
+            "types=$(wl-paste --list-types 2>/dev/null)\n" +
+            "if echo \"$types\" | grep -q \"text/plain\"; then\n" +
+            "  wl-paste -t text/plain\n" +
+            "elif echo \"$types\" | grep -q \"text/uri-list\"; then\n" +
+            "  wl-paste -t text/uri-list\n" +
+            "elif echo \"$types\" | grep -q \"image/png\"; then\n" +
+            "  mkdir -p $HOME/.local/share/headspace/clips\n" +
+            "  wl-paste -t image/png > /tmp/headspace-clip-img-tmp.png\n" +
+            "  hash=$(sha256sum /tmp/headspace-clip-img-tmp.png | cut -d' ' -f1)\n" +
+            "  mv /tmp/headspace-clip-img-tmp.png $HOME/.local/share/headspace/clips/$hash.png\n" +
+            "  echo \"__IMAGE__$hash.png\"\n" +
+            "fi"
+        ]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
-                var txt = text.trim()
-                if (txt.length > 0 && (root.entries.length === 0 || root.entries[0].content !== txt))
-                    root.addClip(txt)
+                var out = text.trim()
+                if (out.length === 0) return
+                var imgPrefix = "__IMAGE__"
+                if (out.substring(0, imgPrefix.length) === imgPrefix) {
+                    var fname = out.substring(imgPrefix.length)
+                    root.addImageClip(fname)
+                } else if (root.entries.length === 0 || root.entries[0].content !== out) {
+                    root.addClip(out)
+                }
             }
         }
     }
@@ -118,8 +138,9 @@ Item {
     }
 
     function addImageClip(fname) {
-        if (root.entries.length > 0 && root.entries[0].content === fname)
-            return
+        for (var i = 0; i < root.entries.length; i++) {
+            if (root.entries[i].content === fname) return
+        }
 
         root.entries = [{
             mimeType: "image/png",
