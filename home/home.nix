@@ -23,6 +23,7 @@
     inotify-tools
     gimp
     jetbrains.idea-oss
+    kdenlive
     libreoffice-qt
     obs-studio
     davinci-resolve-studio
