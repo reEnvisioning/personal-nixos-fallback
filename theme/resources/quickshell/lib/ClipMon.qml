@@ -17,13 +17,20 @@ Item {
         })
     }
 
-    // --- TEXT clipboard monitoring ---
+    // --- Clipboard monitoring (single watcher for text & images) ---
 
     Process {
-        id: pasteWatchText
+        id: pasteWatch
         command: ["wl-paste", "--watch", "sh", "-c",
-            "wl-paste -t text/plain 2>/dev/null > /tmp/hs-clip-t-data && " +
-            "echo ok > /tmp/hs-clip-t-trigger"]
+            "if wl-paste -t text/plain > /tmp/hs-clip-t-data 2>/dev/null; then " +
+            "  echo ok > /tmp/hs-clip-t-trigger; " +
+            "elif wl-paste -t image/png > /tmp/hs-clip-i-raw.png 2>/dev/null; then " +
+            "  ts=$(date +%s)_$$ && " +
+            "  mkdir -p \"$HOME/.local/share/headspace/clips\" && " +
+            "  cp /tmp/hs-clip-i-raw.png \"$HOME/.local/share/headspace/clips/$ts.png\" && " +
+            "  echo \"$ts.png\" > /tmp/hs-clip-i-data && " +
+            "  echo ok > /tmp/hs-clip-i-trigger; " +
+            "fi"]
         running: true
     }
 
@@ -56,19 +63,7 @@ Item {
         }
     }
 
-    // --- IMAGE clipboard monitoring ---
-
-    Process {
-        id: pasteWatchImg
-        command: ["wl-paste", "--watch", "sh", "-c",
-            "wl-paste -t image/png 2>/dev/null > /tmp/hs-clip-i-raw.png && " +
-            "ts=$(date +%s)_$$ && " +
-            "mkdir -p $HOME/.local/share/headspace/clips && " +
-            "cp /tmp/hs-clip-i-raw.png $HOME/.local/share/headspace/clips/$ts.png && " +
-            "echo \"$ts.png\" > /tmp/hs-clip-i-data && " +
-            "echo ok > /tmp/hs-clip-i-trigger"]
-        running: true
-    }
+    // --- IMAGE clipboard monitoring (triggered by pasteWatch above) ---
 
     Process {
         id: imgWatcher
