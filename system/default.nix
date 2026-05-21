@@ -60,6 +60,7 @@
         "ADW_DISABLE_PORTAL" = "1";
         "QT_QPA_PLATFORMTHEME" = "qt5ct";
         "XDG_CURRENT_DESKTOP" = "Hyprland";
+        "RESOLVE_FORCE_ALSA" = "1";
     };
 
 }

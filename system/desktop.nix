@@ -18,6 +18,7 @@
 
   hardware.nvidia = {
     # Open-source kernel module (Turing/RTX 20+ series and newer)
+    # Try setting to false if DaVinci Resolve still has GPU issues
     open = true;
 
     # Enable kernel modesetting (prevents tearing)
@@ -25,6 +26,9 @@
 
     # Enable NVIDIA settings GUI (accessible via `nvidia-settings`)
     nvidiaSettings = true;
+
+    # Enable OpenCL for GPU compute (required by DaVinci Resolve)
+    opencl = true;
 
     # Use stable driver package (matches current kernel)
     package = config.boot.kernelPackages.nvidiaPackages.stable;
