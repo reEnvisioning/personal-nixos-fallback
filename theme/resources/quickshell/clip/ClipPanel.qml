@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import QtQuick.Input
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
@@ -74,6 +75,15 @@ PanelWindow {
         radius: Math.round(12 * root.uiScale)
         color: root.colors.background
         Behavior on color { CAnim {} }
+
+        HoverHandler {
+            onHoveredChanged: {
+                if (hovered)
+                    idleTimer.stop()
+                else
+                    idleTimer.restart()
+            }
+        }
     }
 
     ColumnLayout {
