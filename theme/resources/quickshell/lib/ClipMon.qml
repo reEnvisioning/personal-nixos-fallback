@@ -61,6 +61,7 @@ Item {
     Process {
         id: pasteWatchImg
         command: ["wl-paste", "--watch", "sh", "-c",
+            "sleep 0.2 && " +
             "wl-paste -t image/png 2>/dev/null > /tmp/hs-clip-i-raw.png && " +
             "ts=$(date +%s)_$$ && " +
             "mkdir -p $HOME/.local/share/headspace/clips && " +
@@ -208,7 +209,7 @@ Item {
         if (entry.mimeType === "image/png" && entry.storagePath) {
             root._skipNextImage = true
             Quickshell.execDetached(["sh", "-c",
-                "wl-copy --type image/png < \"$HOME/.local/share/headspace/" + entry.storagePath + "\""])
+                "cat \"$HOME/.local/share/headspace/" + entry.storagePath + "\" | wl-copy --type image/png"])
         } else if (entry.mimeType === "text/uri-list") {
             Quickshell.execDetached(["wl-copy", "-t", "text/uri-list", entry.content])
         } else {
