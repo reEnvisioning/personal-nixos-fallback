@@ -35,14 +35,6 @@ Item {
         z: 1
 
         Text {
-            Layout.preferredWidth: Math.round(18 * root.uiScale)
-            horizontalAlignment: Text.AlignHCenter
-            text: root.entry.pinned ? "\u2605" : "\u2606"
-            color: root.colors.text
-            font.pointSize: 11
-        }
-
-        Text {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignVCenter
             text: root.entry.truncated
@@ -53,6 +45,14 @@ Item {
             elide: Text.ElideRight
             maximumLineCount: 1
         }
+
+        Text {
+            Layout.preferredWidth: Math.round(18 * root.uiScale)
+            horizontalAlignment: Text.AlignHCenter
+            text: root.entry.pinned ? "\u2605" : "\u2606"
+            color: root.colors.text
+            font.pointSize: 11
+        }
     }
 
     MouseArea {
@@ -62,7 +62,7 @@ Item {
         cursorShape: Qt.PointingHandCursor
         z: 2
         onClicked: function(mouse) {
-            if (mouse.x < Math.round(32 * root.uiScale)) {
+            if (mouse.x > root.width - Math.round(24 * root.uiScale)) {
                 root.clipMon.togglePin(root.clipIndex)
             } else {
                 root.clipMon.copyAt(root.clipIndex)
