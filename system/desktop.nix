@@ -7,10 +7,11 @@
   hardware.cpu.intel.updateMicrocode = true;
 
 
-  # Enable OpenGL/Vulkan
+  # Enable OpenGL/Vulkan/OpenCL
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
+    extraPackages = with pkgs; [ nvidia-ocl-icd ];
   };
 
   # Load NVIDIA driver for Xorg and Wayland (Hyprland)
@@ -26,9 +27,6 @@
 
     # Enable NVIDIA settings GUI (accessible via `nvidia-settings`)
     nvidiaSettings = true;
-
-    # Enable OpenCL for GPU compute (required by DaVinci Resolve)
-    opencl = true;
 
     # Use stable driver package (matches current kernel)
     package = config.boot.kernelPackages.nvidiaPackages.stable;
