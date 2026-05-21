@@ -6,6 +6,7 @@ Item {
     id: root
 
     property var entries: []
+    property int maxEntries: 50
 
     property string _lastText: ""
 
@@ -30,10 +31,18 @@ Item {
         if (root.entries.length > 0 && root.entries[0].content === txt)
             return
 
-        root.entries = [{ type: "text", content: txt, preview: txt.substring(0, 80), timestamp: Date.now() }].concat(root.entries)
+        root.entries = [{
+            type: "text",
+            content: txt,
+            preview: txt.substring(0, 80),
+            timestamp: Date.now(),
+            pinned: false,
+            truncated: txt.length > 80,
+            charCount: txt.length
+        }].concat(root.entries)
 
-        if (root.entries.length > 50)
-            root.entries = root.entries.slice(0, 50)
+        while (root.entries.length > root.maxEntries)
+            root.entries = root.entries.slice(0, root.maxEntries)
 
         save()
     }
@@ -48,6 +57,16 @@ Item {
         Quickshell.execDetached(["sh", "-c",
             "echo '[]' > $HOME/.local/share/headspace/clip-history.json && " +
             "rm -rf $HOME/.local/share/headspace/clips"])
+    }
+
+    function togglePin(index) {
+        var entry = root.entries[index]
+        if (!entry) return
+        entry.pinned = !entry.pinned
+        var pinned = root.entries.filter(function(e) { return e.pinned })
+        var unpinned = root.entries.filter(function(e) { return !e.pinned })
+        root.entries = pinned.concat(unpinned)
+        save()
     }
 
     function copyAt(index) {

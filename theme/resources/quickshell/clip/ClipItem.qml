@@ -31,13 +31,23 @@ Item {
         anchors.leftMargin: Math.round(10 * root.uiScale)
         anchors.rightMargin: Math.round(6 * root.uiScale)
         anchors.verticalCenter: parent.verticalCenter
-        spacing: 0
+        spacing: Math.round(4 * root.uiScale)
         z: 1
+
+        Text {
+            Layout.preferredWidth: Math.round(18 * root.uiScale)
+            horizontalAlignment: Text.AlignHCenter
+            text: root.entry.pinned ? "\u2605" : "\u2606"
+            color: root.colors.text
+            font.pointSize: 11
+        }
 
         Text {
             Layout.fillWidth: true
             Layout.alignment: Qt.AlignVCenter
-            text: root.entry.preview
+            text: root.entry.truncated
+                ? root.entry.preview + "\u2026 (" + root.entry.charCount + ")"
+                : root.entry.preview
             color: root.colors.text
             font.pointSize: 10
             elide: Text.ElideRight
@@ -69,6 +79,8 @@ Item {
         onClicked: function(mouse) {
             if (mouse.x > root.width - Math.round(24 * root.uiScale)) {
                 root.clipMon.removeAt(root.clipIndex)
+            } else if (mouse.x < Math.round(32 * root.uiScale)) {
+                root.clipMon.togglePin(root.clipIndex)
             } else {
                 root.clipMon.copyAt(root.clipIndex)
                 root.itemClicked(root.clipIndex)
