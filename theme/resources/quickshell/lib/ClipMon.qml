@@ -7,6 +7,7 @@ Item {
 
     property var entries: []
     property int maxEntries: 50
+    property int _skipImageUntil: 0
 
     Component.onCompleted: {
         load()
@@ -16,99 +17,98 @@ Item {
         })
     }
 
-    // --- Event-driven clipboard monitoring via wl-paste --watch + inotifywait IPC ---
+    // --- TEXT clipboard monitoring ---
 
-    // Daemon: runs wl-paste --watch, dispatches by MIME type on each clipboard change
     Process {
-        id: pasteWatch
+        id: pasteWatchText
         command: ["wl-paste", "--watch", "sh", "-c",
-            "types=$(wl-paste --list-types 2>/dev/null)\n" +
-            "if echo \"$types\" | grep -q \"text/plain\"; then\n" +
-            "  wl-paste -t text/plain > /tmp/headspace-clip-data\n" +
-            "  echo text/plain > /tmp/headspace-clip-mime\n" +
-            "  echo ok > /tmp/headspace-clip-trigger\n" +
-            "elif echo \"$types\" | grep -q \"text/uri-list\"; then\n" +
-            "  wl-paste -t text/uri-list > /tmp/headspace-clip-data\n" +
-            "  echo text/uri-list > /tmp/headspace-clip-mime\n" +
-            "  echo ok > /tmp/headspace-clip-trigger\n" +
-            "elif echo \"$types\" | grep -q \"image/png\"; then\n" +
-            "  mkdir -p $HOME/.local/share/headspace/clips\n" +
-            "  wl-paste -t image/png > /tmp/headspace-clip-img-tmp.png\n" +
-            "  hash=$(sha256sum /tmp/headspace-clip-img-tmp.png | cut -d' ' -f1)\n" +
-            "  mv /tmp/headspace-clip-img-tmp.png $HOME/.local/share/headspace/clips/$hash.png\n" +
-            "  echo \"$hash.png\" > /tmp/headspace-clip-data\n" +
-            "  echo image/png > /tmp/headspace-clip-mime\n" +
-            "  echo ok > /tmp/headspace-clip-trigger\n" +
-            "fi"
-        ]
+            "wl-paste -t text/plain 2>/dev/null > /tmp/hs-clip-t-data && " +
+            "echo ok > /tmp/hs-clip-t-trigger"]
         running: true
     }
 
-    // Watcher: blocks on inotifywait for the trigger file
     Process {
-        id: clipWatcher
+        id: textWatcher
         command: ["sh", "-c",
-            "while [ ! -f /tmp/headspace-clip-trigger ]; do sleep 0.1; done && " +
-            "inotifywait -qq -e close_write /tmp/headspace-clip-trigger 2>/dev/null"]
+            "while [ ! -f /tmp/hs-clip-t-trigger ]; do sleep 0.1; done && " +
+            "inotifywait -qq -e close_write /tmp/hs-clip-t-trigger 2>/dev/null"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
-                clipReader.running = false
-                clipReader.running = true
-                clipWatcher.running = false
-                clipWatcher.running = true
+                textReader.running = false
+                textReader.running = true
+                textWatcher.running = false
+                textWatcher.running = true
             }
         }
     }
 
-    // Reader: reads MIME type + data after a clipboard change
     Process {
-        id: clipReader
-        command: ["sh", "-c", "cat /tmp/headspace-clip-mime /tmp/headspace-clip-data"]
+        id: textReader
+        command: ["cat", "/tmp/hs-clip-t-data"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
-                var lines = text.trim().split('\n')
-                var mime = lines[0].trim()
-                var data = lines.slice(1).join('\n').trim()
-                if (data.length === 0) return
-                if (mime === "image/png")
-                    root.addImageClip(data)
-                else
-                    root.addClip(data, mime)
+                var txt = text.trim()
+                if (txt.length > 0)
+                    root.addClip(txt)
             }
         }
     }
 
-    // Seed: captures current clipboard content on startup
+    // --- IMAGE clipboard monitoring ---
+
+    Process {
+        id: pasteWatchImg
+        command: ["wl-paste", "--watch", "sh", "-c",
+            "wl-paste -t image/png 2>/dev/null > /tmp/hs-clip-i-raw.png && " +
+            "ts=$(date +%s%3N) && " +
+            "mkdir -p $HOME/.local/share/headspace/clips && " +
+            "cp /tmp/hs-clip-i-raw.png $HOME/.local/share/headspace/clips/$ts.png && " +
+            "echo \"$ts.png\" > /tmp/hs-clip-i-data && " +
+            "echo ok > /tmp/hs-clip-i-trigger"]
+        running: true
+    }
+
+    Process {
+        id: imgWatcher
+        command: ["sh", "-c",
+            "while [ ! -f /tmp/hs-clip-i-trigger ]; do sleep 0.1; done && " +
+            "inotifywait -qq -e close_write /tmp/hs-clip-i-trigger 2>/dev/null"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                imgReader.running = false
+                imgReader.running = true
+                imgWatcher.running = false
+                imgWatcher.running = true
+            }
+        }
+    }
+
+    Process {
+        id: imgReader
+        command: ["cat", "/tmp/hs-clip-i-data"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var fname = text.trim()
+                if (fname.length > 0)
+                    root.addImageClip(fname)
+            }
+        }
+    }
+
+    // Seed: captures current text clipboard on startup
     Process {
         id: seedProcess
-        command: ["sh", "-c",
-            "types=$(wl-paste --list-types 2>/dev/null)\n" +
-            "if echo \"$types\" | grep -q \"text/plain\"; then\n" +
-            "  wl-paste -t text/plain\n" +
-            "elif echo \"$types\" | grep -q \"text/uri-list\"; then\n" +
-            "  wl-paste -t text/uri-list\n" +
-            "elif echo \"$types\" | grep -q \"image/png\"; then\n" +
-            "  mkdir -p $HOME/.local/share/headspace/clips\n" +
-            "  wl-paste -t image/png > /tmp/headspace-clip-img-tmp.png\n" +
-            "  hash=$(sha256sum /tmp/headspace-clip-img-tmp.png | cut -d' ' -f1)\n" +
-            "  mv /tmp/headspace-clip-img-tmp.png $HOME/.local/share/headspace/clips/$hash.png\n" +
-            "  echo \"__IMAGE__$hash.png\"\n" +
-            "fi"
-        ]
+        command: ["wl-paste", "-t", "text/plain"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
-                var out = text.trim()
-                if (out.length === 0) return
-                var imgPrefix = "__IMAGE__"
-                if (out.substring(0, imgPrefix.length) === imgPrefix) {
-                    var fname = out.substring(imgPrefix.length)
-                    root.addImageClip(fname)
-                } else if (root.entries.length === 0 || root.entries[0].content !== out) {
-                    root.addClip(out)
-                }
+                var txt = text.trim()
+                if (txt.length > 0 && (root.entries.length === 0 || root.entries[0].content !== txt))
+                    root.addClip(txt)
             }
         }
     }
@@ -138,6 +138,7 @@ Item {
     }
 
     function addImageClip(fname) {
+        if (Date.now() < root._skipImageUntil) return
         for (var i = 0; i < root.entries.length; i++) {
             if (root.entries[i].content === fname) return
         }
@@ -190,6 +191,7 @@ Item {
         if (index < 0 || index >= root.entries.length) return
         var entry = root.entries[index]
         if (entry.mimeType === "image/png" && entry.storagePath) {
+            root._skipImageUntil = Date.now() + 1000
             Quickshell.execDetached(["sh", "-c",
                 "wl-copy -t image/png < $HOME/.local/share/headspace/" + entry.storagePath])
         } else if (entry.mimeType === "text/uri-list") {
