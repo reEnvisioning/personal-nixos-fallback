@@ -15,11 +15,12 @@ PanelWindow {
     property bool showPanel: false
     property int currentIndex: 0
     property string searchText: ""
+    property int visibleCount: 0
 
     width: Math.round(380 * root.uiScale)
     implicitHeight: Math.round(36 * root.uiScale) + 1
-        + (root.clipMon.entries.length > 0
-            ? Math.min(root.clipMon.entries.length * Math.round(50 * root.uiScale),
+        + (root.visibleCount > 0
+            ? Math.min(root.visibleCount * Math.round(50 * root.uiScale),
                        Math.round(420 * root.uiScale))
             : Math.round(40 * root.uiScale))
         + Math.round(6 * root.uiScale)
@@ -76,8 +77,8 @@ PanelWindow {
         Item {
             id: listArea
             Layout.fillWidth: true
-            Layout.preferredHeight: root.clipMon.entries.length > 0
-                ? Math.min(root.clipMon.entries.length * Math.round(50 * root.uiScale),
+            Layout.preferredHeight: root.visibleCount > 0
+                ? Math.min(root.visibleCount * Math.round(50 * root.uiScale),
                            Math.round(420 * root.uiScale))
                 : Math.round(40 * root.uiScale)
             Layout.bottomMargin: Math.round(6 * root.uiScale)
@@ -128,10 +129,10 @@ PanelWindow {
                         }
                         event.accepted = true
                     } else if (event.key === Qt.Key_Up) {
-                        if (root.currentIndex > 0) root.currentIndex--
+                        root.currentIndex = root._prevVisible(root.currentIndex)
                         event.accepted = true
                     } else if (event.key === Qt.Key_Down) {
-                        if (root.currentIndex < root.clipMon.entries.length - 1) root.currentIndex++
+                        root.currentIndex = root._nextVisible(root.currentIndex)
                         event.accepted = true
                     } else if (event.key === Qt.Key_Escape) {
                         root.searchText = ""
@@ -185,13 +186,29 @@ PanelWindow {
             entry.content.toLowerCase().indexOf(root.searchText.toLowerCase()) !== -1
     }
 
+    function _prevVisible(idx) {
+        for (var i = idx - 1; i >= 0; i--) {
+            if (matchesSearch(root.clipMon.entries[i])) return i
+        }
+        return idx
+    }
+
+    function _nextVisible(idx) {
+        for (var i = idx + 1; i < root.clipMon.entries.length; i++) {
+            if (matchesSearch(root.clipMon.entries[i])) return i
+        }
+        return idx
+    }
+
     function rebuildClipItems() {
         var children = clipColumn.children
         for (var i = children.length - 1; i >= 0; i--)
             children[i].destroy()
 
+        root.visibleCount = 0
         for (var i = 0; i < root.clipMon.entries.length; i++) {
             if (!matchesSearch(root.clipMon.entries[i])) continue
+            root.visibleCount++
 
             var item = itemComponent.createObject(clipColumn, {
                 x: Math.round(4 * root.uiScale),
