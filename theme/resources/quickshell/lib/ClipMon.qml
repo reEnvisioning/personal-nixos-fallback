@@ -181,10 +181,14 @@ Item {
     }
 
     function clearAll() {
-        root.entries = []
-        Quickshell.execDetached(["sh", "-c",
-            "echo '[]' > $HOME/.local/share/headspace/clip-history.json && " +
-            "rm -rf $HOME/.local/share/headspace/clips"])
+        var pinned = root.entries.filter(function(e) { return e.pinned })
+        var stalePaths = root.entries
+            .filter(function(e) { return !e.pinned && e.storagePath })
+            .map(function(e) { return "\"$HOME/.local/share/headspace/" + e.storagePath + "\"" })
+        if (stalePaths.length > 0)
+            Quickshell.execDetached(["sh", "-c", "rm -f " + stalePaths.join(" ")])
+        root.entries = pinned
+        save()
     }
 
     function togglePin(index) {
