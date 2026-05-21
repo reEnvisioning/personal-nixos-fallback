@@ -109,11 +109,19 @@ style=$qt_style
 EOF
 done
 
-# 10. KDE color scheme — kdeglobals for KDE apps (e.g. Kdenlive)
+# 10. KDE color scheme — for Kdenlive and other KDE apps
+if [ "$MODE" = "dark" ]; then
+    KDE_SCHEME="BreezeDark"
+else
+    KDE_SCHEME="BreezeLight"
+fi
 KDE_GLOBALS="$HOME/.config/kdeglobals"
 mkdir -p "$(dirname "$KDE_GLOBALS")"
-jq -r '
+jq -r --arg scheme "$KDE_SCHEME" '
   .colors as $c |
+  "[General]",
+  "ColorScheme=\($scheme)",
+  "",
   "[KDE]",
   "widgetStyle=Breeze",
   "",
