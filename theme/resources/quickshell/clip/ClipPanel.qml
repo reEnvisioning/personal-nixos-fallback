@@ -16,28 +16,54 @@ PanelWindow {
     property int currentIndex: 0
     property string searchText: ""
     property int visibleCount: 0
+    property real desiredHeight: 0
+    property real animHeight: 0
+    property real slideX: 0
 
     width: Math.round(380 * root.uiScale)
-    implicitHeight: Math.round(36 * root.uiScale) + 1
-        + (root.visibleCount > 0
-            ? Math.min(root.visibleCount * Math.round(50 * root.uiScale),
-                       Math.round(420 * root.uiScale))
-            : Math.round(40 * root.uiScale))
-        + Math.round(6 * root.uiScale)
-
+    height: root.animHeight
     color: "transparent"
     focusable: true
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
     WlrLayershell.namespace: "headspace-clipboard"
-    visible: root.showPanel
+    WlrLayershell.anchors.bottom: true
+    WlrLayershell.anchors.left: true
+    WlrLayershell.margins { bottom: Math.round(8 * root.uiScale); left: Math.round(8 * root.uiScale) }
 
     onShowPanelChanged: {
         if (root.showPanel) {
             root.searchText = ""
             root.currentIndex = 0
+            root.desiredHeight = root.computeDesiredHeight()
+            root.visible = true
+            heightAnim.from = 0
+            heightAnim.to = root.desiredHeight
+            heightAnim.duration = 300
+            heightAnim.easing.type = Easing.Bezier
+            heightAnim.easing.bezierCurve = [0.34, 1.56, 0.25, 1.0]
+            heightAnim.start()
+            slideAnim.from = -Math.round(30 * root.uiScale)
+            slideAnim.to = 0
+            slideAnim.duration = 250
+            slideAnim.easing.type = Easing.Bezier
+            slideAnim.easing.bezierCurve = [0.34, 0.8, 0.34, 1.0]
+            slideAnim.start()
+        } else {
+            heightAnim.stop()
+            heightAnim.from = root.animHeight
+            heightAnim.to = 0
+            heightAnim.duration = 150
+            heightAnim.easing.type = Easing.OutQuad
+            heightAnim.onFinished = function() {
+                root.visible = false
+            }
+            heightAnim.start()
         }
     }
+
+    NumberAnimation { id: heightAnim; target: root; property: "animHeight" }
+    NumberAnimation { id: slideAnim; target: root; property: "slideX" }
 
     Rectangle {
         anchors.fill: parent
@@ -49,6 +75,7 @@ PanelWindow {
     ColumnLayout {
         width: parent.width
         spacing: 0
+        x: root.slideX
 
         Item {
             id: header
@@ -79,7 +106,7 @@ PanelWindow {
             Layout.fillWidth: true
             Layout.preferredHeight: root.visibleCount > 0
                 ? Math.min(root.visibleCount * Math.round(50 * root.uiScale),
-                           Math.round(420 * root.uiScale))
+                           Math.round(root.screen.height / 3) - Math.round(43 * root.uiScale))
                 : Math.round(40 * root.uiScale)
             Layout.bottomMargin: Math.round(6 * root.uiScale)
             clip: true
@@ -181,6 +208,15 @@ PanelWindow {
         }
     }
 
+    function computeDesiredHeight() {
+        if (root.visibleCount > 0) {
+            var contentH = Math.min(root.visibleCount * Math.round(50 * root.uiScale),
+                Math.round(root.screen.height / 3) - Math.round(43 * root.uiScale))
+            return Math.round(36 * root.uiScale) + 1 + contentH + Math.round(6 * root.uiScale)
+        }
+        return Math.round(36 * root.uiScale) + 1 + Math.round(40 * root.uiScale) + Math.round(6 * root.uiScale)
+    }
+
     function matchesSearch(entry) {
         return root.searchText === "" ||
             entry.content.toLowerCase().indexOf(root.searchText.toLowerCase()) !== -1
@@ -227,6 +263,7 @@ PanelWindow {
                 root.showPanel = false
             })
         }
+        root.desiredHeight = root.computeDesiredHeight()
     }
 
     // IPC toggle
