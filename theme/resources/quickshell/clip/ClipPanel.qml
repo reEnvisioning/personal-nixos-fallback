@@ -34,6 +34,7 @@ PanelWindow {
 
     onShowPanelChanged: {
         if (root.showPanel) {
+            idleTimer.restart()
             root.searchText = ""
             root.currentIndex = 0
             root.desiredHeight = root.computeDesiredHeight()
@@ -61,6 +62,12 @@ PanelWindow {
 
     NumberAnimation { id: heightAnim; target: root; property: "animHeight" }
     NumberAnimation { id: slideAnim; target: root; property: "slideX" }
+
+    Timer {
+        id: idleTimer
+        interval: 3000
+        onTriggered: root.showPanel = false
+    }
 
     Rectangle {
         anchors.fill: parent
@@ -134,6 +141,7 @@ PanelWindow {
                 }
 
                 Keys.onPressed: function(event) {
+                    idleTimer.restart()
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         if (root.currentIndex >= 0 && root.currentIndex < root.clipMon.entries.length) {
                             root.clipMon.copyAt(root.currentIndex)
