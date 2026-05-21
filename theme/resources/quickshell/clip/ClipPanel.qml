@@ -37,6 +37,7 @@ PanelWindow {
             root.currentIndex = 0
             root.desiredHeight = root.computeDesiredHeight()
             root.visible = true
+            heightAnim.onFinished = undefined
             heightAnim.from = 0
             heightAnim.to = root.desiredHeight
             heightAnim.duration = 300
@@ -190,6 +191,19 @@ PanelWindow {
             var child = clipColumn.children[i]
             if (child.clipIndex !== undefined)
                 child.selected = child.clipIndex === root.currentIndex
+        }
+        if (clipFlickable.visible && clipColumn.children.length > 0) {
+            var targetY = 0
+            for (var i = 0; i < clipColumn.children.length; i++) {
+                if (clipColumn.children[i].clipIndex === root.currentIndex) {
+                    targetY = clipColumn.children[i].y
+                    break
+                }
+            }
+            if (targetY < clipFlickable.contentY)
+                clipFlickable.contentY = targetY
+            else if (targetY + Math.round(50 * root.uiScale) > clipFlickable.contentY + clipFlickable.height)
+                clipFlickable.contentY = targetY + Math.round(50 * root.uiScale) - clipFlickable.height
         }
     }
 
