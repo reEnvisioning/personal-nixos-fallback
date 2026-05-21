@@ -7,6 +7,7 @@ Item {
 
     property var entries: []
     property int maxEntries: 50
+    property bool _skipNextImage: false
 
     Component.onCompleted: {
         load()
@@ -16,84 +17,58 @@ Item {
         })
     }
 
-    // --- TEXT clipboard monitoring ---
+    // --- Unified clipboard monitoring (text + image) via wl-paste --watch + inotifywait IPC ---
 
     Process {
-        id: pasteWatchText
+        id: pasteWatch
         command: ["wl-paste", "--watch", "sh", "-c",
-            "wl-paste -t text/plain 2>/dev/null > /tmp/hs-clip-t-data && " +
-            "echo ok > /tmp/hs-clip-t-trigger"]
-        running: true
-    }
-
-    Process {
-        id: textWatcher
-        command: ["sh", "-c",
-            "while [ ! -f /tmp/hs-clip-t-trigger ]; do sleep 0.1; done && " +
-            "inotifywait -qq -e close_write /tmp/hs-clip-t-trigger 2>/dev/null"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                textReader.running = false
-                textReader.running = true
-                textWatcher.running = false
-                textWatcher.running = true
-            }
-        }
-    }
-
-    Process {
-        id: textReader
-        command: ["cat", "/tmp/hs-clip-t-data"]
-        running: false
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var txt = text.trim()
-                if (txt.length > 0)
-                    root.addClip(txt)
-            }
-        }
-    }
-
-    // --- IMAGE clipboard monitoring ---
-
-    Process {
-        id: pasteWatchImg
-        command: ["wl-paste", "--watch", "sh", "-c",
-            "wl-paste -t image/png 2>/dev/null > /tmp/hs-clip-i-raw.png && " +
+            "(wl-paste -t text/plain 2>/dev/null > /tmp/hs-clip-data && " +
+            "echo text/plain > /tmp/hs-clip-mime) || " +
+            "(wl-paste -t image/png 2>/dev/null > /tmp/hs-clip-i-raw.png && " +
             "ts=$(date +%s)_$$ && " +
             "mkdir -p $HOME/.local/share/headspace/clips && " +
             "cp /tmp/hs-clip-i-raw.png $HOME/.local/share/headspace/clips/$ts.png && " +
-            "echo \"$ts.png\" > /tmp/hs-clip-i-data && " +
-            "echo ok > /tmp/hs-clip-i-trigger"]
+            "echo \"$ts.png\" > /tmp/hs-clip-data && " +
+            "echo image/png > /tmp/hs-clip-mime) && " +
+            "echo ok > /tmp/hs-clip-trigger"]
         running: true
     }
 
     Process {
-        id: imgWatcher
+        id: clipWatcher
         command: ["sh", "-c",
-            "while [ ! -f /tmp/hs-clip-i-trigger ]; do sleep 0.1; done && " +
-            "inotifywait -qq -e close_write /tmp/hs-clip-i-trigger 2>/dev/null"]
+            "while [ ! -f /tmp/hs-clip-trigger ]; do sleep 0.1; done && " +
+            "inotifywait -qq -e close_write /tmp/hs-clip-trigger 2>/dev/null"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
-                imgReader.running = false
-                imgReader.running = true
-                imgWatcher.running = false
-                imgWatcher.running = true
+                clipReader.running = false
+                clipReader.running = true
+                clipWatcher.running = false
+                clipWatcher.running = true
             }
         }
     }
 
     Process {
-        id: imgReader
-        command: ["cat", "/tmp/hs-clip-i-data"]
+        id: clipReader
+        command: ["sh", "-c", "cat /tmp/hs-clip-mime /tmp/hs-clip-data"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
-                var fname = text.trim()
-                if (fname.length > 0)
-                    root.addImageClip(fname)
+                var lines = text.trim().split('\n')
+                var mime = lines[0].trim()
+                var data = lines.slice(1).join('\n').trim()
+                if (data.length === 0) return
+                if (mime === "image/png") {
+                    if (root._skipNextImage) {
+                        root._skipNextImage = false
+                        return
+                    }
+                    root.addImageClip(data)
+                } else {
+                    root.addClip(data)
+                }
             }
         }
     }
@@ -106,7 +81,7 @@ Item {
         stdout: StdioCollector {
             onStreamFinished: {
                 var txt = text.trim()
-                if (txt.length > 0 && (root.entries.length === 0 || root.entries[0].content !== txt))
+                if (txt.length > 0)
                     root.addClip(txt)
             }
         }
@@ -114,14 +89,19 @@ Item {
 
     // --- Entry management ---
 
-    function addClip(txt, mime) {
-        if (!mime) mime = "text/plain"
+    function addClip(txt) {
         for (var i = 0; i < root.entries.length; i++) {
-            if (root.entries[i].content === txt) return
+            if (root.entries[i].content === txt) {
+                var match = root.entries[i]
+                root.entries.splice(i, 1)
+                root.entries = [match].concat(root.entries)
+                save()
+                return
+            }
         }
 
         root.entries = [{
-            mimeType: mime,
+            mimeType: "text/plain",
             content: txt,
             preview: txt.substring(0, 80),
             timestamp: Date.now(),
@@ -139,7 +119,13 @@ Item {
 
     function addImageClip(fname) {
         for (var i = 0; i < root.entries.length; i++) {
-            if (root.entries[i].content === fname) return
+            if (root.entries[i].content === fname) {
+                var match = root.entries[i]
+                root.entries.splice(i, 1)
+                root.entries = [match].concat(root.entries)
+                save()
+                return
+            }
         }
 
         root.entries = [{
@@ -190,12 +176,18 @@ Item {
         if (index < 0 || index >= root.entries.length) return
         var entry = root.entries[index]
         if (entry.mimeType === "image/png" && entry.storagePath) {
+            root._skipNextImage = true
             Quickshell.execDetached(["sh", "-c",
                 "wl-copy --type image/png < \"$HOME/.local/share/headspace/" + entry.storagePath + "\""])
         } else if (entry.mimeType === "text/uri-list") {
             Quickshell.execDetached(["wl-copy", "-t", "text/uri-list", entry.content])
         } else {
             Quickshell.execDetached(["wl-copy", entry.content])
+        }
+        if (index !== 0) {
+            root.entries.splice(index, 1)
+            root.entries = [entry].concat(root.entries)
+            save()
         }
     }
 
