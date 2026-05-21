@@ -22,6 +22,7 @@ PanelWindow {
 
     width: Math.round(380 * root.uiScale)
     height: root.animHeight
+    visible: root.animHeight > 0
     color: "transparent"
     focusable: true
     WlrLayershell.layer: WlrLayer.Overlay
@@ -36,8 +37,6 @@ PanelWindow {
             root.searchText = ""
             root.currentIndex = 0
             root.desiredHeight = root.computeDesiredHeight()
-            root.visible = true
-            heightAnim.onFinished = undefined
             heightAnim.from = 0
             heightAnim.to = root.desiredHeight
             heightAnim.duration = 300
@@ -56,9 +55,6 @@ PanelWindow {
             heightAnim.to = 0
             heightAnim.duration = 150
             heightAnim.easing.type = Easing.OutQuad
-            heightAnim.onFinished = function() {
-                root.visible = false
-            }
             heightAnim.start()
         }
     }
