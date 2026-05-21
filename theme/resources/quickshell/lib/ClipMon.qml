@@ -7,7 +7,6 @@ Item {
 
     property var entries: []
     property int maxEntries: 50
-    property int _skipImageUntil: 0
 
     Component.onCompleted: {
         load()
@@ -62,7 +61,7 @@ Item {
         id: pasteWatchImg
         command: ["wl-paste", "--watch", "sh", "-c",
             "wl-paste -t image/png 2>/dev/null > /tmp/hs-clip-i-raw.png && " +
-            "ts=$(date +%s%3N) && " +
+            "ts=$(date +%s)_$$ && " +
             "mkdir -p $HOME/.local/share/headspace/clips && " +
             "cp /tmp/hs-clip-i-raw.png $HOME/.local/share/headspace/clips/$ts.png && " +
             "echo \"$ts.png\" > /tmp/hs-clip-i-data && " +
@@ -117,8 +116,9 @@ Item {
 
     function addClip(txt, mime) {
         if (!mime) mime = "text/plain"
-        if (root.entries.length > 0 && root.entries[0].content === txt)
-            return
+        for (var i = 0; i < root.entries.length; i++) {
+            if (root.entries[i].content === txt) return
+        }
 
         root.entries = [{
             mimeType: mime,
@@ -138,7 +138,6 @@ Item {
     }
 
     function addImageClip(fname) {
-        if (Date.now() < root._skipImageUntil) return
         for (var i = 0; i < root.entries.length; i++) {
             if (root.entries[i].content === fname) return
         }
@@ -191,7 +190,6 @@ Item {
         if (index < 0 || index >= root.entries.length) return
         var entry = root.entries[index]
         if (entry.mimeType === "image/png" && entry.storagePath) {
-            root._skipImageUntil = Date.now() + 1000
             Quickshell.execDetached(["sh", "-c",
                 "wl-copy --type image/png < \"$HOME/.local/share/headspace/" + entry.storagePath + "\""])
         } else if (entry.mimeType === "text/uri-list") {
