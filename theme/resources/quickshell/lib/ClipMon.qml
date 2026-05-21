@@ -17,58 +17,84 @@ Item {
         })
     }
 
-    // --- Unified clipboard monitoring (text + image) via wl-paste --watch + inotifywait IPC ---
+    // --- TEXT clipboard monitoring ---
 
     Process {
-        id: pasteWatch
+        id: pasteWatchText
         command: ["wl-paste", "--watch", "sh", "-c",
-            "(wl-paste -t text/plain 2>/dev/null > /tmp/hs-clip-data && " +
-            "echo text/plain > /tmp/hs-clip-mime) || " +
-            "(wl-paste -t image/png 2>/dev/null > /tmp/hs-clip-i-raw.png && " +
-            "ts=$(date +%s)_$$ && " +
-            "mkdir -p $HOME/.local/share/headspace/clips && " +
-            "cp /tmp/hs-clip-i-raw.png $HOME/.local/share/headspace/clips/$ts.png && " +
-            "echo \"$ts.png\" > /tmp/hs-clip-data && " +
-            "echo image/png > /tmp/hs-clip-mime) && " +
-            "echo ok > /tmp/hs-clip-trigger"]
+            "wl-paste -t text/plain 2>/dev/null > /tmp/hs-clip-t-data && " +
+            "echo ok > /tmp/hs-clip-t-trigger"]
         running: true
     }
 
     Process {
-        id: clipWatcher
+        id: textWatcher
         command: ["sh", "-c",
-            "while [ ! -f /tmp/hs-clip-trigger ]; do sleep 0.1; done && " +
-            "inotifywait -qq -e close_write /tmp/hs-clip-trigger 2>/dev/null"]
+            "while [ ! -f /tmp/hs-clip-t-trigger ]; do sleep 0.1; done && " +
+            "inotifywait -qq -e close_write /tmp/hs-clip-t-trigger 2>/dev/null"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
-                clipReader.running = false
-                clipReader.running = true
-                clipWatcher.running = false
-                clipWatcher.running = true
+                textReader.running = false
+                textReader.running = true
+                textWatcher.running = false
+                textWatcher.running = true
             }
         }
     }
 
     Process {
-        id: clipReader
-        command: ["sh", "-c", "cat /tmp/hs-clip-mime /tmp/hs-clip-data"]
+        id: textReader
+        command: ["cat", "/tmp/hs-clip-t-data"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
-                var lines = text.trim().split('\n')
-                var mime = lines[0].trim()
-                var data = lines.slice(1).join('\n').trim()
-                if (data.length === 0) return
-                if (mime === "image/png") {
-                    if (root._skipNextImage) {
-                        root._skipNextImage = false
-                        return
-                    }
-                    root.addImageClip(data)
-                } else {
-                    root.addClip(data)
-                }
+                var txt = text.trim()
+                if (txt.length > 0)
+                    root.addClip(txt)
+            }
+        }
+    }
+
+    // --- IMAGE clipboard monitoring ---
+
+    Process {
+        id: pasteWatchImg
+        command: ["wl-paste", "--watch", "sh", "-c",
+            "wl-paste -t image/png 2>/dev/null > /tmp/hs-clip-i-raw.png && " +
+            "ts=$(date +%s)_$$ && " +
+            "mkdir -p $HOME/.local/share/headspace/clips && " +
+            "cp /tmp/hs-clip-i-raw.png $HOME/.local/share/headspace/clips/$ts.png && " +
+            "echo \"$ts.png\" > /tmp/hs-clip-i-data && " +
+            "echo ok > /tmp/hs-clip-i-trigger"]
+        running: true
+    }
+
+    Process {
+        id: imgWatcher
+        command: ["sh", "-c",
+            "while [ ! -f /tmp/hs-clip-i-trigger ]; do sleep 0.1; done && " +
+            "inotifywait -qq -e close_write /tmp/hs-clip-i-trigger 2>/dev/null"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                imgReader.running = false
+                imgReader.running = true
+                imgWatcher.running = false
+                imgWatcher.running = true
+            }
+        }
+    }
+
+    Process {
+        id: imgReader
+        command: ["cat", "/tmp/hs-clip-i-data"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var fname = text.trim()
+                if (fname.length > 0)
+                    root.addImageClip(fname)
             }
         }
     }
@@ -118,6 +144,10 @@ Item {
     }
 
     function addImageClip(fname) {
+        if (root._skipNextImage) {
+            root._skipNextImage = false
+            return
+        }
         for (var i = 0; i < root.entries.length; i++) {
             if (root.entries[i].content === fname) {
                 var match = root.entries[i]
