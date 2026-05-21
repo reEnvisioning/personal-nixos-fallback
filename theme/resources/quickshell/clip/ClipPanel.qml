@@ -1,6 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Input
+
 import Quickshell
 import Quickshell.Wayland
 import Quickshell.Io
@@ -70,20 +70,29 @@ PanelWindow {
         onTriggered: root.showPanel = false
     }
 
+    Timer {
+        id: mousePoll
+        interval: 200
+        repeat: true
+        running: root.showPanel
+        onTriggered: {
+            var g = Qt.cursorPos()
+            var l = panelBg.mapFromGlobal(g.x, g.y)
+            if (l.x >= 0 && l.x <= panelBg.width &&
+                l.y >= 0 && l.y <= panelBg.height) {
+                idleTimer.stop()
+            } else {
+                idleTimer.restart()
+            }
+        }
+    }
+
     Rectangle {
+        id: panelBg
         anchors.fill: parent
         radius: Math.round(12 * root.uiScale)
         color: root.colors.background
         Behavior on color { CAnim {} }
-
-        HoverHandler {
-            onHoveredChanged: {
-                if (hovered)
-                    idleTimer.stop()
-                else
-                    idleTimer.restart()
-            }
-        }
     }
 
     ColumnLayout {
