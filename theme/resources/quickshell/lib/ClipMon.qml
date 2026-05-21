@@ -25,10 +25,10 @@ Item {
             "if wl-paste -t text/plain > /tmp/hs-clip-t-data 2>/dev/null; then " +
             "  echo ok > /tmp/hs-clip-t-trigger; " +
             "elif wl-paste -t image/png > /tmp/hs-clip-i-raw.png 2>/dev/null; then " +
-            "  ts=$(date +%s)_$$ && " +
+            "  hash=$(sha256sum /tmp/hs-clip-i-raw.png | cut -d' ' -f1) && " +
             "  mkdir -p \"$HOME/.local/share/headspace/clips\" && " +
-            "  cp /tmp/hs-clip-i-raw.png \"$HOME/.local/share/headspace/clips/$ts.png\" && " +
-            "  echo \"$ts.png\" > /tmp/hs-clip-i-data && " +
+            "  cp /tmp/hs-clip-i-raw.png \"$HOME/.local/share/headspace/clips/$hash.png\" && " +
+            "  echo \"$hash.png\" > /tmp/hs-clip-i-data && " +
             "  echo ok > /tmp/hs-clip-i-trigger; " +
             "fi"]
         running: true
