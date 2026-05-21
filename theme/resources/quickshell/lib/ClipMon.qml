@@ -8,31 +8,80 @@ Item {
     property var entries: []
     property int maxEntries: 50
 
-    property string _lastText: ""
-
-    Component.onCompleted: load()
-
-    Timer {
-        interval: 1000
-        running: true
-        repeat: true
-        onTriggered: poll()
+    Component.onCompleted: {
+        load()
+        Qt.callLater(function() {
+            seedProcess.running = false
+            seedProcess.running = true
+        })
     }
 
-    function poll() {
-        var txt = Quickshell.clipboardText
-        if (txt && txt.length > 0 && txt !== root._lastText) {
-            root._lastText = txt
-            root.addClip(txt)
+    // --- Event-driven clipboard monitoring via wl-paste --watch + inotifywait IPC ---
+
+    // Daemon: runs wl-paste --watch, writes clipboard text to a temp file on each change
+    Process {
+        id: pasteWatch
+        command: ["wl-paste", "--watch", "sh", "-c",
+            "wl-paste -t text/plain 2>/dev/null > /tmp/headspace-clipboard-last.txt && " +
+            "echo ok > /tmp/headspace-clipboard-trigger"]
+        running: true
+    }
+
+    // Watcher: blocks on inotifywait for the trigger file
+    Process {
+        id: clipWatcher
+        command: ["sh", "-c",
+            "inotifywait -qq -e close_write /tmp/headspace-clipboard-trigger 2>/dev/null"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                clipReader.running = false
+                clipReader.running = true
+                clipWatcher.running = false
+                clipWatcher.running = true
+            }
         }
     }
 
-    function addClip(txt) {
+    // Reader: reads the clipboard content temp file
+    Process {
+        id: clipReader
+        command: ["cat", "/tmp/headspace-clipboard-last.txt"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var txt = text.trim()
+                if (txt.length > 0 && root.entries.length > 0 && root.entries[0].content === txt)
+                    return
+                if (txt.length > 0)
+                    root.addClip(txt)
+            }
+        }
+    }
+
+    // Seed: one-shot read of current clipboard on startup
+    Process {
+        id: seedProcess
+        command: ["wl-paste", "-t", "text/plain"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var txt = text.trim()
+                if (txt.length > 0 && (root.entries.length === 0 || root.entries[0].content !== txt))
+                    root.addClip(txt)
+            }
+        }
+    }
+
+    // --- Entry management ---
+
+    function addClip(txt, mime) {
+        if (!mime) mime = "text/plain"
         if (root.entries.length > 0 && root.entries[0].content === txt)
             return
 
         root.entries = [{
-            type: "text",
+            mimeType: mime,
             content: txt,
             preview: txt.substring(0, 80),
             timestamp: Date.now(),
@@ -71,7 +120,11 @@ Item {
 
     function copyAt(index) {
         if (index < 0 || index >= root.entries.length) return
-        Quickshell.clipboardText = root.entries[index].content
+        var entry = root.entries[index]
+        if (entry.mimeType === "text/uri-list")
+            Quickshell.execDetached(["wl-copy", "-t", "text/uri-list", entry.content])
+        else
+            Quickshell.execDetached(["wl-copy", entry.content])
     }
 
     function save() {
