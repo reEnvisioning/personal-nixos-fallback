@@ -10,6 +10,7 @@ Item {
     required property real uiScale
     required property int clipIndex
     required property bool selected
+    required property bool highlighted
 
     signal copyRequested()
     signal itemClicked(int index)
@@ -22,8 +23,8 @@ Item {
         anchors.fill: parent
         radius: Math.round(8 * root.uiScale)
         color: root.selected
-            ? (mouseArea.containsMouse ? root.colors.highlighted : root.colors.overlay1)
-            : (mouseArea.containsMouse ? root.colors.surface2 : "transparent")
+            ? (root.highlighted ? root.colors.highlighted : root.colors.overlay1)
+            : (root.highlighted ? root.colors.surface2 : "transparent")
     }
 
     RowLayout {
@@ -58,8 +59,6 @@ Item {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        hoverEnabled: true
-        cursorShape: Qt.PointingHandCursor
         z: 2
         onClicked: function(mouse) {
             if (mouse.x > root.width - Math.round(24 * root.uiScale)) {

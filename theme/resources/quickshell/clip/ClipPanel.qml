@@ -20,6 +20,7 @@ PanelWindow {
     property real desiredHeight: 0
     property real animHeight: 0
     property real slideX: 0
+    property int hoveredIndex: -1
 
     width: Math.round(380 * root.uiScale)
     height: root.animHeight
@@ -70,29 +71,26 @@ PanelWindow {
         onTriggered: root.showPanel = false
     }
 
-    Timer {
-        id: mousePoll
-        interval: 200
-        repeat: true
-        running: root.showPanel
-        onTriggered: {
-            var g = Qt.cursorPos()
-            var l = panelBg.mapFromGlobal(g.x, g.y)
-            if (l.x >= 0 && l.x <= panelBg.width &&
-                l.y >= 0 && l.y <= panelBg.height) {
-                idleTimer.stop()
-            } else {
-                idleTimer.restart()
-            }
-        }
-    }
-
     Rectangle {
-        id: panelBg
         anchors.fill: parent
         radius: Math.round(12 * root.uiScale)
         color: root.colors.background
         Behavior on color { CAnim {} }
+    }
+
+    MouseArea {
+        id: hoverArea
+        anchors.fill: parent
+        hoverEnabled: true
+        onEntered: idleTimer.stop()
+        onPositionChanged: {
+            var idx = Math.floor(mouseY / Math.round(50 * root.uiScale))
+            root.hoveredIndex = idx >= 0 && idx < root.clipMon.entries.length ? idx : -1
+        }
+        onExited: {
+            root.hoveredIndex = -1
+            idleTimer.restart()
+        }
     }
 
     ColumnLayout {
@@ -291,7 +289,8 @@ PanelWindow {
                 colors: root.colors,
                 uiScale: root.uiScale,
                 clipIndex: i,
-                selected: i === root.currentIndex
+                selected: i === root.currentIndex,
+                highlighted: i === root.hoveredIndex
             })
             item.itemClicked.connect(function(idx) {
                 root.currentIndex = idx
