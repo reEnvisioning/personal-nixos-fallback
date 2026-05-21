@@ -53,21 +53,6 @@ Item {
             elide: Text.ElideRight
             maximumLineCount: 1
         }
-
-        Rectangle {
-            Layout.preferredWidth: Math.round(18 * root.uiScale)
-            Layout.preferredHeight: Math.round(18 * root.uiScale)
-            visible: mouseArea.containsMouse
-            radius: Math.round(4 * root.uiScale)
-            color: "transparent"
-
-            Text {
-                anchors.centerIn: parent
-                text: "\u00D7"
-                color: root.colors.text
-                font.pointSize: 11
-            }
-        }
     }
 
     MouseArea {
@@ -77,9 +62,7 @@ Item {
         cursorShape: Qt.PointingHandCursor
         z: 2
         onClicked: function(mouse) {
-            if (mouse.x > root.width - Math.round(24 * root.uiScale)) {
-                root.clipMon.removeAt(root.clipIndex)
-            } else if (mouse.x < Math.round(32 * root.uiScale)) {
+            if (mouse.x < Math.round(32 * root.uiScale)) {
                 root.clipMon.togglePin(root.clipIndex)
             } else {
                 root.clipMon.copyAt(root.clipIndex)

@@ -115,8 +115,12 @@ PanelWindow {
                             root.showPanel = false
                         }
                         event.accepted = true
+                    } else if (event.key === Qt.Key_S && (event.modifiers & Qt.ControlModifier)) {
+                        if (root.currentIndex >= 0 && root.currentIndex < root.clipMon.entries.length)
+                            root.clipMon.togglePin(root.currentIndex)
+                        event.accepted = true
                     } else if (event.key === Qt.Key_D && (event.modifiers & Qt.ControlModifier) && (event.modifiers & Qt.ShiftModifier)) {
-                        confirmOverlay.visible = true
+                        root.clipMon.clearAll()
                         event.accepted = true
                     } else if (event.key === Qt.Key_D && (event.modifiers & Qt.ControlModifier) && !(event.modifiers & Qt.ShiftModifier)) {
                         if (root.currentIndex >= 0 && root.currentIndex < root.clipMon.entries.length) {
@@ -139,84 +143,6 @@ PanelWindow {
                         if (event.text.length > 0) {
                             root.searchText += event.text
                             event.accepted = true
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    Rectangle {
-        id: confirmOverlay
-        anchors.fill: parent
-        visible: false
-        color: Qt.rgba(0, 0, 0, 0.5)
-        z: 10
-
-        Rectangle {
-            anchors.centerIn: parent
-            width: parent.width * 0.75
-            height: Math.round(80 * root.uiScale)
-            radius: Math.round(8 * root.uiScale)
-            color: root.colors.background
-
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: Math.round(8 * root.uiScale)
-                spacing: Math.round(8 * root.uiScale)
-
-                Text {
-                    Layout.fillWidth: true
-                    Layout.alignment: Qt.AlignHCenter
-                    text: "Clear all clipboard history?"
-                    color: root.colors.text
-                    font.pointSize: 10
-                }
-
-                RowLayout {
-                    Layout.fillWidth: true
-                    spacing: Math.round(8 * root.uiScale)
-
-                    Item { Layout.fillWidth: true }
-
-                    Rectangle {
-                        Layout.preferredWidth: Math.round(60 * root.uiScale)
-                        Layout.preferredHeight: Math.round(28 * root.uiScale)
-                        radius: Math.round(4 * root.uiScale)
-                        color: root.colors.surface2
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Cancel"
-                            color: root.colors.text
-                            font.pointSize: 9
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: confirmOverlay.visible = false
-                        }
-                    }
-
-                    Rectangle {
-                        Layout.preferredWidth: Math.round(60 * root.uiScale)
-                        Layout.preferredHeight: Math.round(28 * root.uiScale)
-                        radius: Math.round(4 * root.uiScale)
-                        color: root.colors.highlighted
-
-                        Text {
-                            anchors.centerIn: parent
-                            text: "Clear"
-                            color: root.colors.text
-                            font.pointSize: 9
-                        }
-
-                        MouseArea {
-                            anchors.fill: parent
-                            onClicked: {
-                                root.clipMon.clearAll()
-                                confirmOverlay.visible = false
-                            }
                         }
                     }
                 }
