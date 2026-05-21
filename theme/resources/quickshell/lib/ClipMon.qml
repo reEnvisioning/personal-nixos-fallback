@@ -18,12 +18,28 @@ Item {
 
     // --- Event-driven clipboard monitoring via wl-paste --watch + inotifywait IPC ---
 
-    // Daemon: runs wl-paste --watch, writes clipboard text to a temp file on each change
+    // Daemon: runs wl-paste --watch, dispatches by MIME type on each clipboard change
     Process {
         id: pasteWatch
         command: ["wl-paste", "--watch", "sh", "-c",
-            "wl-paste -t text/plain 2>/dev/null > /tmp/headspace-clipboard-last.txt && " +
-            "echo ok > /tmp/headspace-clipboard-trigger"]
+            "types=$(wl-paste --list-types 2>/dev/null)\n" +
+            "if echo \"$types\" | grep -q \"text/plain\"; then\n" +
+            "  wl-paste -t text/plain > /tmp/headspace-clip-data\n" +
+            "  echo text/plain > /tmp/headspace-clip-mime\n" +
+            "  echo ok > /tmp/headspace-clip-trigger\n" +
+            "elif echo \"$types\" | grep -q \"text/uri-list\"; then\n" +
+            "  wl-paste -t text/uri-list > /tmp/headspace-clip-data\n" +
+            "  echo text/uri-list > /tmp/headspace-clip-mime\n" +
+            "  echo ok > /tmp/headspace-clip-trigger\n" +
+            "elif echo \"$types\" | grep -q \"image/png\"; then\n" +
+            "  ts=$(date +%s%3N)\n" +
+            "  mkdir -p $HOME/.local/share/headspace/clips\n" +
+            "  wl-paste -t image/png > $HOME/.local/share/headspace/clips/$ts.png\n" +
+            "  echo \"$ts.png\" > /tmp/headspace-clip-data\n" +
+            "  echo image/png > /tmp/headspace-clip-mime\n" +
+            "  echo ok > /tmp/headspace-clip-trigger\n" +
+            "fi"
+        ]
         running: true
     }
 
@@ -31,7 +47,8 @@ Item {
     Process {
         id: clipWatcher
         command: ["sh", "-c",
-            "inotifywait -qq -e close_write /tmp/headspace-clipboard-trigger 2>/dev/null"]
+            "while [ ! -f /tmp/headspace-clip-trigger ]; do sleep 0.1; done && " +
+            "inotifywait -qq -e close_write /tmp/headspace-clip-trigger 2>/dev/null"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -43,23 +60,26 @@ Item {
         }
     }
 
-    // Reader: reads the clipboard content temp file
+    // Reader: reads MIME type + data after a clipboard change
     Process {
         id: clipReader
-        command: ["cat", "/tmp/headspace-clipboard-last.txt"]
+        command: ["sh", "-c", "cat /tmp/headspace-clip-mime /tmp/headspace-clip-data"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
-                var txt = text.trim()
-                if (txt.length > 0 && root.entries.length > 0 && root.entries[0].content === txt)
-                    return
-                if (txt.length > 0)
-                    root.addClip(txt)
+                var lines = text.trim().split('\n')
+                var mime = lines[0].trim()
+                var data = lines.slice(1).join('\n').trim()
+                if (data.length === 0) return
+                if (mime === "image/png")
+                    root.addImageClip(data)
+                else
+                    root.addClip(data, mime)
             }
         }
     }
 
-    // Seed: one-shot read of current clipboard on startup
+    // Seed: captures current clipboard content on startup
     Process {
         id: seedProcess
         command: ["wl-paste", "-t", "text/plain"]
@@ -87,7 +107,29 @@ Item {
             timestamp: Date.now(),
             pinned: false,
             truncated: txt.length > 80,
-            charCount: txt.length
+            charCount: txt.length,
+            storagePath: ""
+        }].concat(root.entries)
+
+        while (root.entries.length > root.maxEntries)
+            root.entries = root.entries.slice(0, root.maxEntries)
+
+        save()
+    }
+
+    function addImageClip(fname) {
+        if (root.entries.length > 0 && root.entries[0].content === fname)
+            return
+
+        root.entries = [{
+            mimeType: "image/png",
+            content: fname,
+            preview: fname,
+            timestamp: Date.now(),
+            pinned: false,
+            truncated: false,
+            charCount: 0,
+            storagePath: "clips/" + fname
         }].concat(root.entries)
 
         while (root.entries.length > root.maxEntries)
@@ -97,6 +139,11 @@ Item {
     }
 
     function removeAt(index) {
+        var entry = root.entries[index]
+        if (entry && entry.storagePath && entry.storagePath.length > 0) {
+            Quickshell.execDetached(["sh", "-c",
+                "rm -f $HOME/.local/share/headspace/" + entry.storagePath])
+        }
         root.entries = root.entries.filter(function(_, i) { return i !== index })
         save()
     }
@@ -121,10 +168,14 @@ Item {
     function copyAt(index) {
         if (index < 0 || index >= root.entries.length) return
         var entry = root.entries[index]
-        if (entry.mimeType === "text/uri-list")
+        if (entry.mimeType === "image/png" && entry.storagePath) {
+            Quickshell.execDetached(["sh", "-c",
+                "wl-copy -t image/png < $HOME/.local/share/headspace/" + entry.storagePath])
+        } else if (entry.mimeType === "text/uri-list") {
             Quickshell.execDetached(["wl-copy", "-t", "text/uri-list", entry.content])
-        else
+        } else {
             Quickshell.execDetached(["wl-copy", entry.content])
+        }
     }
 
     function save() {
@@ -158,8 +209,17 @@ Item {
             onStreamFinished: {
                 try {
                     var arr = JSON.parse(text.trim())
-                    if (Array.isArray(arr))
+                    if (Array.isArray(arr)) {
+                        for (var i = 0; i < arr.length; i++) {
+                            var e = arr[i]
+                            if (!e.mimeType) e.mimeType = "text/plain"
+                            if (!e.storagePath) e.storagePath = ""
+                            if (!e.charCount) e.charCount = e.content ? e.content.length : 0
+                            if (!e.pinned) e.pinned = false
+                            if (!e.truncated) e.truncated = e.content && e.content.length > 80
+                        }
                         root.entries = arr
+                    }
                 } catch (e) {
                     console.log("ClipMon: load error: " + e)
                 }
