@@ -7,11 +7,10 @@
   hardware.cpu.intel.updateMicrocode = true;
 
 
-  # Enable OpenGL/Vulkan/OpenCL
+  # Enable OpenGL/Vulkan
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
-    extraPackages = with pkgs; [ nvidia-ocl-icd ];
   };
 
   # Load NVIDIA driver for Xorg and Wayland (Hyprland)
