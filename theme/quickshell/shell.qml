@@ -6,6 +6,7 @@ import "lib"
 import "bar"
 import "notif"
 import "clip"
+import "launcher"
 
 ShellRoot {
     id: root
@@ -35,6 +36,11 @@ ShellRoot {
     }
 
     NotifPanel {
+        colors: colors
+        uiScale: root.uiScale
+    }
+
+    Launcher {
         colors: colors
         uiScale: root.uiScale
     }

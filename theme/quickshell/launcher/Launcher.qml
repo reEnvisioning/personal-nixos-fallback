@@ -1,0 +1,335 @@
+import QtQuick
+import Quickshell
+import Quickshell.Wayland
+import Quickshell.Io
+import "../lib"
+import "providers"
+
+PanelWindow {
+    id: root
+
+    required property var colors
+    required property real uiScale
+
+    property real panelWidth: Math.round(520 * root.uiScale)
+    property real inputHeight: Math.round(40 * root.uiScale)
+    property real itemHeight: Math.round(44 * root.uiScale)
+    property real maxListHeight: Math.round(360 * root.uiScale)
+
+    property bool isOpen: false
+    property real targetHeight: root.inputHeight
+    property real animHeight: 0
+
+    property list<QtObject> providers: [
+        AppProvider { id: appProv }
+    ]
+
+    property var activeProvider: null
+    property string queryText: ""
+    property var results: []
+    property int currentIndex: 0
+
+    width: root.panelWidth
+    height: root.animHeight
+    visible: root.animHeight > 0
+    color: "transparent"
+    focusable: true
+    WlrLayershell.layer: WlrLayer.Overlay
+    WlrLayershell.exclusionMode: ExclusionMode.Ignore
+    WlrLayershell.namespace: "headspace-launcher"
+    anchors.bottom: true
+    margins {
+        bottom: Math.round(8 * root.uiScale)
+        left: Math.round((root.screen.width - root.panelWidth) / 2)
+        right: Math.round((root.screen.width - root.panelWidth) / 2)
+    }
+
+    onIsOpenChanged: {
+        if (root.isOpen) {
+            root.targetHeight = root.inputHeight
+            animateTo(root.targetHeight, 300, [0.34, 1.56, 0.25, 1.0])
+        } else {
+            animateTo(0, 150, Easing.OutQuad)
+        }
+    }
+
+    function animateTo(h, dur, easing) {
+        heightAnim.stop()
+        heightAnim.from = root.animHeight
+        heightAnim.to = h
+        heightAnim.duration = dur
+        if (typeof easing === "object") {
+            heightAnim.easing.type = Easing.Bezier
+            heightAnim.easing.bezierCurve = easing
+        } else {
+            heightAnim.easing.type = easing
+        }
+        heightAnim.start()
+    }
+
+    NumberAnimation {
+        id: heightAnim
+        target: root
+        property: "animHeight"
+    }
+
+    function open() {
+        if (!root.isOpen) {
+            root.isOpen = true
+        }
+        resetState()
+        Qt.callLater(function() { inputField.forceActiveFocus() })
+    }
+
+    function close() {
+        root.isOpen = false
+        root.activeProvider = null
+        root.results = []
+        root.currentIndex = 0
+    }
+
+    function resetState() {
+        root.activeProvider = null
+        root.queryText = ""
+        root.results = []
+        root.currentIndex = 0
+        inputField.text = ""
+        rebuildItems()
+        updateTargetHeight()
+    }
+
+    function processInput(text) {
+        for (var i = 0; i < root.providers.length; i++) {
+            var p = root.providers[i]
+            var plen = p.prefix.length
+            if (text.length >= plen && text.substring(0, plen) === p.prefix) {
+                if (root.activeProvider !== p) {
+                    root.activeProvider = p
+                    root.currentIndex = 0
+                }
+                root.queryText = text.substring(plen)
+                root.results = p.query(root.queryText)
+                rebuildItems()
+                updateTargetHeight()
+                return
+            }
+        }
+
+        if (root.activeProvider !== null || root.results.length > 0) {
+            root.activeProvider = null
+            root.results = []
+            rebuildItems()
+            updateTargetHeight()
+        }
+    }
+
+    function updateTargetHeight() {
+        var h = root.inputHeight
+        if (root.results.length > 0) {
+            var listH = Math.min(
+                root.results.length * root.itemHeight,
+                root.maxListHeight
+            )
+            h += Math.round(listH + 8 * root.uiScale)
+        }
+        if (root.targetHeight !== h) {
+            root.targetHeight = h
+            animateTo(h, 200, [0.34, 0.8, 0.34, 1.0])
+        }
+    }
+
+    function selectCurrent() {
+        if (root.activeProvider && root.currentIndex >= 0 && root.currentIndex < root.results.length) {
+            root.activeProvider.activate(root.results[root.currentIndex])
+            close()
+        }
+    }
+
+    function moveSel(delta) {
+        var len = root.results.length
+        if (len === 0) return
+        root.currentIndex = (root.currentIndex + delta + len) % len
+        ensureVisible()
+    }
+
+    function ensureVisible() {
+        if (!resultFlick.visible) return
+        var y = root.currentIndex * root.itemHeight
+        if (y < resultFlick.contentY)
+            resultFlick.contentY = y
+        else if (y + root.itemHeight > resultFlick.contentY + resultFlick.height)
+            resultFlick.contentY = y + root.itemHeight - resultFlick.height
+    }
+
+    Rectangle {
+        anchors.fill: parent
+        radius: Math.round(12 * root.uiScale)
+        color: root.colors.background
+        Behavior on color { CAnim {} }
+    }
+
+    Item {
+        id: resultArea
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: inputBar.top
+        anchors.bottomMargin: Math.round(1 * root.uiScale)
+        height: root.results.length > 0
+            ? Math.min(root.results.length * root.itemHeight, root.maxListHeight) + Math.round(8 * root.uiScale)
+            : 0
+        clip: true
+
+        Text {
+            anchors.centerIn: parent
+            text: {
+                if (!root.activeProvider) return ""
+                if (root.queryText && root.results.length === 0) return "No results"
+                return ""
+            }
+            color: root.colors.subtext0
+            font.pointSize: 9
+            visible: text !== ""
+        }
+
+        Flickable {
+            id: resultFlick
+            anchors.fill: parent
+            anchors.margins: Math.round(4 * root.uiScale)
+            contentHeight: resultCol.height
+            boundsBehavior: Flickable.StopAtBounds
+            interactive: root.results.length > 0
+            clip: true
+            visible: root.results.length > 0
+
+            Column {
+                id: resultCol
+                width: parent.width
+                spacing: Math.round(2 * root.uiScale)
+            }
+        }
+    }
+
+    Item {
+        id: inputBar
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        height: root.inputHeight
+
+        Rectangle {
+            anchors.fill: parent
+            anchors.margins: Math.round(4 * root.uiScale)
+            radius: Math.round(8 * root.uiScale)
+            color: root.colors.surface2
+        }
+
+        Text {
+            id: prefixLabel
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            anchors.leftMargin: Math.round(12 * root.uiScale)
+            text: root.activeProvider ? root.activeProvider.prefix : ""
+            color: root.colors.accent
+            font.pointSize: 10
+            font.weight: Font.DemiBold
+            visible: text !== ""
+        }
+
+        TextInput {
+            id: inputField
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.left: prefixLabel.right
+            anchors.leftMargin: Math.round(6 * root.uiScale)
+            anchors.right: providerLabel.left
+            anchors.rightMargin: Math.round(6 * root.uiScale)
+            color: root.colors.text
+            font.pointSize: 10
+            clip: true
+            cursorVisible: true
+
+            onTextChanged: root.processInput(text)
+
+            Keys.onPressed: function(event) {
+                if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                    root.selectCurrent()
+                    event.accepted = true
+                } else if (event.key === Qt.Key_Up) {
+                    if (root.results.length > 0) {
+                        root.moveSel(-1)
+                        event.accepted = true
+                    }
+                } else if (event.key === Qt.Key_Down) {
+                    if (root.results.length > 0) {
+                        root.moveSel(1)
+                        event.accepted = true
+                    }
+                } else if (event.key === Qt.Key_Escape) {
+                    if (root.activeProvider || root.results.length > 0 || inputField.text !== "") {
+                        root.activeProvider = null
+                        root.results = []
+                        inputField.text = ""
+                        rebuildItems()
+                        updateTargetHeight()
+                    } else {
+                        close()
+                    }
+                    event.accepted = true
+                }
+            }
+        }
+
+        Text {
+            id: providerLabel
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.right: parent.right
+            anchors.rightMargin: Math.round(12 * root.uiScale)
+            text: root.activeProvider ? root.activeProvider.name : ""
+            color: root.colors.subtext0
+            font.pointSize: 8
+            visible: text !== ""
+        }
+    }
+
+    Process {
+        id: toggleWatcher
+        command: ["bash", "-c",
+            "while [ ! -f \"$XDG_RUNTIME_DIR/headspace-launcher-toggle\" ]; do sleep 0.2; done;" +
+            "inotifywait -qq -e close_write,modify,create \"$XDG_RUNTIME_DIR/headspace-launcher-toggle\""]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                root.open()
+                toggleWatcher.running = false
+                toggleWatcher.running = true
+            }
+        }
+    }
+
+    function rebuildItems() {
+        var children = resultCol.children
+        for (var i = children.length - 1; i >= 0; i--)
+            children[i].destroy()
+
+        if (!root.activeProvider || root.results.length === 0) return
+
+        var comp = root.activeProvider.itemComponent
+        if (!comp) return
+
+        for (var i = 0; i < root.results.length; i++) {
+            comp.createObject(resultCol, {
+                width: resultCol.width,
+                modelData: root.results[i],
+                selected: i === root.currentIndex
+            })
+        }
+    }
+
+    onCurrentIndexChanged: {
+        for (var i = 0; i < resultCol.children.length; i++) {
+            var child = resultCol.children[i]
+            if (child && child.hasOwnProperty("selected"))
+                child.selected = (i === root.currentIndex)
+        }
+        ensureVisible()
+    }
+}

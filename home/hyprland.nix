@@ -105,6 +105,9 @@ in {
                     # notification: dismiss all
                     "SUPER ALT, Backspace, exec, sh -c 'echo 1 > $XDG_RUNTIME_DIR/headspace-notif-dismiss'"
 
+                    # launcher: Super+Space
+                    "SUPER, SPACE, exec, sh -c 'touch $XDG_RUNTIME_DIR/headspace-launcher-toggle'"
+
                     # clipboard: toggle panel
                     "SUPER, C, exec, sh -c 'f=$XDG_RUNTIME_DIR/headspace-clip-toggle; v=$(cat $f 2>/dev/null || echo 0); echo $((1 - v)) > $f'"
 

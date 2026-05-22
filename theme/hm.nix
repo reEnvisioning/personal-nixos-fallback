@@ -71,6 +71,7 @@ in {
     "quickshell/bar".source = ./quickshell/bar;
     "quickshell/notif".source = ./quickshell/notif;
     "quickshell/clip".source = ./quickshell/clip;
+    "quickshell/launcher".source = ./quickshell/launcher;
     "quickshell/user".source = ./resources/user;
   };
 }
