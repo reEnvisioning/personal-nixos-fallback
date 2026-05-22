@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Widgets
+import Quickshell.Io
 import "../scripts/fuzzysort.js" as Fuzzy
 
 Item {
@@ -13,21 +14,58 @@ Item {
 
     property var _allApps: []
 
-    Component.onCompleted: {
-        try {
-            var entries = DesktopEntries.applications
-            if (!entries) return
-            if (entries.values)
-                _allApps = entries.values
-            else if (entries.count) {
-                var arr = []
-                for (var i = 0; i < entries.count; i++)
-                    arr.push(entries.get(i))
-                _allApps = arr
-            } else if (Array.isArray(entries))
-                _allApps = entries
-        } catch (e) {
-            console.log("AppProvider: DesktopEntries error:", e.toString())
+    Process {
+        id: appLoader
+        command: ["bash", "-c",
+            "for dir in \\\n" +
+            "  \"$HOME/.nix-profile/share/applications\" \\\n" +
+            "  \"$HOME/.local/share/applications\" \\\n" +
+            "  \"/run/current-system/sw/share/applications\"; do\n" +
+            "  [ -d \"$dir\" ] || continue\n" +
+            "  for f in \"$dir\"/*.desktop; do\n" +
+            "    [ -f \"$f\" ] || continue\n" +
+            "    id=\"${f##*/}\"; id=\"${id%.desktop}\"\n" +
+            "    n=\"$(grep -m1 '^Name=' \"$f\" 2>/dev/null | sed 's/^Name=//')\"\n" +
+            "    i=\"$(grep -m1 '^Icon=' \"$f\" 2>/dev/null | sed 's/^Icon=//')\"\n" +
+            "    c=\"$(grep -m1 '^Comment=' \"$f\" 2>/dev/null | sed 's/^Comment=//')\"\n" +
+            "    e=\"$(grep -m1 '^Exec=' \"$f\" 2>/dev/null | sed 's/^Exec=//' | sed 's/%[a-zA-Z]//g')\"\n" +
+            "    printf '%s\\t%s\\t%s\\t%s\\t%s\\n' \"$id\" \"$n\" \"$i\" \"$c\" \"$e\"\n" +
+            "  done\n" +
+            "done\n" +
+            "IFS=:\n" +
+            "for xdgDir in ${XDG_DATA_DIRS:-/usr/local/share:/usr/share}; do\n" +
+            "  d=\"${xdgDir%/}/applications\"\n" +
+            "  [ -d \"$d\" ] || continue\n" +
+            "  for f in \"$d\"/*.desktop; do\n" +
+            "    [ -f \"$f\" ] || continue\n" +
+            "    id=\"${f##*/}\"; id=\"${id%.desktop}\"\n" +
+            "    n=\"$(grep -m1 '^Name=' \"$f\" 2>/dev/null | sed 's/^Name=//')\"\n" +
+            "    i=\"$(grep -m1 '^Icon=' \"$f\" 2>/dev/null | sed 's/^Icon=//')\"\n" +
+            "    c=\"$(grep -m1 '^Comment=' \"$f\" 2>/dev/null | sed 's/^Comment=//')\"\n" +
+            "    e=\"$(grep -m1 '^Exec=' \"$f\" 2>/dev/null | sed 's/^Exec=//' | sed 's/%[a-zA-Z]//g')\"\n" +
+            "    printf '%s\\t%s\\t%s\\t%s\\t%s\\n' \"$id\" \"$n\" \"$i\" \"$c\" \"$e\"\n" +
+            "  done\n" +
+            "done"
+        ]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var lines = text.trim().split('\n')
+                console.log("AppProvider: found", lines.length, "desktop files")
+                for (var i = 0; i < lines.length; i++) {
+                    var parts = lines[i].split('\t')
+                    if (parts.length >= 5) {
+                        root._allApps.push({
+                            id: parts[0],
+                            name: parts[1],
+                            icon: parts[2],
+                            comment: parts[3],
+                            exec: parts[4]
+                        })
+                    }
+                }
+                console.log("AppProvider: loaded", root._allApps.length, "apps")
+            }
         }
     }
 
@@ -52,8 +90,8 @@ Item {
     }
 
     function activate(entry) {
-        if (entry && entry.command)
-            Quickshell.execDetached({ command: entry.command })
+        if (entry && entry.exec)
+            Quickshell.execDetached({ command: ["sh", "-c", entry.exec] })
     }
 
     property Component itemComponent: Component {
@@ -99,7 +137,7 @@ Item {
                     }
 
                     Text {
-                        text: modelData ? (modelData.comment || modelData.genericName || "") : ""
+                        text: modelData ? (modelData.comment || "") : ""
                         color: "#AAAAAA"
                         font.pointSize: 8
                         elide: Text.ElideRight
