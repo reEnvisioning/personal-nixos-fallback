@@ -17,14 +17,15 @@
             modules = [
                 ./system/default.nix
                 inputs.home-manager.nixosModules.home-manager
+                ./theme/appearance.nix
                 {
+                    visionary.theme.users = [ "visionary" ];
+
                     home-manager.users.visionary = {
                         imports = [
                             ./home/home.nix
-                            ./home/appearance.nix
                             ./home/hyprland.nix
                             ./home/yazi.nix
-                            ./home/quickshell.nix
                             ./home/firefox.nix
                             ./home/neovim.nix
                         ];
