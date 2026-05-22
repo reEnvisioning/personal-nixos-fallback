@@ -83,8 +83,8 @@ PanelWindow {
     Process {
         id: dndWatcher
         command: ["bash", "-c",
-            "while [ ! -f /tmp/headspace-dnd ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify /tmp/headspace-dnd"]
+            "while [ ! -f \"$XDG_RUNTIME_DIR/headspace-dnd\" ]; do sleep 1; done;" +
+            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/headspace-dnd\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -98,7 +98,7 @@ PanelWindow {
 
     Process {
         id: dndReader
-        command: ["cat", "/tmp/headspace-dnd"]
+        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/headspace-dnd\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -122,8 +122,8 @@ PanelWindow {
     Process {
         id: dismissWatcher
         command: ["bash", "-c",
-            "while [ ! -f /tmp/headspace-notif-dismiss ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify /tmp/headspace-notif-dismiss"]
+            "while [ ! -f \"$XDG_RUNTIME_DIR/headspace-notif-dismiss\" ]; do sleep 1; done;" +
+            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/headspace-notif-dismiss\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -137,7 +137,7 @@ PanelWindow {
 
     Process {
         id: dismissReader
-        command: ["cat", "/tmp/headspace-notif-dismiss"]
+        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/headspace-notif-dismiss\""]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
