@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 let
-  cfg = config.visionary.theme;
+  cfg = config.appearance;
 
   theme = import ./theme.nix;
 
@@ -24,7 +24,7 @@ let
     value.source = theme.all.${name}.yazi;
   }) (builtins.attrNames theme.all));
 in {
-  options.visionary.theme.users = lib.mkOption {
+  options.appearance.users = lib.mkOption {
     type = lib.types.listOf lib.types.str;
     default = [];
     description = "Users that get theme + quickshell config applied";

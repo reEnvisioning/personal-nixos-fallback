@@ -19,7 +19,7 @@
                 inputs.home-manager.nixosModules.home-manager
                 ./theme/appearance.nix
                 {
-                    visionary.theme.users = [ "visionary" ];
+                    appearance.users = [ "visionary" ];
 
                     home-manager.users.visionary = {
                         imports = [
