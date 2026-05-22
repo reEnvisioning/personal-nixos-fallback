@@ -1,6 +1,7 @@
 {pkgs, ...}: {
     imports = [
         ./hardware-configuration.nix
+        ./theme-data.nix
         ./network.nix
         ./desktop.nix
         ./plymouth.nix
@@ -54,6 +55,8 @@
         libnotify
         brightnessctl
         temurin-bin-21
+        quickshell
+        (writeShellScriptBin "switch-theme" (builtins.readFile ../theme/switch-theme))
     ];
 
     environment.variables = {

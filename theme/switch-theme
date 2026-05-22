@@ -7,15 +7,23 @@ if [ -z "$THEME_NAME" ]; then
     exit 1
 fi
 
-THEME_DIR="$HOME/.config/headspace/themes"
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+SYS_THEME_DIR="/etc/headspace/themes"
+USER_THEME_DIR="$HOME/.config/headspace/themes"
+if [ -f "$USER_THEME_DIR/$THEME_NAME.json" ]; then
+    THEME_DIR="$USER_THEME_DIR"
+else
+    THEME_DIR="$SYS_THEME_DIR"
+fi
 THEME_FILE="$THEME_DIR/$THEME_NAME.json"
-YAZI_THEMES="$HOME/.config/headspace/yazi-themes"
+SYS_YAZI_THEMES="/etc/headspace/yazi-themes"
+USER_YAZI_THEMES="$HOME/.config/headspace/yazi-themes"
 LOCALSEND_PREFS="$HOME/.local/share/org.localsend.localsend_app/shared_preferences.json"
 
 if [ ! -f "$THEME_FILE" ]; then
     echo "Theme '$THEME_NAME' not found at $THEME_FILE"
     echo "Available themes:"
-    ls "$THEME_DIR"/*.json 2>/dev/null | xargs -n1 basename -s .json
+    ls "$SYS_THEME_DIR"/*.json "$USER_THEME_DIR"/*.json 2>/dev/null | xargs -n1 basename -s .json | sort -u
     exit 1
 fi
 
@@ -35,8 +43,10 @@ fi
 # 2. Yazi theme — break Nix symlink, copy
 mkdir -p "$HOME/.config/yazi"
 rm -f "$HOME/.config/yazi/theme.toml"
-if [ -f "$YAZI_THEMES/$THEME_NAME.toml" ]; then
-    cp "$YAZI_THEMES/$THEME_NAME.toml" "$HOME/.config/yazi/theme.toml"
+YAZI_SRC="$USER_YAZI_THEMES/$THEME_NAME.toml"
+[ ! -f "$YAZI_SRC" ] && YAZI_SRC="$SYS_YAZI_THEMES/$THEME_NAME.toml"
+if [ -f "$YAZI_SRC" ]; then
+    cp "$YAZI_SRC" "$HOME/.config/yazi/theme.toml"
 fi
 
 # 3. Kitty — break Nix symlink, write config, reload
@@ -163,8 +173,8 @@ BORDER_INACTIVE=$(jq -r '.colors.borderInactive' "$THEME_FILE" | sed 's/^#//')
 hyprctl keyword general:col.active_border "0xff$BORDER_FOCUSED" 2>/dev/null || true
 hyprctl keyword general:col.inactive_border "0xff$BORDER_INACTIVE" 2>/dev/null || true
 
-# 8. Quickshell — write colors to temp file, restart to pick up new QML
-jq -c '{name} + {mode} + .colors' "$THEME_FILE" > /tmp/headspace-colors.json
+# 8. Quickshell — write colors to runtime file, restart to pick up new QML
+jq -c '{name} + {mode} + .colors' "$THEME_FILE" > "$RUNTIME_DIR/headspace-colors.json"
 pkill quickshell 2>/dev/null || true
 sleep 0.2
 nohup quickshell >/dev/null 2>&1 & disown

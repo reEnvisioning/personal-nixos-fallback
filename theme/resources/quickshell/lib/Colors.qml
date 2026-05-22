@@ -56,7 +56,7 @@ Item {
 
     Process {
         id: colorReader
-        command: ["cat", "/tmp/headspace-colors.json"]
+        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/headspace-colors.json\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: root.parse(text)
@@ -66,8 +66,8 @@ Item {
     Process {
         id: colorWatcher
         command: ["bash", "-c",
-            "while [ ! -f /tmp/headspace-colors.json ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify /tmp/headspace-colors.json"]
+            "while [ ! -f \"$XDG_RUNTIME_DIR/headspace-colors.json\" ]; do sleep 1; done;" +
+            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/headspace-colors.json\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
