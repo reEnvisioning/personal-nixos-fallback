@@ -4,8 +4,9 @@ import Quickshell.Widgets
 import Quickshell.Io
 import "../scripts/fuzzysort.js" as Fuzzy
 
-QtObject {
+Item {
     id: root
+    visible: false
 
     property string prefix: "! "
     property string name: "Apps"
