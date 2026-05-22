@@ -7,6 +7,7 @@ let
     mode = t.mode;
     localsend_color = t.localsend_color;
     obs_style = t.obs_style;
+    KDEwidgetStyle = t.KDEwidgetStyle;
     wallpaper = toString t.wallpaper;
     colors = t.colors;
   };
