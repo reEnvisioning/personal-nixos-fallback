@@ -24,14 +24,14 @@ Item {
     Process {
         id: pasteWatch
         command: ["wl-paste", "--watch", "sh", "-c",
-            "if wl-paste -t text/plain > /tmp/hs-clip-t-data 2>/dev/null; then " +
-            "  echo ok > /tmp/hs-clip-t-trigger; " +
-            "elif wl-paste -t image/png > /tmp/hs-clip-i-raw.png 2>/dev/null; then " +
-            "  hash=$(sha256sum /tmp/hs-clip-i-raw.png | cut -d' ' -f1) && " +
+            "if wl-paste -t text/plain > \"$XDG_RUNTIME_DIR/hs-clip-t-data\" 2>/dev/null; then " +
+            "  echo ok > \"$XDG_RUNTIME_DIR/hs-clip-t-trigger\"; " +
+            "elif wl-paste -t image/png > \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" 2>/dev/null; then " +
+            "  hash=$(sha256sum \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" | cut -d' ' -f1) && " +
             "  mkdir -p \"$HOME/.local/share/headspace/clips\" && " +
-            "  cp /tmp/hs-clip-i-raw.png \"$HOME/.local/share/headspace/clips/$hash.png\" && " +
-            "  echo \"$hash.png\" > /tmp/hs-clip-i-data && " +
-            "  echo ok > /tmp/hs-clip-i-trigger; " +
+            "  cp \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" \"$HOME/.local/share/headspace/clips/$hash.png\" && " +
+            "  echo \"$hash.png\" > \"$XDG_RUNTIME_DIR/hs-clip-i-data\" && " +
+            "  echo ok > \"$XDG_RUNTIME_DIR/hs-clip-i-trigger\"; " +
             "fi"]
         running: true
     }
@@ -39,8 +39,8 @@ Item {
     Process {
         id: textWatcher
         command: ["sh", "-c",
-            "while [ ! -f /tmp/hs-clip-t-trigger ]; do sleep 0.1; done && " +
-            "inotifywait -qq -e close_write /tmp/hs-clip-t-trigger 2>/dev/null"]
+            "while [ ! -f \"$XDG_RUNTIME_DIR/hs-clip-t-trigger\" ]; do sleep 0.1; done && " +
+            "inotifywait -qq -e close_write \"$XDG_RUNTIME_DIR/hs-clip-t-trigger\" 2>/dev/null"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -54,7 +54,7 @@ Item {
 
     Process {
         id: textReader
-        command: ["cat", "/tmp/hs-clip-t-data"]
+        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/hs-clip-t-data\""]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
@@ -70,8 +70,8 @@ Item {
     Process {
         id: imgWatcher
         command: ["sh", "-c",
-            "while [ ! -f /tmp/hs-clip-i-trigger ]; do sleep 0.1; done && " +
-            "inotifywait -qq -e close_write /tmp/hs-clip-i-trigger 2>/dev/null"]
+            "while [ ! -f \"$XDG_RUNTIME_DIR/hs-clip-i-trigger\" ]; do sleep 0.1; done && " +
+            "inotifywait -qq -e close_write \"$XDG_RUNTIME_DIR/hs-clip-i-trigger\" 2>/dev/null"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -85,7 +85,7 @@ Item {
 
     Process {
         id: imgReader
-        command: ["cat", "/tmp/hs-clip-i-data"]
+        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/hs-clip-i-data\""]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
@@ -113,12 +113,12 @@ Item {
     Process {
         id: seedImgProcess
         command: ["sh", "-c",
-            "wl-paste -t image/png > /tmp/hs-clip-i-raw.png 2>/dev/null && " +
-            "hash=$(sha256sum /tmp/hs-clip-i-raw.png | cut -d' ' -f1) && " +
+            "wl-paste -t image/png > \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" 2>/dev/null && " +
+            "hash=$(sha256sum \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" | cut -d' ' -f1) && " +
             "mkdir -p \"$HOME/.local/share/headspace/clips\" && " +
-            "cp /tmp/hs-clip-i-raw.png \"$HOME/.local/share/headspace/clips/$hash.png\" && " +
-            "echo \"$hash.png\" > /tmp/hs-clip-i-data && " +
-            "echo ok > /tmp/hs-clip-i-trigger"]
+            "cp \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" \"$HOME/.local/share/headspace/clips/$hash.png\" && " +
+            "echo \"$hash.png\" > \"$XDG_RUNTIME_DIR/hs-clip-i-data\" && " +
+            "echo ok > \"$XDG_RUNTIME_DIR/hs-clip-i-trigger\""]
         running: false
     }
 
