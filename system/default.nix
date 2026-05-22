@@ -26,13 +26,11 @@
 
         allowed-users = ["visionary"];
         trusted-users = ["visionary"];
-
-    };
-
-    nixpkgs.config = {
-        allowUnfree = true;
         auto-optimise-store = true;
+
     };
+
+    nixpkgs.config.allowUnfree = true;
 
     nix.gc = {
         automatic = true;

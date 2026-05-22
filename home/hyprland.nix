@@ -110,7 +110,7 @@ in {
 
                     "SUPER SHIFT, O, exec, hyprlock"
                     "SUPER SHIFT, P, exit"
-                    "SUPER, I, exec, bash -c 'if pgrep -x hypridle >/dev/null; then pkill -x hypridle; else hypridle &; fi'"
+                    "SUPER, I, exec, bash -c 'if pgrep -x hypridle >/dev/null; then pkill -x hypridle; else hypridle & fi'"
                 ]
                 ++ (builtins.concatLists (builtins.genList (
                         x: let

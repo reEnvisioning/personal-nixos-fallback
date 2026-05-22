@@ -51,7 +51,8 @@ local headspace_color_map = {
 }
 
 local function read_headspace_colors()
-  local f = io.open("/tmp/headspace-colors.json", "r")
+  local colors_path = (os.getenv("XDG_RUNTIME_DIR") or "/run/user/1000") .. "/headspace-colors.json"
+  local f = io.open(colors_path, "r")
   if not f then return nil end
   local content = f:read("*a")
   f:close()
@@ -257,7 +258,8 @@ setup_server("lua_ls", {
 })
 
 local uv = vim.uv or vim.loop
-local watch_path = "/tmp/headspace-colors.json"
+local colors_base = os.getenv("XDG_RUNTIME_DIR") or "/run/user/1000"
+local watch_path = colors_base .. "/headspace-colors.json"
 local watcher = uv.new_fs_event()
 local reload_timer = nil
 

@@ -9,7 +9,7 @@ Item {
 
     required property var colors
 
-    property string userName: "visionary"
+    property string userName: Quickshell.env.USER
     property string hostName: ""
     property string osName: ""
     property string kernelVer: ""
@@ -75,7 +75,7 @@ Item {
                 anchors.centerIn: parent
                 width: 68; height: 68
                 sourceSize { width: 68; height: 68 }
-                source: "../user/visionary.png"
+                source: "../user/" + Quickshell.env.USER + ".png"
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
             }
