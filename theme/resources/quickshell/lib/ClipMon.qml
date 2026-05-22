@@ -14,6 +14,8 @@ Item {
         Qt.callLater(function() {
             seedProcess.running = false
             seedProcess.running = true
+            seedImgProcess.running = false
+            seedImgProcess.running = true
         })
     }
 
@@ -106,6 +108,18 @@ Item {
                     root.addClip(txt)
             }
         }
+    }
+
+    Process {
+        id: seedImgProcess
+        command: ["sh", "-c",
+            "wl-paste -t image/png > /tmp/hs-clip-i-raw.png 2>/dev/null && " +
+            "hash=$(sha256sum /tmp/hs-clip-i-raw.png | cut -d' ' -f1) && " +
+            "mkdir -p \"$HOME/.local/share/headspace/clips\" && " +
+            "cp /tmp/hs-clip-i-raw.png \"$HOME/.local/share/headspace/clips/$hash.png\" && " +
+            "echo \"$hash.png\" > /tmp/hs-clip-i-data && " +
+            "echo ok > /tmp/hs-clip-i-trigger"]
+        running: false
     }
 
     // --- Entry management ---

@@ -305,7 +305,7 @@ PanelWindow {
     // IPC toggle
     Process {
         id: toggleWatcher
-        command: ["bash", "-c",
+        command: ["sh", "-c",
             "while [ ! -f /tmp/headspace-clip-toggle ]; do sleep 1; done;" +
             "inotifywait -qq -e close_write,modify /tmp/headspace-clip-toggle"]
         running: true
