@@ -43,7 +43,6 @@
     environment.systemPackages = with pkgs; [
         vim
         git
-        hyprpaper
         hyprshot
         pavucontrol
         qt5.qtwayland
