@@ -186,17 +186,17 @@ in {
   default = "void";
   all = allThemes;
 
-  mode = allThemes.void.mode;
-  wallpaper = allThemes.void.wallpaper;
-  localsend_color = allThemes.void.localsend_color;
-  active_opacity = allThemes.void.active_opacity;
-  inactive_opacity = allThemes.void.inactive_opacity;
-  cursor_theme = allThemes.void.cursor_theme;
-  cursor_size = allThemes.void.cursor_size;
+  mode = allThemes.${default}.mode;
+  wallpaper = allThemes.${default}.wallpaper;
+  localsend_color = allThemes.${default}.localsend_color;
+  active_opacity = allThemes.${default}.active_opacity;
+  inactive_opacity = allThemes.${default}.inactive_opacity;
+  cursor_theme = allThemes.${default}.cursor_theme;
+  cursor_size = allThemes.${default}.cursor_size;
   font = {
     family = "Monospace";
     size = 10;
   };
   hex = hexHelper;
-  colors = allThemes.void.colors;
+  colors = allThemes.${default}.colors;
 }

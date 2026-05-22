@@ -31,12 +31,8 @@
       };
 
       settings = {
-        # === General > Tabs > Interaction ===
-        "browser.tabs.groups.smart.enabled" = false;
-        "browser.tabs.groups.smart.optin" = false;
-        "browser.tabs.groups.smart.userEnabled" = false;
-        "browser.tabs.dragDrop.createGroup.enabled" = false;
-        "sidebar.verticalTabs" = true;
+          "browser.tabs.dragDrop.createGroup.enabled" = false;
+          "sidebar.verticalTabs" = true;
         "sidebar.revamp" = true;
         "sidebar.visibility" = "show";
 
