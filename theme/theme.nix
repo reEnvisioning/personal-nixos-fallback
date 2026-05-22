@@ -1,5 +1,6 @@
 let
   hexHelper = color: builtins.substring 1 (builtins.stringLength color) color;
+  default = "void";
 
   allThemes = {
     void = {
@@ -183,7 +184,7 @@ let
     };
   };
 in {
-  default = "void";
+  inherit default;
   all = allThemes;
 
   mode = allThemes.${default}.mode;
