@@ -6,6 +6,7 @@ let
       mode = "dark";
       localsend_color = "oled";
       obs_style = "Acri";
+      KDEwidgetStyle = "Fusion";
       wallpaper = ./resources/wallpaper/void.png;
       yazi = ./resources/yazi/void.toml;
       active_opacity = 0.9;
@@ -50,6 +51,7 @@ let
       mode = "light";
       localsend_color = "system";
       obs_style = "Light";
+      KDEwidgetStyle = "Fusion";
       wallpaper = ./resources/wallpaper/radiance.png;
       yazi = ./resources/yazi/radiance.toml;
       active_opacity = 0.9;
@@ -94,6 +96,7 @@ let
       mode = "light";
       localsend_color = "yaru";
       obs_style = "Light";
+      KDEwidgetStyle = "Fusion";
       wallpaper = ./resources/wallpaper/sakura.png;
       yazi = ./resources/yazi/sakura.toml;
       active_opacity = 0.9;
@@ -138,6 +141,7 @@ let
       mode = "dark";
       localsend_color = "oled";
       obs_style = "Acri";
+      KDEwidgetStyle = "Fusion";
       wallpaper = ./resources/wallpaper/bloody.png;
       yazi = ./resources/yazi/bloody.toml;
       active_opacity = 0.9;

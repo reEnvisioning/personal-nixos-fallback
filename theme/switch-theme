@@ -23,6 +23,7 @@ MODE=$(jq -r '.mode' "$THEME_FILE")
 WALLPAPER=$(jq -r '.wallpaper' "$THEME_FILE")
 LS_COLOR=$(jq -r '.localsend_color' "$THEME_FILE")
 OBS_STYLE=$(jq -r '.obs_style' "$THEME_FILE")
+KDE_WIDGET_STYLE=$(jq -r '.KDEwidgetStyle // "Default"' "$THEME_FILE")
 
 # 1. Wallpaper — wait for hyprpaper IPC to be ready
 sleep 1
@@ -109,7 +110,7 @@ style=$qt_style
 EOF
 done
 
-# 10. Kdenlive — color scheme
+# 10. Kdenlive — color scheme + widget style
 KDENLIVE_RC="$HOME/.config/kdenliverc"
 mkdir -p "$(dirname "$KDENLIVE_RC")"
 if [ "$MODE" = "dark" ]; then
@@ -119,6 +120,21 @@ else
     SCHEME="BreezeLight"
     SCHEME_PATH="BreezeLight.colors"
 fi
+
+# [KDE] section — widget style (skip if "Default")
+if [ "$KDE_WIDGET_STYLE" != "Default" ]; then
+    if grep -q '^widgetStyle=' "$KDENLIVE_RC" 2>/dev/null; then
+        sed -i 's|^widgetStyle=.*|widgetStyle='"$KDE_WIDGET_STYLE"'|' "$KDENLIVE_RC"
+    elif grep -q '^\[KDE\]' "$KDENLIVE_RC" 2>/dev/null; then
+        sed -i '/^\[KDE\]/a widgetStyle='"$KDE_WIDGET_STYLE" "$KDENLIVE_RC"
+    else
+        printf '\n[KDE]\nwidgetStyle=%s\n' "$KDE_WIDGET_STYLE" >> "$KDENLIVE_RC"
+    fi
+else
+    sed -i '/^widgetStyle=/d' "$KDENLIVE_RC"
+fi
+
+# [UiSettings] section — color scheme
 if grep -q '^\[UiSettings\]' "$KDENLIVE_RC" 2>/dev/null; then
     sed -i '/^\[UiSettings\]/,/^\[/ s|^ColorScheme=.*|ColorScheme='"$SCHEME"'|' "$KDENLIVE_RC"
     sed -i '/^\[UiSettings\]/,/^\[/ s|^ColorSchemePath=.*|ColorSchemePath='"$SCHEME_PATH"'|' "$KDENLIVE_RC"
