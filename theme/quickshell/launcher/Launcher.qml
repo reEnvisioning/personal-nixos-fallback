@@ -223,23 +223,11 @@ PanelWindow {
             color: root.colors.surface2
         }
 
-        Text {
-            id: prefixLabel
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.left: parent.left
-            anchors.leftMargin: Math.round(12 * root.uiScale)
-            text: root.activeProvider ? root.activeProvider.prefix : ""
-            color: root.colors.accent
-            font.pointSize: 10
-            font.weight: Font.DemiBold
-            visible: text !== ""
-        }
-
         TextInput {
             id: inputField
             anchors.verticalCenter: parent.verticalCenter
-            anchors.left: prefixLabel.right
-            anchors.leftMargin: Math.round(6 * root.uiScale)
+            anchors.left: parent.left
+            anchors.leftMargin: Math.round(12 * root.uiScale)
             anchors.right: providerLabel.left
             anchors.rightMargin: Math.round(6 * root.uiScale)
             color: root.colors.text
@@ -298,7 +286,10 @@ PanelWindow {
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
-                root.open()
+                if (root.isOpen)
+                    root.close()
+                else
+                    root.open()
                 toggleWatcher.running = false
                 toggleWatcher.running = true
             }
