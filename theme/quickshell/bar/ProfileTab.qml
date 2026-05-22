@@ -9,7 +9,16 @@ Item {
 
     required property var colors
 
-    property string userName: Quickshell.env.USER
+    property string userName: "user"
+
+    Process {
+        id: userReader
+        command: ["whoami"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: root.userName = text.trim()
+        }
+    }
     property string hostName: ""
     property string osName: ""
     property string kernelVer: ""
@@ -75,7 +84,7 @@ Item {
                 anchors.centerIn: parent
                 width: 68; height: 68
                 sourceSize { width: 68; height: 68 }
-                source: "../user/" + Quickshell.env.USER + ".png"
+                source: "../user/" + root.userName + ".png"
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
             }
