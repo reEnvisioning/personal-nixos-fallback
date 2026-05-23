@@ -92,7 +92,7 @@ in {
                     ", F24, exec, volume up"
                     ", F23, exec, volume down"
                     "SUPER ALT, M, exec, volume toggle"
-                    ", F21, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+                    ", F21, exec, mic toggle"
 
                     # tab bar shortcuts
                     "SUPER ALT, 1, exec, sh -c 'echo 0 > $XDG_RUNTIME_DIR/headspace-tab-trigger'"

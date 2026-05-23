@@ -51,6 +51,7 @@ in {
       (writeShellScriptBin "dnd" (builtins.readFile ./quickshell/scripts/dnd))
       (writeShellScriptBin "idle-toggle" (builtins.readFile ./quickshell/scripts/idle-toggle))
       (writeShellScriptBin "state" (builtins.readFile ./quickshell/scripts/state))
+      (writeShellScriptBin "mic" (builtins.readFile ./quickshell/scripts/mic))
     ];
 
     home-manager.users = builtins.listToAttrs (map (username: {

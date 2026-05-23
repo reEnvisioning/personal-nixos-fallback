@@ -1,0 +1,18 @@
+#!/bin/sh
+# Usage: mic toggle|mute|unmute
+
+CMD="${1:-toggle}"
+
+case "$CMD" in
+    toggle) wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle ;;
+    mute)   wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 1 ;;
+    unmute) wpctl set-mute @DEFAULT_AUDIO_SOURCE@ 0 ;;
+esac
+
+RAW=$(wpctl get-volume @DEFAULT_AUDIO_SOURCE@)
+case "$RAW" in
+    MUTED*) text="Muted" ;;
+    *)      text="Unmuted" ;;
+esac
+
+indicator "Mic Indicator" "Microphone" "$text"

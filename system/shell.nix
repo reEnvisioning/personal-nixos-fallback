@@ -20,7 +20,7 @@
     (writeShellScriptBin "nr" ''
       set -x
 
-      THEME=''${1:-$(cat "$HOME/.config/headspace/current" 2>/dev/null || echo void)}
+      THEME=''${1:-$(state get current-theme || echo void)}
 
       git clone https://github.com/reEnvisioning/personal-nixos-fallback.git
       sudo rm -rf /headspace/*

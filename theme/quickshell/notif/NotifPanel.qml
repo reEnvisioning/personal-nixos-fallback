@@ -106,7 +106,9 @@ PanelWindow {
         "Brightness Indicator",
         "DnD Indicator",
         "Hypridle Indicator",
-        "Theme Indicator"
+        "Theme Indicator",
+        "Mic Indicator",
+        "Battery Indicator"
     ]
 
     // --- Startup notification (catches IPC notif from switch-theme etc.) ---

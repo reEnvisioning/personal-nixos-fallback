@@ -8,6 +8,7 @@ Item {
     property bool isCharging: false
     property bool notified10: false
     property bool notified20: false
+    property bool notified95: false
 
     Timer {
         interval: 60000
@@ -39,11 +40,21 @@ Item {
     }
 
     function checkThresholds() {
-        if (batteryPct < 0 || isCharging) {
+        if (batteryPct < 0) return
+
+        if (isCharging) {
             notified10 = false
             notified20 = false
+            if (batteryPct >= 95 && !notified95) {
+                notified95 = true
+                sendChargedNotification(batteryPct)
+            }
+            if (batteryPct < 90) notified95 = false
             return
         }
+
+        // Not charging
+        notified95 = false
 
         if (batteryPct > 25) {
             notified10 = false
@@ -68,6 +79,13 @@ Item {
         notifProcess.command = ["sh", "-c",
             "notify-send --urgency=" + urgency +
             " --app-name=System \"" + summary + "\" \"Battery at " + level + "%\""]
+        notifProcess.running = false
+        notifProcess.running = true
+    }
+
+    function sendChargedNotification(level) {
+        notifProcess.command = ["sh", "-c",
+            "notify-send --app-name=\"Battery Indicator\" --expire-time=4000 \"Battery Charged\" \"Battery at " + level + "%\""]
         notifProcess.running = false
         notifProcess.running = true
     }
