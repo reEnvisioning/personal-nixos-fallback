@@ -13,6 +13,25 @@ Item {
     signal dismissed()
 
     property bool dismissing: false
+    property bool isReusable: false
+    property bool reused: false
+
+    function updateFrom(notification) {
+        reused = true
+        try {
+            var n = notification
+            notifSummary = n.summary || ""
+            notifBody = n.body || ""
+            notifAppName = n.appName || ""
+            notifUrgency = typeof n.urgency === "number" ? n.urgency : 1
+            notifExpireTimeout = typeof n.expireTimeout === "number" ? n.expireTimeout : -1
+            notifHasImage = !!n.image
+            if (n.actions) notifActions = n.actions
+        } catch (e) {
+            console.log("NotifCard: update error", e)
+        }
+        dismissTimer.restart()
+    }
 
     // Local copies — safe access, avoids crash reading raw Notification props
     property string notifSummary: ""
@@ -63,7 +82,7 @@ Item {
 
     Connections {
         target: root.notif
-        function onClosed() { root.startExit() }
+        function onClosed() { if (!root.reused) root.startExit() }
     }
 
     function startExit() {

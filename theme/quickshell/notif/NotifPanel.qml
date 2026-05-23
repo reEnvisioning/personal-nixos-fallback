@@ -55,6 +55,18 @@ PanelWindow {
 
             if (root.dndActive) return
 
+            // Dedup: replaceable appNames update in-place instead of stacking
+            if (["Volume Indicator"].indexOf(notification.appName) >= 0) {
+                for (var i = 0; i < notifColumn.children.length; i++) {
+                    var child = notifColumn.children[i]
+                    if (!child.dismissing && child.isReusable && child.notifAppName === notification.appName) {
+                        child.updateFrom(notification)
+                        notification.dismiss()
+                        return
+                    }
+                }
+            }
+
             while (root.activeCount() >= 4) {
                 for (var i = 0; i < notifColumn.children.length; i++) {
                     if (!notifColumn.children[i].dismissing) {
@@ -67,7 +79,8 @@ PanelWindow {
             var card = notifCardComponent.createObject(notifColumn, {
                 notif: notification,
                 colors: root.colors,
-                uiScale: root.uiScale
+                uiScale: root.uiScale,
+                isReusable: ["Volume Indicator"].indexOf(notification.appName) >= 0
             })
 
             card.dismissed.connect(function() {
