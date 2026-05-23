@@ -181,8 +181,7 @@ sleep 0.2
 nohup quickshell >/dev/null 2>&1 & disown
 
 # 9. Save current theme
-mkdir -p "$(dirname "$HOME/.config/headspace/current")"
-echo "$THEME_NAME" > "$HOME/.config/headspace/current"
+state set current-theme "$THEME_NAME"
 
 # 11. GIMP 3.0 — set theme + color scheme, restart to pick up
 pkill gimp 2>/dev/null || true

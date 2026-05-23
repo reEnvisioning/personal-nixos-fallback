@@ -133,8 +133,7 @@ in {
 
             "exec-once" = [
                 "hyprpaper"
-                "hypridle"
-                "bash -c 'echo 0 > $XDG_RUNTIME_DIR/headspace-dnd && echo 0 > $XDG_RUNTIME_DIR/headspace-notif-dismiss && echo 0 > $XDG_RUNTIME_DIR/headspace-clip-toggle; for i in 1 2 3; do hyprctl hyprpaper reload >/dev/null 2>&1 && break; sleep 0.3; done; switch-theme $(cat ~/.config/headspace/current 2>/dev/null || echo void)'"
+                "bash -c 'echo 0 > $XDG_RUNTIME_DIR/headspace-dnd && echo 0 > $XDG_RUNTIME_DIR/headspace-notif-dismiss && echo 0 > $XDG_RUNTIME_DIR/headspace-clip-toggle; for i in 1 2 3; do hyprctl hyprpaper reload >/dev/null 2>&1 && break; sleep 0.3; done; if [ \"$(state get hypridle)\" != \"disabled\" ]; then hypridle & fi; switch-theme $(state get current-theme || echo void)'"
             ];
         };
     };

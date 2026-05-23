@@ -21,3 +21,4 @@ case "$CMD" in
 esac
 
 indicator "Hypridle Indicator" "Idle Inhibit" "$text"
+state set hypridle "$(echo "$text" | tr '[:upper:]' '[:lower:]')"
