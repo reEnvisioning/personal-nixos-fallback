@@ -83,7 +83,7 @@ in {
                     "SUPER SHIFT, H, exec, localsend_app"
                     "SUPER SHIFT, G, exec, gimp"
                     "SUPER SHIFT, B, exec, blueman-manager"
-                    "SUPER SHIFT, M, exec, pavucontrol"
+                    "SUPER SHIFT, N, exec, pavucontrol"
 
                     # brightness
                     ", F13, exec, brightness down"
@@ -92,7 +92,7 @@ in {
                     ", F24, exec, volume up"
                     ", F23, exec, volume down"
                     "SUPER ALT, M, exec, volume toggle"
-                    ", F21, exec, mic toggle"
+                    "SUPER SHIFT, M, exec, mic toggle"
 
                     # tab bar shortcuts
                     "SUPER ALT, 1, exec, sh -c 'echo 0 > $XDG_RUNTIME_DIR/headspace-tab-trigger'"
