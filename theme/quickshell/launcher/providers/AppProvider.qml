@@ -146,7 +146,6 @@ Item {
                 anchors.fill: parent
                 color: selected ? colors.highlighted : "transparent"
                 radius: Math.round(6 * uiScale)
-                Behavior on color { ColorAnimation { duration: 80 } }
             }
 
             Row {
