@@ -48,33 +48,38 @@ PanelWindow {
     onIsOpenChanged: {
         if (root.isOpen) {
             updateTargetHeight()
+            heightAnim.from = root.animHeight
             heightAnim.to = root.targetHeight
             heightAnim.duration = 300
         } else {
+            heightAnim.from = root.animHeight
             heightAnim.to = 0
             heightAnim.duration = 150
         }
-        heightAnim.restart()
+        heightAnim.start()
     }
 
     onAnimHeightChanged: {
-        if (root._pendingCleanup && root.animHeight <= root.inputHeight + 1) {
+        if (root._pendingCleanup && root.animHeight <= root.inputHeight) {
             root._pendingCleanup = false
             rebuildItems()
         }
     }
 
     function animateTo(h, dur) {
+        heightAnim.from = root.animHeight
         heightAnim.to = h
         heightAnim.duration = dur
-        heightAnim.restart()
+        heightAnim.start()
     }
 
-    SmoothedAnimation {
+    NumberAnimation {
         id: heightAnim
         target: root
         property: "animHeight"
-        velocity: 800
+        duration: 200
+        easing.type: Easing.Bezier
+        easing.bezierCurve: [0.34, 0.8, 0.34, 1.0]
     }
 
     function open() {
@@ -116,8 +121,8 @@ PanelWindow {
                 root.queryText = text.substring(plen)
                 root.results = p.query(root.queryText)
                 root._pendingCleanup = false
-                rebuildItems()
                 updateTargetHeight()
+                rebuildItems()
                 return
             }
         }
@@ -160,7 +165,7 @@ PanelWindow {
     }
 
     function ensureVisible() {
-        if (!resultFlick.visible) return
+        if (root.results.length === 0) return
         var s = Math.round(2 * root.uiScale)
         var y = root.currentIndex * (root.itemHeight + s)
         if (y < resultFlick.contentY)
@@ -206,7 +211,8 @@ PanelWindow {
             boundsBehavior: Flickable.StopAtBounds
             interactive: root.results.length > 0
             clip: true
-            visible: root.results.length > 0 || root._pendingCleanup
+            opacity: root.results.length > 0 || root._pendingCleanup ? 1 : 0
+            Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.Bezier; easing.bezierCurve: [0.34, 0.8, 0.34, 1.0] } }
 
             Column {
                 id: resultCol
@@ -304,6 +310,7 @@ PanelWindow {
     }
 
     function rebuildItems() {
+        resultFlick.contentY = 0
         var children = resultCol.children
         for (var i = children.length - 1; i >= 0; i--)
             children[i].destroy()
