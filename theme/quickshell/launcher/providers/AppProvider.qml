@@ -173,7 +173,7 @@ Item {
                         text: modelData ? (modelData.name || "Unknown") : ""
                         color: colors.text
                         font.pointSize: 10
-                        font.weight: Font.DemiBold
+                        font.weight: Font.Normal
                         elide: Text.ElideRight
                         width: parent.parent ? parent.parent.width - Math.round(44 * uiScale) : Math.round(400 * uiScale)
                     }
