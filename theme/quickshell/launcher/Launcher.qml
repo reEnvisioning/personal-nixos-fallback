@@ -88,8 +88,7 @@ PanelWindow {
         root.currentIndex = 0
         root._pendingCleanup = false
         rebuildItems()
-        root.animHeight = root.inputHeight
-        animateTo(0, 150, [0.0, 0.0, 0.58, 1.0])
+        animateTo(0, 200, [0.0, 0.0, 0.58, 1.0])
     }
 
     function resetState() {
@@ -133,7 +132,7 @@ PanelWindow {
     function updateTargetHeight() {
         var h = root.inputHeight + root.computeListHeight()
         if (h === root.animHeight) return
-        root.animHeight = h
+        animateTo(h, 200, [0.34, 0.8, 0.34, 1.0])
     }
 
     function selectCurrent() {
