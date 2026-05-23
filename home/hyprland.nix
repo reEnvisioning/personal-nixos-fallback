@@ -91,7 +91,7 @@ in {
                     # audio controls
                     ", F24, exec, volume up"
                     ", F23, exec, volume down"
-                    ", F22, exec, volume toggle"
+                    "SUPER ALT, M, exec, volume toggle"
                     ", F21, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
 
                     # tab bar shortcuts
