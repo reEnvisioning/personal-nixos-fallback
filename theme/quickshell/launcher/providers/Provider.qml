@@ -18,12 +18,12 @@ Item {
             required property bool selected
             required property var colors
             required property real uiScale
-            height: Math.round(44 * root.uiScale)
+            height: Math.round(44 * uiScale)
 
             Rectangle {
                 anchors.fill: parent
                 color: selected ? colors.highlighted : "transparent"
-                radius: Math.round(6 * root.uiScale)
+                radius: Math.round(6 * uiScale)
 
                 Behavior on color {
                     ColorAnimation { duration: 80 }
@@ -32,13 +32,13 @@ Item {
 
             Text {
                 anchors.left: parent.left
-                anchors.leftMargin: Math.round(10 * root.uiScale)
+                anchors.leftMargin: Math.round(10 * uiScale)
                 anchors.verticalCenter: parent.verticalCenter
                 text: modelData ? (modelData.name || modelData.toString()) : ""
                 color: colors.text
                 font.pointSize: 10
                 elide: Text.ElideRight
-                width: parent.width - Math.round(20 * root.uiScale)
+                width: parent.width - Math.round(20 * uiScale)
             }
         }
     }

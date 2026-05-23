@@ -140,34 +140,33 @@ Item {
             required property bool selected
             required property var colors
             required property real uiScale
-            height: Math.round(44 * root.uiScale)
+            height: Math.round(44 * uiScale)
 
             Rectangle {
                 anchors.fill: parent
                 color: selected ? colors.highlighted : "transparent"
-                radius: Math.round(6 * root.uiScale)
+                radius: Math.round(6 * uiScale)
                 Behavior on color { ColorAnimation { duration: 80 } }
             }
 
             Row {
                 anchors.left: parent.left
-                anchors.leftMargin: Math.round(10 * root.uiScale)
-                anchors.right: parent.right
-                anchors.rightMargin: Math.round(10 * root.uiScale)
+                anchors.leftMargin: Math.round(10 * uiScale)
+                anchors.rightMargin: Math.round(10 * uiScale)
                 anchors.verticalCenter: parent.verticalCenter
-                spacing: Math.round(10 * root.uiScale)
+                spacing: Math.round(10 * uiScale)
 
                 IconImage {
                     anchors.verticalCenter: parent.verticalCenter
-                    width: Math.round(24 * root.uiScale)
-                    height: Math.round(24 * root.uiScale)
+                    width: Math.round(24 * uiScale)
+                    height: Math.round(24 * uiScale)
                     source: modelData ? Quickshell.iconPath(modelData.icon, "image-missing") : ""
                     asynchronous: true
                 }
 
                 Column {
                     anchors.verticalCenter: parent.verticalCenter
-                    spacing: Math.round(1 * root.uiScale)
+                    spacing: Math.round(1 * uiScale)
 
                     Text {
                         text: modelData ? (modelData.name || "Unknown") : ""
@@ -175,7 +174,7 @@ Item {
                         font.pointSize: 10
                         font.weight: Font.DemiBold
                         elide: Text.ElideRight
-                        width: parent.parent ? parent.parent.width - Math.round(44 * root.uiScale) : Math.round(400 * root.uiScale)
+                        width: parent.parent ? parent.parent.width - Math.round(44 * uiScale) : Math.round(400 * uiScale)
                     }
 
                     Text {
@@ -183,7 +182,7 @@ Item {
                         color: colors.subtext0
                         font.pointSize: 8
                         elide: Text.ElideRight
-                        width: parent.parent ? parent.parent.width - Math.round(44 * root.uiScale) : Math.round(400 * root.uiScale)
+                        width: parent.parent ? parent.parent.width - Math.round(44 * uiScale) : Math.round(400 * uiScale)
                         visible: text !== ""
                     }
                 }
