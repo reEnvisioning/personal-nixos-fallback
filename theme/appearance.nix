@@ -45,6 +45,11 @@ in {
       jq
       inotify-tools
       (writeShellScriptBin "switch-theme" (builtins.readFile ./switch-theme))
+      (writeShellScriptBin "indicator" (builtins.readFile ./quickshell/scripts/indicator))
+      (writeShellScriptBin "volume" (builtins.readFile ./quickshell/scripts/volume))
+      (writeShellScriptBin "brightness" (builtins.readFile ./quickshell/scripts/brightness))
+      (writeShellScriptBin "dnd" (builtins.readFile ./quickshell/scripts/dnd))
+      (writeShellScriptBin "hypridle" (builtins.readFile ./quickshell/scripts/hypridle))
     ];
 
     home-manager.users = builtins.listToAttrs (map (username: {

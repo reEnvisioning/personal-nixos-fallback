@@ -4,17 +4,19 @@
 CMD="${1:-up}"
 
 case "$CMD" in
-    up)     pactl set-sink-volume @DEFAULT_SINK@ +5% ;;
-    down)   pactl set-sink-volume @DEFAULT_SINK@ -5% ;;
-    toggle) pactl set-sink-mute @DEFAULT_SINK@ toggle ;;
-    set)    pactl set-sink-volume @DEFAULT_SINK@ "${2:-50}%" ;;
+    up)     wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ ;;
+    down)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
+    toggle) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
+    set)    wpctl set-volume @DEFAULT_AUDIO_SINK@ "${2:-50}%" ;;
 esac
 
-VOL=$(pactl get-sink-volume @DEFAULT_SINK@ | grep -Po '\d+(?=%)' | head -1)
-MUTED=$(pactl get-sink-mute @DEFAULT_SINK@ | grep -Po 'yes|no')
+RAW=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
+case "$RAW" in
+    MUTED*)
+        text="Muted" ;;
+    *)
+        pct=$(echo "$RAW" | awk '{printf "%.0f", $2 * 100}')
+        text="${pct}%" ;;
+esac
 
-if [ "$MUTED" = "yes" ]; then
-    notify-send --app-name="Volume Indicator" --expire-time=2000 "Volume" "Muted"
-else
-    notify-send --app-name="Volume Indicator" --expire-time=2000 "Volume" "${VOL}%"
-fi
+indicator "Volume Indicator" "Volume" "$text"

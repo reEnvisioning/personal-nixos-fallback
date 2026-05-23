@@ -56,7 +56,7 @@ PanelWindow {
             if (root.dndActive) return
 
             // Dedup: replaceable appNames update in-place instead of stacking
-            if (["Volume Indicator"].indexOf(notification.appName) >= 0) {
+            if (root.replaceableAppNames.indexOf(notification.appName) >= 0) {
                 for (var i = 0; i < notifColumn.children.length; i++) {
                     var child = notifColumn.children[i]
                     if (!child.dismissing && child.isReusable && child.notifAppName === notification.appName) {
@@ -80,13 +80,39 @@ PanelWindow {
                 notif: notification,
                 colors: root.colors,
                 uiScale: root.uiScale,
-                isReusable: ["Volume Indicator"].indexOf(notification.appName) >= 0
+                isReusable: root.replaceableAppNames.indexOf(notification.appName) >= 0
             })
 
             card.dismissed.connect(function() {
                 card.destroy()
             })
         }
+    }
+
+    // --- Replaceable indicator appNames ---
+
+    property var replaceableAppNames: [
+        "Volume Indicator",
+        "Brightness Indicator",
+        "DnD Indicator",
+        "Hypridle Indicator",
+        "Theme Indicator"
+    ]
+
+    // --- Startup notification (catches IPC notif from switch-theme etc.) ---
+
+    Process {
+        id: startupReader
+        command: ["sh", "-c",
+            "f=\"$XDG_RUNTIME_DIR/headspace-startup-notif\";" +
+            "if [ -f \"$f\" ]; then" +
+            "  app=$(sed -n '1p' \"$f\");" +
+            "  sum=$(sed -n '2p' \"$f\");" +
+            "  body=$(sed -n '3p' \"$f\");" +
+            "  notify-send --app-name=\"$app\" --expire-time=4000 \"$sum\" \"$body\";" +
+            "  rm -f \"$f\";" +
+            "fi"]
+        running: true
     }
 
     // --- DnD ---

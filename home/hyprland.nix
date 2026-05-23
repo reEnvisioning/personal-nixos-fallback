@@ -86,12 +86,12 @@ in {
                     "SUPER SHIFT, M, exec, pavucontrol"
 
                     # brightness
-                    ", F13, exec, brightnessctl set 5%-"
-                    ", F14, exec, brightnessctl set +5%"
+                    ", F13, exec, brightness down"
+                    ", F14, exec, brightness up"
                     # audio controls
-                    ", F24, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+"
-                    ", F23, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"
-                    ", F22, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+                    ", F24, exec, volume up"
+                    ", F23, exec, volume down"
+                    ", F22, exec, volume toggle"
                     ", F21, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
 
                     # tab bar shortcuts
@@ -100,7 +100,7 @@ in {
                     "SUPER ALT, 3, exec, sh -c 'echo 2 > $XDG_RUNTIME_DIR/headspace-tab-trigger'"
 
                     # notification: toggle DnD
-                    "SUPER ALT, N, exec, sh -c 'f=$XDG_RUNTIME_DIR/headspace-dnd; v=$(cat $f 2>/dev/null || echo 0); echo $((1 - v)) > $f'"
+                    "SUPER ALT, N, exec, dnd toggle"
 
                     # notification: dismiss all
                     "SUPER ALT, Backspace, exec, sh -c 'echo 1 > $XDG_RUNTIME_DIR/headspace-notif-dismiss'"
@@ -113,7 +113,7 @@ in {
 
                     "SUPER SHIFT, O, exec, hyprlock"
                     "SUPER SHIFT, P, exit"
-                    "SUPER, I, exec, bash -c 'if pgrep -x hypridle >/dev/null; then pkill -x hypridle; else hypridle & fi'"
+                    "SUPER, I, exec, hypridle toggle"
                 ]
                 ++ (builtins.concatLists (builtins.genList (
                         x: let
