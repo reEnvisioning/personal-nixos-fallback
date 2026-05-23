@@ -13,7 +13,7 @@ let
     pname = "fuzzy-launcher";
     version = "0.1.0";
     src = ../rust/fuzzy-launcher;
-    cargoHash = lib.fakeHash;
+    cargoLock.lockFile = ../rust/fuzzy-launcher/Cargo.lock;
   };
 in {
   home.pointerCursor = {
