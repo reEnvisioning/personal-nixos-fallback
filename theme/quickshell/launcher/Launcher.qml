@@ -26,13 +26,8 @@ PanelWindow {
 
     property var activeProvider: null
     property string queryText: ""
-    property var results: root.activeProvider ? root.activeProvider.results : []
+    property var results: []
     property int currentIndex: 0
-
-    onResultsChanged: {
-        rebuildItems()
-        updateTargetHeight()
-    }
 
     width: root.panelWidth
     height: root.fullHeight
@@ -92,6 +87,7 @@ PanelWindow {
     function close() {
         root.isOpen = false
         root.activeProvider = null
+        root.results = []
         root.currentIndex = 0
         root._pendingCleanup = false
         rebuildItems()
@@ -102,6 +98,7 @@ PanelWindow {
         root._pendingCleanup = false
         root.activeProvider = null
         root.queryText = ""
+        root.results = []
         root.currentIndex = 0
         inputField.text = ""
         rebuildItems()
@@ -113,18 +110,22 @@ PanelWindow {
             var p = root.providers[i]
             var plen = p.prefix.length
             if (text.length >= plen && text.substring(0, plen) === p.prefix) {
-                root.queryText = text.substring(plen)
-                root.currentIndex = 0
-                p.query(root.queryText)
-                if (root.activeProvider !== p)
+                if (root.activeProvider !== p) {
                     root.activeProvider = p
+                    root.currentIndex = 0
+                }
+                root.queryText = text.substring(plen)
+                root.results = p.query(root.queryText)
                 root._pendingCleanup = false
+                rebuildItems()
+                updateTargetHeight()
                 return
             }
         }
 
-        if (root.activeProvider !== null) {
+        if (root.activeProvider !== null || root.results.length > 0) {
             root.activeProvider = null
+            root.results = []
             root._pendingCleanup = false
             rebuildItems()
             updateTargetHeight()
@@ -256,6 +257,7 @@ PanelWindow {
                     } else if (event.key === Qt.Key_Escape) {
                         if (root.activeProvider || root.results.length > 0 || inputField.text !== "") {
                             root.activeProvider = null
+                            root.results = []
                             root._pendingCleanup = false
                             inputField.text = ""
                             rebuildItems()
