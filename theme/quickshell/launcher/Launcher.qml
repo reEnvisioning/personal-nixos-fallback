@@ -28,6 +28,7 @@ PanelWindow {
     property string queryText: ""
     property var results: []
     property int currentIndex: 0
+    property bool _pendingCleanup: false
 
     width: root.panelWidth
     height: root.animHeight
@@ -56,6 +57,13 @@ PanelWindow {
         heightAnim.restart()
     }
 
+    onAnimHeightChanged: {
+        if (root._pendingCleanup && root.animHeight <= root.inputHeight + 1) {
+            root._pendingCleanup = false
+            rebuildItems()
+        }
+    }
+
     function animateTo(h, dur) {
         heightAnim.to = h
         heightAnim.duration = dur
@@ -82,9 +90,11 @@ PanelWindow {
         root.activeProvider = null
         root.results = []
         root.currentIndex = 0
+        root._pendingCleanup = false
     }
 
     function resetState() {
+        root._pendingCleanup = false
         root.activeProvider = null
         root.queryText = ""
         root.results = []
@@ -105,6 +115,7 @@ PanelWindow {
                 }
                 root.queryText = text.substring(plen)
                 root.results = p.query(root.queryText)
+                root._pendingCleanup = false
                 rebuildItems()
                 updateTargetHeight()
                 return
@@ -114,7 +125,7 @@ PanelWindow {
         if (root.activeProvider !== null || root.results.length > 0) {
             root.activeProvider = null
             root.results = []
-            rebuildItems()
+            root._pendingCleanup = true
             updateTargetHeight()
         }
     }
@@ -195,7 +206,7 @@ PanelWindow {
             boundsBehavior: Flickable.StopAtBounds
             interactive: root.results.length > 0
             clip: true
-            visible: root.results.length > 0
+            visible: root.results.length > 0 || root._pendingCleanup
 
             Column {
                 id: resultCol
@@ -252,7 +263,7 @@ PanelWindow {
                         root.activeProvider = null
                         root.results = []
                         inputField.text = ""
-                        rebuildItems()
+                        root._pendingCleanup = true
                         updateTargetHeight()
                     } else {
                         close()
