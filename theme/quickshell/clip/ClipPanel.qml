@@ -177,7 +177,11 @@ PanelWindow {
                         root.currentIndex = root._nextVisible(root.currentIndex)
                         event.accepted = true
                     } else if (event.key === Qt.Key_Escape) {
-                        root.searchText = ""
+                        if (root.searchText !== "") {
+                            root.searchText = ""
+                        } else {
+                            root.showPanel = false
+                        }
                         event.accepted = true
                     } else if (event.key === Qt.Key_Backspace) {
                         root.searchText = root.searchText.substring(0, root.searchText.length - 1)
