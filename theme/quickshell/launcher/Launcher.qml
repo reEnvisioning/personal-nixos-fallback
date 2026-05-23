@@ -15,6 +15,7 @@ PanelWindow {
     property real inputHeight: Math.round(40 * root.uiScale)
     property real itemHeight: Math.round(44 * root.uiScale)
     property real emptyListHeight: Math.round(44 * root.uiScale)
+    property real fullHeight: Math.round(root.screen.height / 3)
     property bool isOpen: false
     property real animHeight: 0
     property bool _pendingCleanup: false
@@ -29,7 +30,7 @@ PanelWindow {
     property int currentIndex: 0
 
     width: root.panelWidth
-    height: root.animHeight
+    height: root.fullHeight
     visible: root.animHeight > 0
     color: "transparent"
     focusable: true
@@ -165,7 +166,7 @@ PanelWindow {
         id: contentWrapper
         anchors.bottom: parent.bottom
         width: parent.width
-        height: root.animHeight
+    height: root.fullHeight
         clip: true
 
         Rectangle {
