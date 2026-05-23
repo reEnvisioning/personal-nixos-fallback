@@ -14,9 +14,8 @@ PanelWindow {
     property real panelWidth: Math.round(520 * root.uiScale)
     property real inputHeight: Math.round(40 * root.uiScale)
     property real itemHeight: Math.round(44 * root.uiScale)
-    property real maxListHeight: Math.round(360 * root.uiScale)
     property real emptyListHeight: Math.round(44 * root.uiScale)
-    property real fullHeight: root.inputHeight + Math.round(13 * root.uiScale) + root.maxListHeight
+    property real fullHeight: root.inputHeight + Math.round(13 * root.uiScale) + root.computeMaxListHeight()
 
     property bool isOpen: false
     property real animHeight: 0
@@ -63,11 +62,15 @@ PanelWindow {
         heightAnim.start()
     }
 
+    function computeMaxListHeight() {
+        return Math.round(root.screen.height / 3) - root.inputHeight - Math.round(13 * root.uiScale)
+    }
+
     function computeListHeight() {
         if (root.results.length > 0) {
             var spacing = Math.round(2 * root.uiScale)
             var contentH = root.results.length * root.itemHeight + (root.results.length - 1) * spacing
-            contentH = Math.min(contentH, root.maxListHeight)
+            contentH = Math.min(contentH, root.computeMaxListHeight())
             return Math.round(13 * root.uiScale) + contentH
         }
         if (root.activeProvider && root.queryText)
@@ -283,7 +286,7 @@ PanelWindow {
 
     Process {
         id: toggleWatcher
-        command: ["bash", "-c",
+        command: ["sh", "-c",
             "while [ ! -f \"$XDG_RUNTIME_DIR/headspace-launcher-toggle\" ]; do sleep 0.2; done;" +
             "inotifywait -qq -e close_write,modify,create \"$XDG_RUNTIME_DIR/headspace-launcher-toggle\""]
         running: true
@@ -315,7 +318,8 @@ PanelWindow {
                 width: resultCol.width,
                 modelData: root.results[i],
                 selected: i === root.currentIndex,
-                colors: root.colors
+                colors: root.colors,
+                uiScale: root.uiScale
             })
         }
     }

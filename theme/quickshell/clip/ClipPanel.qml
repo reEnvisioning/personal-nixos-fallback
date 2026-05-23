@@ -20,8 +20,6 @@ PanelWindow {
     property real desiredHeight: 0
     property real animHeight: 0
     property real slideX: 0
-    property int hoveredIndex: -1
-
     width: Math.round(380 * root.uiScale)
     height: root.animHeight
     visible: root.animHeight > 0
@@ -83,12 +81,7 @@ PanelWindow {
         anchors.fill: parent
         hoverEnabled: true
         onEntered: idleTimer.stop()
-        onPositionChanged: {
-            var idx = Math.floor(mouseY / Math.round(50 * root.uiScale))
-            root.hoveredIndex = idx >= 0 && idx < root.clipMon.entries.length ? idx : -1
-        }
         onExited: {
-            root.hoveredIndex = -1
             idleTimer.restart()
         }
     }
@@ -289,8 +282,7 @@ PanelWindow {
                 colors: root.colors,
                 uiScale: root.uiScale,
                 clipIndex: i,
-                selected: i === root.currentIndex,
-                highlighted: i === root.hoveredIndex
+                selected: i === root.currentIndex
             })
             item.itemClicked.connect(function(idx) {
                 root.currentIndex = idx

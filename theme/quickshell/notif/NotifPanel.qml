@@ -82,7 +82,7 @@ PanelWindow {
 
     Process {
         id: dndWatcher
-        command: ["bash", "-c",
+        command: ["sh", "-c",
             "while [ ! -f \"$XDG_RUNTIME_DIR/headspace-dnd\" ]; do sleep 1; done;" +
             "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/headspace-dnd\""]
         running: true
@@ -121,7 +121,7 @@ PanelWindow {
 
     Process {
         id: dismissWatcher
-        command: ["bash", "-c",
+        command: ["sh", "-c",
             "while [ ! -f \"$XDG_RUNTIME_DIR/headspace-notif-dismiss\" ]; do sleep 1; done;" +
             "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/headspace-notif-dismiss\""]
         running: true

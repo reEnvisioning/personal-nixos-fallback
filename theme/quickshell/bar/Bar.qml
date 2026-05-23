@@ -208,7 +208,7 @@ PanelWindow {
 
     Process {
         id: tabTriggerWatcher
-        command: ["bash", "-c",
+        command: ["sh", "-c",
             "while [ ! -f \"$XDG_RUNTIME_DIR/headspace-tab-trigger\" ]; do sleep 1; done;" +
             "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/headspace-tab-trigger\""]
         running: true

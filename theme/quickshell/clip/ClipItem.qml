@@ -10,21 +10,18 @@ Item {
     required property real uiScale
     required property int clipIndex
     required property bool selected
-    required property bool highlighted
 
     signal copyRequested()
     signal itemClicked(int index)
 
     width: parent ? parent.width : 380
-    height: Math.round(48 * root.uiScale)
+    height: Math.round(44 * root.uiScale)
 
     Rectangle {
         id: bg
         anchors.fill: parent
         radius: Math.round(8 * root.uiScale)
-        color: root.selected
-            ? (root.highlighted ? root.colors.highlighted : root.colors.overlay1)
-            : (root.highlighted ? root.colors.surface2 : "transparent")
+        color: root.selected ? root.colors.highlighted : "transparent"
     }
 
     RowLayout {

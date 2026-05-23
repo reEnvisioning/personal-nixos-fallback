@@ -139,50 +139,51 @@ Item {
             required property var modelData
             required property bool selected
             required property var colors
-            height: 44
+            required property real uiScale
+            height: Math.round(44 * root.uiScale)
 
             Rectangle {
                 anchors.fill: parent
                 color: selected ? colors.highlighted : "transparent"
-                radius: 6
+                radius: Math.round(6 * root.uiScale)
                 Behavior on color { ColorAnimation { duration: 80 } }
             }
 
             Row {
                 anchors.left: parent.left
-                anchors.leftMargin: 10
+                anchors.leftMargin: Math.round(10 * root.uiScale)
                 anchors.right: parent.right
-                anchors.rightMargin: 10
+                anchors.rightMargin: Math.round(10 * root.uiScale)
                 anchors.verticalCenter: parent.verticalCenter
-                spacing: 10
+                spacing: Math.round(10 * root.uiScale)
 
                 IconImage {
                     anchors.verticalCenter: parent.verticalCenter
-                    width: 24
-                    height: 24
+                    width: Math.round(24 * root.uiScale)
+                    height: Math.round(24 * root.uiScale)
                     source: modelData ? Quickshell.iconPath(modelData.icon, "image-missing") : ""
                     asynchronous: true
                 }
 
                 Column {
                     anchors.verticalCenter: parent.verticalCenter
-                    spacing: 1
+                    spacing: Math.round(1 * root.uiScale)
 
                     Text {
                         text: modelData ? (modelData.name || "Unknown") : ""
-                        color: "#C2C2C2"
+                        color: colors.text
                         font.pointSize: 10
                         font.weight: Font.DemiBold
                         elide: Text.ElideRight
-                        width: parent.parent ? parent.parent.width - 44 : 400
+                        width: parent.parent ? parent.parent.width - Math.round(44 * root.uiScale) : Math.round(400 * root.uiScale)
                     }
 
                     Text {
                         text: modelData ? (modelData.comment || "") : ""
-                        color: "#AAAAAA"
+                        color: colors.subtext0
                         font.pointSize: 8
                         elide: Text.ElideRight
-                        width: parent.parent ? parent.parent.width - 44 : 400
+                        width: parent.parent ? parent.parent.width - Math.round(44 * root.uiScale) : Math.round(400 * root.uiScale)
                         visible: text !== ""
                     }
                 }
