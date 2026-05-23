@@ -2,10 +2,11 @@
 # Usage: hypridle on|off|toggle
 
 CMD="${1:-toggle}"
+HYPRIDLE=$(command -v hypridle)
 
 case "$CMD" in
     on)
-        if ! pgrep -x hypridle >/dev/null; then hypridle & fi
+        if ! pgrep -x hypridle >/dev/null; then $HYPRIDLE & fi
         text="Enabled" ;;
     off)
         pkill -x hypridle 2>/dev/null || true
@@ -15,7 +16,7 @@ case "$CMD" in
             pkill -x hypridle 2>/dev/null || true
             text="Disabled"
         else
-            hypridle &
+            $HYPRIDLE &
             text="Enabled"
         fi ;;
 esac

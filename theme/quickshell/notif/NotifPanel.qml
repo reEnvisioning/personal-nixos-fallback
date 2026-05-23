@@ -53,9 +53,8 @@ PanelWindow {
         onNotification: (notification) => {
             notification.tracked = true
 
-            if (root.dndActive) return
-
-            // Dedup: replaceable appNames update in-place instead of stacking
+            // Replaceable indicators (Volume, DnD, etc.) bypass DnD blocking
+            // so they can show their state even when DnD is active
             if (root.replaceableAppNames.indexOf(notification.appName) >= 0) {
                 for (var i = 0; i < notifColumn.children.length; i++) {
                     var child = notifColumn.children[i]
@@ -65,7 +64,18 @@ PanelWindow {
                         return
                     }
                 }
+                // First arrival — create card directly
+                var card = notifCardComponent.createObject(notifColumn, {
+                    notif: notification,
+                    colors: root.colors,
+                    uiScale: root.uiScale,
+                    isReusable: true
+                })
+                card.dismissed.connect(function() { card.destroy() })
+                return
             }
+
+            if (root.dndActive) return
 
             while (root.activeCount() >= 4) {
                 for (var i = 0; i < notifColumn.children.length; i++) {
@@ -80,7 +90,7 @@ PanelWindow {
                 notif: notification,
                 colors: root.colors,
                 uiScale: root.uiScale,
-                isReusable: root.replaceableAppNames.indexOf(notification.appName) >= 0
+                isReusable: false
             })
 
             card.dismissed.connect(function() {

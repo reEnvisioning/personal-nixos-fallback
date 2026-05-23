@@ -2,12 +2,22 @@
 # Usage: volume up|down|toggle|set <value>
 
 CMD="${1:-up}"
+MUTE_FILE="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/headspace-volume-prev"
 
 case "$CMD" in
-    up)     wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ ;;
-    down)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
-    toggle) wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle ;;
-    set)    wpctl set-volume @DEFAULT_AUDIO_SINK@ "${2:-50}%" ;;
+    up)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ ;;
+    down) wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%- ;;
+    toggle)
+        RAW=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
+        pct=$(echo "$RAW" | awk '{printf "%.0f", $2 * 100}')
+        if [ "$pct" -eq 0 ]; then
+            prev=$(cat "$MUTE_FILE" 2>/dev/null || echo 50)
+            wpctl set-volume @DEFAULT_AUDIO_SINK@ "$prev"%
+        else
+            echo "$pct" > "$MUTE_FILE"
+            wpctl set-volume @DEFAULT_AUDIO_SINK@ 0%
+        fi ;;
+    set) wpctl set-volume @DEFAULT_AUDIO_SINK@ "${2:-50}%" ;;
 esac
 
 RAW=$(wpctl get-volume @DEFAULT_AUDIO_SINK@)
