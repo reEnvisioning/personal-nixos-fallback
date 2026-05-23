@@ -19,7 +19,9 @@ PanelWindow {
 
     property bool isOpen: false
     property real animHeight: 0
+    property real _revealedHeight: 0
     property bool _pendingCleanup: false
+    property bool _closeAfterReveal: false
 
     property list<QtObject> providers: [
         AppProvider { id: appProv }
@@ -46,28 +48,38 @@ PanelWindow {
     }
 
     NumberAnimation {
-        id: heightAnim
+        id: revealAnim
         target: root
-        property: "animHeight"
+        property: "_revealedHeight"
+        onFinished: {
+            if (root._pendingCleanup) {
+                root._pendingCleanup = false
+                rebuildItems()
+                if (root._closeAfterReveal) {
+                    root._closeAfterReveal = false
+                    root.animHeight = 0
+                }
+            }
+        }
     }
 
-    function animateTo(h, dur, curve) {
-        if (h === heightAnim.to && heightAnim.running) return
-        heightAnim.stop()
-        heightAnim.from = root.animHeight
-        heightAnim.to = h
-        heightAnim.duration = dur
-        heightAnim.easing.type = Easing.Bezier
-        heightAnim.easing.bezierCurve = curve || [0.34, 0.8, 0.34, 1.0]
-        heightAnim.start()
+    function animateReveal(h, dur, curve) {
+        if (h === revealAnim.to && revealAnim.running) return
+        revealAnim.stop()
+        revealAnim.from = root._revealedHeight
+        revealAnim.to = h
+        revealAnim.duration = dur
+        revealAnim.easing.type = Easing.Bezier
+        revealAnim.easing.bezierCurve = curve || [0.34, 0.8, 0.34, 1.0]
+        revealAnim.start()
     }
 
-    function computeListHeight() {
+    function computeRevealTarget() {
         if (root.results.length > 0) {
             var spacing = Math.round(2 * root.uiScale)
             var contentH = root.results.length * root.itemHeight + (root.results.length - 1) * spacing
             contentH = Math.min(contentH, root.maxListHeight)
-            return Math.round(13 * root.uiScale) + contentH
+            return Math.round(8 * root.uiScale) + contentH
         }
         if (root.activeProvider && root.queryText)
             return root.emptyListHeight
@@ -86,20 +98,29 @@ PanelWindow {
         root.activeProvider = null
         root.results = []
         root.currentIndex = 0
-        root._pendingCleanup = false
-        rebuildItems()
-        root.animHeight = 0
+        if (root._revealedHeight === 0) {
+            root._pendingCleanup = false
+            root._closeAfterReveal = false
+            rebuildItems()
+            root.animHeight = 0
+            return
+        }
+        root._pendingCleanup = true
+        root._closeAfterReveal = true
+        animateReveal(0, 150, [0.0, 0.0, 0.58, 1.0])
     }
 
     function resetState() {
+        root._closeAfterReveal = false
         root._pendingCleanup = false
         root.activeProvider = null
         root.queryText = ""
         root.results = []
         root.currentIndex = 0
         inputField.text = ""
+        root._revealedHeight = 0
+        root.animHeight = root.inputHeight + root.maxListHeight + Math.round(13 * root.uiScale)
         rebuildItems()
-        animateTo(root.inputHeight + root.computeListHeight(), 300, [0.34, 1.56, 0.25, 1.0])
     }
 
     function processInput(text) {
@@ -123,16 +144,14 @@ PanelWindow {
         if (root.activeProvider !== null || root.results.length > 0) {
             root.activeProvider = null
             root.results = []
-            root._pendingCleanup = false
-            rebuildItems()
-            updateTargetHeight()
+            root._pendingCleanup = true
+            root._closeAfterReveal = false
+            animateReveal(0, 150, [0.0, 0.0, 0.58, 1.0])
         }
     }
 
     function updateTargetHeight() {
-        var h = root.inputHeight + root.computeListHeight()
-        if (h === root.animHeight) return
-        root.animHeight = h
+        animateReveal(root.computeRevealTarget(), 200)
     }
 
     function selectCurrent() {
@@ -174,30 +193,40 @@ PanelWindow {
         anchors.topMargin: Math.round(4 * root.uiScale)
         anchors.bottom: inputBar.top
         anchors.bottomMargin: Math.round(1 * root.uiScale)
-        clip: true
 
-        Text {
-            anchors.centerIn: parent
-            text: "No results"
-            color: root.colors.subtext0
-            font.pointSize: 9
-            visible: root.activeProvider && root.queryText && root.results.length === 0
-        }
-
-        Flickable {
-            id: resultFlick
-            anchors.fill: parent
-            anchors.margins: Math.round(4 * root.uiScale)
-            contentHeight: resultCol.height
-            boundsBehavior: Flickable.StopAtBounds
-            interactive: root.results.length > 0
+        Item {
+            id: revealArea
+            anchors.top: parent.top
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: root._revealedHeight
             clip: true
-            visible: root.results.length > 0
 
-            Column {
-                id: resultCol
-                width: parent.width
-                spacing: Math.round(2 * root.uiScale)
+            Text {
+                anchors.centerIn: parent
+                text: "No results"
+                color: root.colors.subtext0
+                font.pointSize: 9
+                visible: root.activeProvider && root.queryText && root.results.length === 0 && !root._pendingCleanup
+            }
+
+            Flickable {
+                id: resultFlick
+                x: Math.round(4 * root.uiScale)
+                y: Math.round(4 * root.uiScale)
+                width: parent.width - Math.round(8 * root.uiScale)
+                height: root.maxListHeight
+                contentHeight: resultCol.height
+                boundsBehavior: Flickable.StopAtBounds
+                interactive: root.results.length > 0
+                clip: true
+                visible: root.results.length > 0 || root._pendingCleanup
+
+                Column {
+                    id: resultCol
+                    width: parent.width
+                    spacing: Math.round(2 * root.uiScale)
+                }
             }
         }
     }
@@ -248,10 +277,10 @@ PanelWindow {
                     if (root.activeProvider || root.results.length > 0 || inputField.text !== "") {
                         root.activeProvider = null
                         root.results = []
-                        root._pendingCleanup = false
+                        root._pendingCleanup = true
+                        root._closeAfterReveal = false
                         inputField.text = ""
-                        rebuildItems()
-                        updateTargetHeight()
+                        animateReveal(0, 150, [0.0, 0.0, 0.58, 1.0])
                     } else {
                         close()
                     }
