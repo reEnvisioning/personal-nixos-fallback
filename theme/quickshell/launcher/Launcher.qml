@@ -19,6 +19,7 @@ PanelWindow {
 
     property bool isOpen: false
     property real animHeight: 0
+    property real _revealedHeight: 0
     property bool _pendingCleanup: false
 
     property list<QtObject> providers: [
@@ -45,16 +46,16 @@ PanelWindow {
         right: Math.round((root.screen.width - root.panelWidth) / 2)
     }
 
+    NumberAnimation { id: heightAnim; target: root; property: "animHeight" }
     NumberAnimation {
-        id: heightAnim
+        id: revealAnim
         target: root
-        property: "animHeight"
-    }
-
-    onAnimHeightChanged: {
-        if (root._pendingCleanup && root.animHeight <= root.inputHeight) {
-            root._pendingCleanup = false
-            rebuildItems()
+        property: "_revealedHeight"
+        onFinished: {
+            if (root._pendingCleanup) {
+                root._pendingCleanup = false
+                rebuildItems()
+            }
         }
     }
 
@@ -69,22 +70,32 @@ PanelWindow {
         heightAnim.start()
     }
 
-    function computeListHeight() {
-        if (root.results.length > 0) {
-            var spacing = Math.round(2 * root.uiScale)
-            var contentH = root.results.length * root.itemHeight + (root.results.length - 1) * spacing
-            contentH = Math.min(contentH, root.maxListHeight)
-            return Math.round(13 * root.uiScale) + contentH
-        }
-        if (root.activeProvider && root.queryText)
-            return root.emptyListHeight
-        return 0
+    function animateReveal(h, dur) {
+        revealAnim.stop()
+        revealAnim.from = root._revealedHeight
+        revealAnim.to = h
+        revealAnim.duration = dur
+        revealAnim.easing.type = Easing.Bezier
+        revealAnim.easing.bezierCurve = [0.34, 0.8, 0.34, 1.0]
+        revealAnim.start()
+    }
+
+    function computeContentHeight() {
+        if (root.results.length === 0) return 0
+        var spacing = Math.round(2 * root.uiScale)
+        return root.results.length * root.itemHeight + (root.results.length - 1) * spacing
+    }
+
+    function computeVisibleHeight() {
+        return Math.min(root.computeContentHeight(), root.maxListHeight)
     }
 
     function open() {
         if (!root.isOpen) {
             root.isOpen = true
         }
+        root.animHeight = 0
+        root._revealedHeight = 0
         resetState()
         Qt.callLater(function() { inputField.forceActiveFocus() })
     }
@@ -106,7 +117,8 @@ PanelWindow {
         root.currentIndex = 0
         inputField.text = ""
         rebuildItems()
-        animateTo(root.inputHeight + root.computeListHeight(), 300, [0.34, 1.56, 0.25, 1.0])
+        var openHeight = root.inputHeight + root.maxListHeight + Math.round(9 * root.uiScale)
+        animateTo(openHeight, 300, [0.34, 1.56, 0.25, 1.0])
     }
 
     function processInput(text) {
@@ -122,7 +134,8 @@ PanelWindow {
                 root.results = p.query(root.queryText)
                 root._pendingCleanup = false
                 rebuildItems()
-                updateTargetHeight()
+                var reveal = root.computeVisibleHeight()
+                animateReveal(reveal, 200)
                 return
             }
         }
@@ -131,12 +144,8 @@ PanelWindow {
             root.activeProvider = null
             root.results = []
             root._pendingCleanup = true
-            updateTargetHeight()
+            animateReveal(0, 150)
         }
-    }
-
-    function updateTargetHeight() {
-        animateTo(root.inputHeight + root.computeListHeight(), 200)
     }
 
     function selectCurrent() {
@@ -188,20 +197,30 @@ PanelWindow {
             visible: root.activeProvider && root.queryText && root.results.length === 0
         }
 
-        Flickable {
-            id: resultFlick
-            anchors.fill: parent
-            anchors.margins: Math.round(4 * root.uiScale)
-            contentHeight: resultCol.height
-            boundsBehavior: Flickable.StopAtBounds
-            interactive: root.results.length > 0
+        Item {
+            id: revealClip
+            y: Math.round(4 * root.uiScale)
+            width: parent.width
+            height: root._revealedHeight
             clip: true
-            visible: root.results.length > 0 || root._pendingCleanup
+            visible: root._revealedHeight > 0 || root._pendingCleanup
 
-            Column {
-                id: resultCol
-                width: parent.width
-                spacing: Math.round(2 * root.uiScale)
+            Flickable {
+                id: resultFlick
+                x: Math.round(4 * root.uiScale)
+                y: 0
+                width: parent.width - Math.round(8 * root.uiScale)
+                height: root.maxListHeight
+                contentHeight: resultCol.height
+                boundsBehavior: Flickable.StopAtBounds
+                interactive: root.results.length > 0
+                clip: true
+
+                Column {
+                    id: resultCol
+                    width: parent.width
+                    spacing: Math.round(2 * root.uiScale)
+                }
             }
         }
     }
@@ -253,8 +272,8 @@ PanelWindow {
                         root.activeProvider = null
                         root.results = []
                         inputField.text = ""
+                        animateReveal(0, 150)
                         root._pendingCleanup = true
-                        updateTargetHeight()
                     } else {
                         close()
                     }
