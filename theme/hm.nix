@@ -8,6 +8,13 @@ let
     ["1 // scale-config"]
     ["${uiScale} // scale-config"]
     (builtins.readFile ./quickshell/shell.qml);
+
+  fuzzy-launcher = pkgs.rustPlatform.buildRustPackage {
+    pname = "fuzzy-launcher";
+    version = "0.1.0";
+    src = ../rust/fuzzy-launcher;
+    cargoHash = lib.fakeHash;
+  };
 in {
   home.pointerCursor = {
     package = pkgs.vanilla-dmz;
@@ -58,6 +65,8 @@ in {
       color-scheme = if theme.mode == "dark" then "prefer-dark" else "default";
     };
   };
+
+  home.packages = [ fuzzy-launcher ];
 
   xdg.configFile = {
     "kitty/kitty.conf".force = true;

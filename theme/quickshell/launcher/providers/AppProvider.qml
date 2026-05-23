@@ -2,8 +2,6 @@ import QtQuick
 import Quickshell
 import Quickshell.Widgets
 import Quickshell.Io
-import "../scripts/fuzzysort.js" as Fuzzy
-
 Item {
     id: root
     visible: false
@@ -13,6 +11,8 @@ Item {
     property string placeholderText: "Search applications..."
 
     property var _allApps: []
+    property var results: []
+    property string cachePath: ""
 
     Process {
         id: appLoader
@@ -105,28 +105,63 @@ Item {
                     }
                     console.log("AppProvider: sample:", samples.join(", "))
                 }
+
+                var json = JSON.stringify(root._allApps)
+                var escaped = json.replace(/'/g, "'\\''")
+                var writeCmd = "d=\"${XDG_RUNTIME_DIR:-/tmp}\"; printf '%s' '" + escaped + "' > \"$d/headspace-apps.json\"; echo \"$d/headspace-apps.json\""
+                Process {
+                    parent: root
+                    command: ["sh", "-c", writeCmd]
+                    running: true
+                    stdout: StdioCollector {
+                        onStreamFinished: {
+                            root.cachePath = text.trim()
+                            console.log("AppProvider: cache written to", root.cachePath)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Process {
+        id: fuzzyProc
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    var parsed = JSON.parse(text)
+                    root.results = parsed
+                } catch(e) {
+                    // ignore parse errors from cancelled processes
+                }
             }
         }
     }
 
     function query(text) {
-        if (root._allApps.length === 0) return []
+        if (root._allApps.length === 0) {
+            root.results = []
+            return
+        }
 
-        if (!text || !text.trim())
-            return _allApps.slice(0, 15)
-
-        var results = Fuzzy.go(text, _allApps, {
-            key: "name",
-            limit: 15,
-            threshold: -10000
-        })
-        if (results.length > 0)
-            return results.map(function(r) { return r.obj })
+        if (!text || !text.trim()) {
+            root.results = _allApps.slice(0, 15)
+            return
+        }
 
         var lower = text.toLowerCase()
-        return _allApps.filter(function(a) {
+        root.results = _allApps.filter(function(a) {
             return a.name && a.name.toLowerCase().indexOf(lower) !== -1
         }).slice(0, 15)
+
+        if (!root.cachePath) return
+
+        if (fuzzyProc.running)
+            fuzzyProc.running = false
+
+        fuzzyProc.command = ["fuzzy-launcher", "--cache", root.cachePath, "--key", "name", "--limit", "15", text]
+        fuzzyProc.running = true
     }
 
     function activate(entry) {
