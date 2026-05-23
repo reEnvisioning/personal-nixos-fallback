@@ -25,10 +25,10 @@ Item {
             "  for f in \"$dir\"/*.desktop; do\n" +
             "    [ -f \"$f\" ] || continue\n" +
             "    id=\"${f##*/}\"; id=\"${id%.desktop}\"\n" +
-            "    n=\"$(grep -m1 '^Name=' \"$f\" 2>/dev/null | sed 's/^Name=//')\"\n" +
-            "    i=\"$(grep -m1 '^Icon=' \"$f\" 2>/dev/null | sed 's/^Icon=//')\"\n" +
-            "    c=\"$(grep -m1 '^Comment=' \"$f\" 2>/dev/null | sed 's/^Comment=//')\"\n" +
-            "    e=\"$(grep -m1 '^Exec=' \"$f\" 2>/dev/null | sed 's/^Exec=//' | sed 's/%[a-zA-Z]//g')\"\n" +
+            "    n=\"$(sed -n 's/^Name[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    i=\"$(sed -n 's/^Icon[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    c=\"$(sed -n 's/^Comment[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    e=\"$(sed -n 's/^Exec[^=]*=//p' \"$f\" 2>/dev/null | head -1 | sed 's/%[a-zA-Z]//g')\"\n" +
             "    printf '%s\\t%s\\t%s\\t%s\\t%s\\n' \"$id\" \"$n\" \"$i\" \"$c\" \"$e\"\n" +
             "  done\n" +
             "done\n" +
@@ -39,10 +39,10 @@ Item {
             "  for f in \"$d\"/*.desktop; do\n" +
             "    [ -f \"$f\" ] || continue\n" +
             "    id=\"${f##*/}\"; id=\"${id%.desktop}\"\n" +
-            "    n=\"$(grep -m1 '^Name=' \"$f\" 2>/dev/null | sed 's/^Name=//')\"\n" +
-            "    i=\"$(grep -m1 '^Icon=' \"$f\" 2>/dev/null | sed 's/^Icon=//')\"\n" +
-            "    c=\"$(grep -m1 '^Comment=' \"$f\" 2>/dev/null | sed 's/^Comment=//')\"\n" +
-            "    e=\"$(grep -m1 '^Exec=' \"$f\" 2>/dev/null | sed 's/^Exec=//' | sed 's/%[a-zA-Z]//g')\"\n" +
+            "    n=\"$(sed -n 's/^Name[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    i=\"$(sed -n 's/^Icon[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    c=\"$(sed -n 's/^Comment[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    e=\"$(sed -n 's/^Exec[^=]*=//p' \"$f\" 2>/dev/null | head -1 | sed 's/%[a-zA-Z]//g')\"\n" +
             "    printf '%s\\t%s\\t%s\\t%s\\t%s\\n' \"$id\" \"$n\" \"$i\" \"$c\" \"$e\"\n" +
             "  done\n" +
             "done"
