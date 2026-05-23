@@ -88,8 +88,7 @@ PanelWindow {
         root.currentIndex = 0
         root._pendingCleanup = false
         rebuildItems()
-        root.animHeight = root.inputHeight
-        animateTo(0, 150, [0.0, 0.0, 0.58, 1.0])
+        root.animHeight = 0
     }
 
     function resetState() {
