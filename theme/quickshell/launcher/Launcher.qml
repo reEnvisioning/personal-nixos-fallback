@@ -89,7 +89,7 @@ PanelWindow {
         root.currentIndex = 0
         root._pendingCleanup = false
         rebuildItems()
-        animateTo(0, 200, [0.0, 0.0, 0.58, 1.0])
+        animateTo(0, 400, [0.3, 0, 1, 1, 1, 1])
     }
 
     function resetState() {
@@ -100,7 +100,7 @@ PanelWindow {
         root.currentIndex = 0
         inputField.text = ""
         rebuildItems()
-        animateTo(root.inputHeight + root.computeListHeight(), 300, [0.34, 1.56, 0.25, 1.0])
+        animateTo(root.inputHeight + root.computeListHeight(), 500, [0.38, 1.21, 0.22, 1.0])
     }
 
     function processInput(text) {
@@ -133,7 +133,7 @@ PanelWindow {
     function updateTargetHeight() {
         var h = root.inputHeight + root.computeListHeight()
         if (h === root.animHeight) return
-        animateTo(h, 200, [0.34, 0.8, 0.34, 1.0])
+        animateTo(h, 600, [0.05, 0.7, 0.1, 1, 1, 1])
     }
 
     function selectCurrent() {
