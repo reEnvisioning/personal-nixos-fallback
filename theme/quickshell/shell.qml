@@ -25,6 +25,7 @@ ShellRoot {
     }
 
     ClipPanel {
+        id: clipPanel
         colors: colors
         clipMon: clipMon
         uiScale: root.uiScale
@@ -41,7 +42,22 @@ ShellRoot {
     }
 
     Launcher {
+        id: launcher
         colors: colors
         uiScale: root.uiScale
+    }
+
+    Connections {
+        target: clipPanel
+        function onShowPanelChanged() {
+            if (clipPanel.showPanel) launcher.close()
+        }
+    }
+
+    Connections {
+        target: launcher
+        function onIsOpenChanged() {
+            if (launcher.isOpen) clipPanel.showPanel = false
+        }
     }
 }
