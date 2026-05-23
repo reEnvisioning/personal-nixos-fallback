@@ -113,7 +113,7 @@ in {
 
                     "SUPER SHIFT, O, exec, hyprlock"
                     "SUPER SHIFT, P, exit"
-                    "SUPER, I, exec, hypridle toggle"
+                    "SUPER, I, exec, idle-toggle toggle"
                 ]
                 ++ (builtins.concatLists (builtins.genList (
                         x: let
