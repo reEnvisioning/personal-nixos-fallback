@@ -151,6 +151,7 @@ Item {
 
             Row {
                 anchors.left: parent.left
+                anchors.right: parent.right
                 anchors.leftMargin: Math.round(10 * uiScale)
                 anchors.rightMargin: Math.round(10 * uiScale)
                 anchors.verticalCenter: parent.verticalCenter
