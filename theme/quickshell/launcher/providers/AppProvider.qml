@@ -26,9 +26,15 @@ Item {
             "    [ -f \"$f\" ] || continue\n" +
             "    id=\"${f##*/}\"; id=\"${id%.desktop}\"\n" +
             "    n=\"$(sed -n 's/^Name[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    [ -z \"$n\" ] && continue\n" +
             "    i=\"$(sed -n 's/^Icon[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
             "    c=\"$(sed -n 's/^Comment[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
             "    e=\"$(sed -n 's/^Exec[^=]*=//p' \"$f\" 2>/dev/null | head -1 | sed 's/%[a-zA-Z]//g')\"\n" +
+            "    [ -z \"$e\" ] && continue\n" +
+            "    nd=\"$(sed -n 's/^NoDisplay[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    [ \"$nd\" = \"true\" ] && continue\n" +
+            "    hd=\"$(sed -n 's/^Hidden[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    [ \"$hd\" = \"true\" ] && continue\n" +
             "    printf '%s\\t%s\\t%s\\t%s\\t%s\\n' \"$id\" \"$n\" \"$i\" \"$c\" \"$e\"\n" +
             "  done\n" +
             "done\n" +
@@ -40,9 +46,15 @@ Item {
             "    [ -f \"$f\" ] || continue\n" +
             "    id=\"${f##*/}\"; id=\"${id%.desktop}\"\n" +
             "    n=\"$(sed -n 's/^Name[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    [ -z \"$n\" ] && continue\n" +
             "    i=\"$(sed -n 's/^Icon[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
             "    c=\"$(sed -n 's/^Comment[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
             "    e=\"$(sed -n 's/^Exec[^=]*=//p' \"$f\" 2>/dev/null | head -1 | sed 's/%[a-zA-Z]//g')\"\n" +
+            "    [ -z \"$e\" ] && continue\n" +
+            "    nd=\"$(sed -n 's/^NoDisplay[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    [ \"$nd\" = \"true\" ] && continue\n" +
+            "    hd=\"$(sed -n 's/^Hidden[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    [ \"$hd\" = \"true\" ] && continue\n" +
             "    printf '%s\\t%s\\t%s\\t%s\\t%s\\n' \"$id\" \"$n\" \"$i\" \"$c\" \"$e\"\n" +
             "  done\n" +
             "done"
@@ -50,21 +62,49 @@ Item {
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
-                var lines = text.trim().split('\n')
+                root._allApps = []
+                var raw = text.trim()
+                if (raw === "") {
+                    console.log("AppProvider: no desktop files found")
+                    return
+                }
+                var lines = raw.split('\n')
                 console.log("AppProvider: found", lines.length, "desktop files")
+                var failed = 0
+                var dupes = 0
+                var seen = {}
                 for (var i = 0; i < lines.length; i++) {
                     var parts = lines[i].split('\t')
                     if (parts.length >= 5) {
+                        var eid = parts[0]
+                        var ename = parts[1]
+                        if (!ename || seen[eid]) {
+                            if (!ename) failed++
+                            else dupes++
+                            continue
+                        }
+                        seen[eid] = true
                         root._allApps.push({
-                            id: parts[0],
-                            name: parts[1],
+                            id: eid,
+                            name: ename,
                             icon: parts[2],
                             comment: parts[3],
                             exec: parts[4]
                         })
+                    } else {
+                        failed++
                     }
                 }
                 console.log("AppProvider: loaded", root._allApps.length, "apps")
+                if (failed > 0) console.log("AppProvider:", failed, "skipped (no Name / no Exec / unparseable)")
+                if (dupes > 0) console.log("AppProvider:", dupes, "duplicates skipped")
+                if (root._allApps.length > 0) {
+                    var samples = []
+                    for (var s = 0; s < Math.min(3, root._allApps.length); s++) {
+                        samples.push(root._allApps[s].id + "=" + root._allApps[s].name)
+                    }
+                    console.log("AppProvider: sample:", samples.join(", "))
+                }
             }
         }
     }
@@ -98,11 +138,12 @@ Item {
         Item {
             required property var modelData
             required property bool selected
+            required property var colors
             height: 44
 
             Rectangle {
                 anchors.fill: parent
-                color: selected ? "#494949" : "transparent"
+                color: selected ? colors.highlighted : "transparent"
                 radius: 6
                 Behavior on color { ColorAnimation { duration: 80 } }
             }

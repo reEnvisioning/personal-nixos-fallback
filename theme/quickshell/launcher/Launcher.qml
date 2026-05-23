@@ -46,31 +46,27 @@ PanelWindow {
 
     onIsOpenChanged: {
         if (root.isOpen) {
-            root.targetHeight = root.inputHeight
-            animateTo(root.targetHeight, 300, [0.34, 1.56, 0.25, 1.0])
+            updateTargetHeight()
+            heightAnim.to = root.targetHeight
+            heightAnim.duration = 300
         } else {
-            animateTo(0, 150, Easing.OutQuad)
+            heightAnim.to = 0
+            heightAnim.duration = 150
         }
+        heightAnim.restart()
     }
 
-    function animateTo(h, dur, easing) {
-        heightAnim.stop()
-        heightAnim.from = root.animHeight
+    function animateTo(h, dur) {
         heightAnim.to = h
         heightAnim.duration = dur
-        if (typeof easing === "object") {
-            heightAnim.easing.type = Easing.Bezier
-            heightAnim.easing.bezierCurve = easing
-        } else {
-            heightAnim.easing.type = easing
-        }
-        heightAnim.start()
+        heightAnim.restart()
     }
 
-    NumberAnimation {
+    SmoothedAnimation {
         id: heightAnim
         target: root
         property: "animHeight"
+        velocity: 800
     }
 
     function open() {
@@ -134,7 +130,7 @@ PanelWindow {
         }
         if (root.targetHeight !== h) {
             root.targetHeight = h
-            animateTo(h, 200, [0.34, 0.8, 0.34, 1.0])
+            animateTo(h, 200)
         }
     }
 
@@ -154,7 +150,8 @@ PanelWindow {
 
     function ensureVisible() {
         if (!resultFlick.visible) return
-        var y = root.currentIndex * root.itemHeight
+        var s = Math.round(2 * root.uiScale)
+        var y = root.currentIndex * (root.itemHeight + s)
         if (y < resultFlick.contentY)
             resultFlick.contentY = y
         else if (y + root.itemHeight > resultFlick.contentY + resultFlick.height)
@@ -172,11 +169,10 @@ PanelWindow {
         id: resultArea
         anchors.left: parent.left
         anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.topMargin: Math.round(4 * root.uiScale)
         anchors.bottom: inputBar.top
         anchors.bottomMargin: Math.round(1 * root.uiScale)
-        height: root.results.length > 0
-            ? Math.min(root.results.length * root.itemHeight, root.maxListHeight) + Math.round(8 * root.uiScale)
-            : 0
         clip: true
 
         Text {
@@ -310,7 +306,8 @@ PanelWindow {
             comp.createObject(resultCol, {
                 width: resultCol.width,
                 modelData: root.results[i],
-                selected: i === root.currentIndex
+                selected: i === root.currentIndex,
+                colors: root.colors
             })
         }
     }
