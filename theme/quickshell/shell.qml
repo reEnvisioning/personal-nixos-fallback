@@ -2,6 +2,7 @@
 //@ pragma DefaultEnv QSG_RENDER_LOOP=threaded
 
 import Quickshell
+import QtQuick
 import "lib"
 import "bar"
 import "notif"
