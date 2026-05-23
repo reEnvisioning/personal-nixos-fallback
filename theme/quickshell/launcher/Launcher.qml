@@ -17,8 +17,7 @@ PanelWindow {
     property real maxListHeight: Math.round(360 * root.uiScale)
 
     property bool isOpen: false
-    property real targetHeight: root.inputHeight
-    property real animHeight: 0
+    property real _targetHeight: 0
 
     property list<QtObject> providers: [
         AppProvider { id: appProv }
@@ -28,11 +27,10 @@ PanelWindow {
     property string queryText: ""
     property var results: []
     property int currentIndex: 0
-    property bool _pendingCleanup: false
 
     width: root.panelWidth
-    height: root.animHeight
-    visible: root.animHeight > 0
+    height: root._targetHeight
+    visible: root._targetHeight > 0
     color: "transparent"
     focusable: true
     WlrLayershell.layer: WlrLayer.Overlay
@@ -45,41 +43,21 @@ PanelWindow {
         right: Math.round((root.screen.width - root.panelWidth) / 2)
     }
 
-    onIsOpenChanged: {
-        if (root.isOpen) {
-            updateTargetHeight()
-            heightAnim.from = root.animHeight
-            heightAnim.to = root.targetHeight
-            heightAnim.duration = 300
-        } else {
-            heightAnim.from = root.animHeight
-            heightAnim.to = 0
-            heightAnim.duration = 150
-        }
-        heightAnim.start()
-    }
-
-    onAnimHeightChanged: {
-        if (root._pendingCleanup && root.animHeight <= root.inputHeight) {
-            root._pendingCleanup = false
-            rebuildItems()
-        }
-    }
-
-    function animateTo(h, dur) {
-        heightAnim.from = root.animHeight
-        heightAnim.to = h
-        heightAnim.duration = dur
-        heightAnim.start()
-    }
-
     NumberAnimation {
         id: heightAnim
         target: root
-        property: "animHeight"
+        property: "_targetHeight"
         duration: 200
         easing.type: Easing.Bezier
         easing.bezierCurve: [0.34, 0.8, 0.34, 1.0]
+    }
+
+    function animateTo(h, dur) {
+        if (heightAnim.to === h) return
+        heightAnim.from = root._targetHeight
+        heightAnim.to = h
+        heightAnim.duration = dur
+        heightAnim.start()
     }
 
     function open() {
@@ -95,18 +73,17 @@ PanelWindow {
         root.activeProvider = null
         root.results = []
         root.currentIndex = 0
-        root._pendingCleanup = false
+        animateTo(0, 150)
     }
 
     function resetState() {
-        root._pendingCleanup = false
         root.activeProvider = null
         root.queryText = ""
         root.results = []
         root.currentIndex = 0
         inputField.text = ""
         rebuildItems()
-        updateTargetHeight()
+        animateTo(root.inputHeight, 300)
     }
 
     function processInput(text) {
@@ -120,9 +97,8 @@ PanelWindow {
                 }
                 root.queryText = text.substring(plen)
                 root.results = p.query(root.queryText)
-                root._pendingCleanup = false
-                updateTargetHeight()
                 rebuildItems()
+                updateTargetHeight()
                 return
             }
         }
@@ -130,7 +106,7 @@ PanelWindow {
         if (root.activeProvider !== null || root.results.length > 0) {
             root.activeProvider = null
             root.results = []
-            root._pendingCleanup = true
+            rebuildItems()
             updateTargetHeight()
         }
     }
@@ -144,10 +120,7 @@ PanelWindow {
             )
             h += Math.round(listH + 8 * root.uiScale)
         }
-        if (root.targetHeight !== h) {
-            root.targetHeight = h
-            animateTo(h, 200)
-        }
+        animateTo(h, 200)
     }
 
     function selectCurrent() {
@@ -211,8 +184,7 @@ PanelWindow {
             boundsBehavior: Flickable.StopAtBounds
             interactive: root.results.length > 0
             clip: true
-            opacity: root.results.length > 0 || root._pendingCleanup ? 1 : 0
-            Behavior on opacity { NumberAnimation { duration: 150; easing.type: Easing.Bezier; easing.bezierCurve: [0.34, 0.8, 0.34, 1.0] } }
+            visible: root.results.length > 0
 
             Column {
                 id: resultCol
@@ -269,7 +241,7 @@ PanelWindow {
                         root.activeProvider = null
                         root.results = []
                         inputField.text = ""
-                        root._pendingCleanup = true
+                        rebuildItems()
                         updateTargetHeight()
                     } else {
                         close()
