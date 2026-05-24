@@ -85,6 +85,179 @@ local function fix_cmp_highlights(data)
   end
 end
 
+local function fix_theme_highlights(data)
+  if not data then return end
+
+  local bg = data.background
+  local bgAccent = data.backgroundAccent
+  local hl = data.highlighted
+  local ov1 = data.overlay1
+  local ov2 = data.overlay2
+  local surf2 = data.surface2
+  local borderIna = data.borderInactive
+  local borderFoc = data.borderFocused
+
+  local fg = data.text
+  local st0 = data.subtext0
+  local st1 = data.subtext1
+  local red = data.red
+  local grn = data.green
+  local ylw = data.yellow
+  local blu = data.blue
+  local mve = data.mauve
+  local cyn = data.cyan
+  local mag = data.magenta
+  local mar = data.maroon
+  local pch = data.peach
+  local sky = data.sky
+  local sap = data.sapphire
+  local pk = data.pink
+  local lvn = data.lavender
+  local rsw = data.rosewater
+  local flm = data.flamingo
+
+  if not fg or not bg then return end
+
+  vim.api.nvim_set_hl(0, "Normal", { fg = fg, bg = bg })
+  vim.api.nvim_set_hl(0, "NormalFloat", { fg = fg, bg = bg })
+  if hl then
+    vim.api.nvim_set_hl(0, "CursorLine", { bg = hl })
+    vim.api.nvim_set_hl(0, "CursorLineNr", { fg = fg, bg = hl })
+    vim.api.nvim_set_hl(0, "Visual", { bg = hl })
+    vim.api.nvim_set_hl(0, "VisualNOS", { bg = hl })
+  end
+  if st0 then vim.api.nvim_set_hl(0, "LineNr", { fg = st0 }) end
+
+  if ov1 then vim.api.nvim_set_hl(0, "Search", { fg = fg, bg = ov1 }) end
+  if ov1 then vim.api.nvim_set_hl(0, "MatchParen", { bg = ov1, bold = true }) end
+  if surf2 then
+    vim.api.nvim_set_hl(0, "IncSearch", { fg = fg, bg = surf2 })
+    vim.api.nvim_set_hl(0, "CurSearch", { fg = fg, bg = surf2 })
+  end
+
+  if ov2 then
+    if grn then vim.api.nvim_set_hl(0, "DiffAdd", { fg = grn, bg = ov2 }) end
+    if red then vim.api.nvim_set_hl(0, "DiffDelete", { fg = red, bg = ov2 }) end
+    if ylw then vim.api.nvim_set_hl(0, "DiffChange", { fg = ylw, bg = ov2 }) end
+  end
+  if hl then vim.api.nvim_set_hl(0, "DiffText", { fg = fg, bg = hl }) end
+
+  if bgAccent then
+    vim.api.nvim_set_hl(0, "StatusLine", { fg = fg, bg = bgAccent })
+    vim.api.nvim_set_hl(0, "WinBar", { fg = fg, bg = bgAccent })
+  end
+  if ov2 then
+    vim.api.nvim_set_hl(0, "StatusLineNC", { fg = st0 or fg, bg = ov2 })
+    vim.api.nvim_set_hl(0, "TabLine", { fg = st0 or fg, bg = ov2 })
+    vim.api.nvim_set_hl(0, "TabLineFill", { bg = ov2 })
+    vim.api.nvim_set_hl(0, "WinBarNC", { fg = st0 or fg, bg = ov2 })
+  end
+  vim.api.nvim_set_hl(0, "TabLineSel", { fg = fg, bg = bg })
+
+  if borderFoc then vim.api.nvim_set_hl(0, "FloatBorder", { fg = borderFoc }) end
+  vim.api.nvim_set_hl(0, "FloatTitle", { fg = fg })
+
+  if red then
+    vim.api.nvim_set_hl(0, "DiagnosticError", { fg = red })
+    vim.api.nvim_set_hl(0, "DiagnosticSignError", { fg = red })
+    vim.api.nvim_set_hl(0, "DiagnosticFloatingError", { fg = red })
+    vim.api.nvim_set_hl(0, "DiagnosticUnderlineError", { sp = red, undercurl = true })
+  end
+  if ylw then
+    vim.api.nvim_set_hl(0, "DiagnosticWarn", { fg = ylw })
+    vim.api.nvim_set_hl(0, "DiagnosticSignWarn", { fg = ylw })
+    vim.api.nvim_set_hl(0, "DiagnosticFloatingWarn", { fg = ylw })
+    vim.api.nvim_set_hl(0, "DiagnosticUnderlineWarn", { sp = ylw, undercurl = true })
+  end
+  if blu then
+    vim.api.nvim_set_hl(0, "DiagnosticInfo", { fg = blu })
+    vim.api.nvim_set_hl(0, "DiagnosticSignInfo", { fg = blu })
+    vim.api.nvim_set_hl(0, "DiagnosticFloatingInfo", { fg = blu })
+    vim.api.nvim_set_hl(0, "DiagnosticUnderlineInfo", { sp = blu, undercurl = true })
+  end
+  if st0 then
+    vim.api.nvim_set_hl(0, "DiagnosticHint", { fg = st0 })
+    vim.api.nvim_set_hl(0, "DiagnosticSignHint", { fg = st0 })
+    vim.api.nvim_set_hl(0, "DiagnosticFloatingHint", { fg = st0 })
+    vim.api.nvim_set_hl(0, "DiagnosticUnderlineHint", { sp = st0, undercurl = true })
+  end
+
+  if red then vim.api.nvim_set_hl(0, "SpellBad", { sp = red, undercurl = true }) end
+  if ylw then vim.api.nvim_set_hl(0, "SpellCap", { sp = ylw, undercurl = true }) end
+  if blu then vim.api.nvim_set_hl(0, "SpellLocal", { sp = blu, undercurl = true }) end
+  if mve then vim.api.nvim_set_hl(0, "SpellRare", { sp = mve, undercurl = true }) end
+
+  vim.api.nvim_set_hl(0, "SignColumn", { bg = bg })
+  if st0 then vim.api.nvim_set_hl(0, "NonText", { fg = st0 }) end
+  if borderIna then vim.api.nvim_set_hl(0, "Whitespace", { fg = borderIna }) end
+
+  vim.api.nvim_set_hl(0, "TelescopeNormal", { fg = fg, bg = bg })
+  if borderFoc then vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = borderFoc, bg = bg }) end
+  if bgAccent then
+    vim.api.nvim_set_hl(0, "TelescopePromptNormal", { fg = fg, bg = bgAccent })
+    vim.api.nvim_set_hl(0, "TelescopePromptBorder", { fg = borderFoc or fg, bg = bgAccent })
+  end
+  if st0 then
+    vim.api.nvim_set_hl(0, "TelescopeResultsTitle", { fg = st0 })
+    vim.api.nvim_set_hl(0, "TelescopePreviewTitle", { fg = st0 })
+  end
+  vim.api.nvim_set_hl(0, "TelescopePromptTitle", { fg = fg })
+  if hl then vim.api.nvim_set_hl(0, "TelescopeSelection", { bg = hl }) end
+  if rsw then vim.api.nvim_set_hl(0, "TelescopeMatching", { fg = rsw, bold = true }) end
+  vim.api.nvim_set_hl(0, "TelescopePromptPrefix", { fg = fg, bold = true })
+
+  if ov2 then
+    vim.api.nvim_set_hl(0, "BufferLineBackground", { fg = st0 or fg, bg = ov2 })
+    vim.api.nvim_set_hl(0, "BufferLineBufferVisible", { fg = st0 or fg, bg = ov2 })
+    vim.api.nvim_set_hl(0, "BufferLineTab", { fg = st0 or fg, bg = ov2 })
+    vim.api.nvim_set_hl(0, "BufferLineFill", { bg = ov2 })
+  end
+  vim.api.nvim_set_hl(0, "BufferLineSelected", { fg = fg, bg = bg })
+  vim.api.nvim_set_hl(0, "BufferLineTabSelected", { fg = fg, bg = bg })
+  if borderFoc then vim.api.nvim_set_hl(0, "BufferLineIndicatorSelected", { fg = borderFoc, bg = bg }) end
+
+  vim.api.nvim_set_hl(0, "NvimTreeNormal", { fg = fg, bg = bg })
+  vim.api.nvim_set_hl(0, "NvimTreeRootFolder", { fg = fg, bold = true })
+  if ylw then vim.api.nvim_set_hl(0, "NvimTreeGitDirty", { fg = ylw }) end
+  if grn then vim.api.nvim_set_hl(0, "NvimTreeGitNew", { fg = grn }) end
+  if red then vim.api.nvim_set_hl(0, "NvimTreeGitDeleted", { fg = red }) end
+  vim.api.nvim_set_hl(0, "NvimTreeOpenedFile", { fg = fg, bold = true })
+  if blu then vim.api.nvim_set_hl(0, "NvimTreeFolderName", { fg = blu }) end
+  if st0 then vim.api.nvim_set_hl(0, "NvimTreeEmptyFolderName", { fg = st0 }) end
+  if borderIna then vim.api.nvim_set_hl(0, "NvimTreeIndentMarker", { fg = borderIna }) end
+  if cyn then vim.api.nvim_set_hl(0, "NvimTreeSymlink", { fg = cyn }) end
+  if mve then vim.api.nvim_set_hl(0, "NvimTreeImageFile", { fg = mve }) end
+  if grn then vim.api.nvim_set_hl(0, "NvimTreeExecFile", { fg = grn }) end
+  if ylw then vim.api.nvim_set_hl(0, "NvimTreeSpecialFile", { fg = ylw }) end
+  if hl then vim.api.nvim_set_hl(0, "NvimTreeCursorLine", { bg = hl }) end
+
+  vim.api.nvim_set_hl(0, "WhichKey", { fg = fg, bold = true })
+  if blu then vim.api.nvim_set_hl(0, "WhichKeyGroup", { fg = blu }) end
+  if st0 then vim.api.nvim_set_hl(0, "WhichKeyDesc", { fg = st0 }) end
+  if borderIna then vim.api.nvim_set_hl(0, "WhichKeySeparator", { fg = borderIna }) end
+  vim.api.nvim_set_hl(0, "WhichKeyFloat", { bg = bg })
+  if borderFoc then vim.api.nvim_set_hl(0, "WhichKeyBorder", { fg = borderFoc }) end
+
+  if grn then
+    vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = grn })
+    vim.api.nvim_set_hl(0, "GitSignsAddLn", { fg = grn })
+    vim.api.nvim_set_hl(0, "GitSignsAddNr", { fg = grn })
+  end
+  if ylw then
+    vim.api.nvim_set_hl(0, "GitSignsChange", { fg = ylw })
+    vim.api.nvim_set_hl(0, "GitSignsChangeLn", { fg = ylw })
+    vim.api.nvim_set_hl(0, "GitSignsChangeNr", { fg = ylw })
+  end
+  if red then
+    vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = red })
+    vim.api.nvim_set_hl(0, "GitSignsDeleteLn", { fg = red })
+    vim.api.nvim_set_hl(0, "GitSignsDeleteNr", { fg = red })
+  end
+
+  if borderIna then vim.api.nvim_set_hl(0, "IblIndent", { fg = borderIna }) end
+  if borderFoc then vim.api.nvim_set_hl(0, "IblScope", { fg = borderFoc }) end
+end
+
 local function apply_theme(data)
   local flavor = "mocha"
   if data and data.mode == "light" then flavor = "latte" end
@@ -142,6 +315,7 @@ local function apply_theme(data)
   end
 
   fix_cmp_highlights(data)
+  fix_theme_highlights(data)
   vim.cmd("redraw!")
 end
 
@@ -234,6 +408,7 @@ cmp.setup {
 }
 
 fix_cmp_highlights(theme_data)
+fix_theme_highlights(theme_data)
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
