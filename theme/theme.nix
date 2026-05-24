@@ -2,6 +2,22 @@ let
   hexHelper = color: builtins.substring 1 (builtins.stringLength color) color;
   default = "void";
 
+  mkCatppuccin = variant: accent: {
+    package = "catppuccin";
+    inherit variant accent;
+    size = "standard";
+    tweaks = [];
+    themeName = "Catppuccin-${variant}-Standard-${accent}-Dark";
+  };
+
+  mkCatppuccinLight = variant: accent: {
+    package = "catppuccin";
+    inherit variant accent;
+    size = "standard";
+    tweaks = [];
+    themeName = "Catppuccin-${variant}-Standard-${accent}";
+  };
+
   allThemes = {
     void = {
       mode = "dark";
@@ -9,11 +25,15 @@ let
       obs_style = "Acri";
       KDEwidgetStyle = "Fusion";
       wallpaper = ./resources/wallpaper/void.png;
+      wallpapers = [
+        ./resources/wallpaper/void.png
+      ];
       yazi = ./resources/yazi/void.toml;
       active_opacity = 0.9;
       inactive_opacity = 0.85;
       cursor_theme = "Vanilla-DMZ";
       cursor_size = 24;
+      gtk = mkCatppuccin "Mocha" "Mauve";
       colors = {
         background = "#000000";
         backgroundAccent = "#494949";
@@ -54,11 +74,15 @@ let
       obs_style = "Light";
       KDEwidgetStyle = "Fusion";
       wallpaper = ./resources/wallpaper/radiance.png;
+      wallpapers = [
+        ./resources/wallpaper/radiance.png
+      ];
       yazi = ./resources/yazi/radiance.toml;
       active_opacity = 0.9;
       inactive_opacity = 0.85;
       cursor_theme = "Vanilla-DMZ";
       cursor_size = 24;
+      gtk = mkCatppuccinLight "Latte" "Blue";
       colors = {
         background = "#FFFFFF";
         backgroundAccent = "#E7E7E7";
@@ -99,11 +123,15 @@ let
       obs_style = "Light";
       KDEwidgetStyle = "Fusion";
       wallpaper = ./resources/wallpaper/sakura.png;
+      wallpapers = [
+        ./resources/wallpaper/sakura.png
+      ];
       yazi = ./resources/yazi/sakura.toml;
       active_opacity = 0.9;
       inactive_opacity = 0.85;
       cursor_theme = "Vanilla-DMZ";
       cursor_size = 24;
+      gtk = mkCatppuccinLight "Latte" "Pink";
       colors = {
         background = "#FFFFFF";
         backgroundAccent = "#FFF0F0";
@@ -144,11 +172,15 @@ let
       obs_style = "Acri";
       KDEwidgetStyle = "Fusion";
       wallpaper = ./resources/wallpaper/bloody.png;
+      wallpapers = [
+        ./resources/wallpaper/bloody.png
+      ];
       yazi = ./resources/yazi/bloody.toml;
       active_opacity = 0.9;
       inactive_opacity = 0.85;
       cursor_theme = "Vanilla-DMZ";
       cursor_size = 24;
+      gtk = mkCatppuccin "Mocha" "Maroon";
       colors = {
         background = "#0A0000";
         backgroundAccent = "#1A0A08";

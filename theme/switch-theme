@@ -32,6 +32,7 @@ WALLPAPER=$(jq -r '.wallpaper' "$THEME_FILE")
 LS_COLOR=$(jq -r '.localsend_color' "$THEME_FILE")
 OBS_STYLE=$(jq -r '.obs_style' "$THEME_FILE")
 KDE_WIDGET_STYLE=$(jq -r '.KDEwidgetStyle // "Default"' "$THEME_FILE")
+GTK_THEME_NAME=$(jq -r '.gtkThemeName // empty' "$THEME_FILE")
 
 # 1. Wallpaper — wait for hyprpaper IPC to be ready
 sleep 1
@@ -89,7 +90,30 @@ cat > "$LOCALSEND_PREFS" << EOF
 EOF
 pkill localsend 2>/dev/null || true
 
-# 6. GTK dark/light mode — gsettings + overwrite settings.ini
+# 6. GTK theme + dark/light mode — gsettings + overwrite settings.ini + copy GTK4 assets
+
+# Find GTK theme directory
+find_gtk_theme_dir() {
+    local theme_name="$1"
+    local dir
+    for dir in \
+        "/run/current-system/sw/share/themes/$theme_name" \
+        "$HOME/.nix-profile/share/themes/$theme_name" \
+        "/usr/share/themes/$theme_name"; do
+        if [ -d "$dir" ]; then
+            echo "$dir"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Set GTK theme via gsettings if available
+if [ -n "$GTK_THEME_NAME" ]; then
+    gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME_NAME" 2>/dev/null || true
+fi
+
+# Set color-scheme for dark/light mode
 if [ "$MODE" = "dark" ]; then
     gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
     PREFER_DARK=1
@@ -97,12 +121,38 @@ else
     gsettings set org.gnome.desktop.interface color-scheme 'default' 2>/dev/null || true
     PREFER_DARK=0
 fi
+
+# Write settings.ini for GTK3 and GTK4
 for ver in 3.0 4.0; do
     ini="$HOME/.config/gtk-$ver/settings.ini"
     mkdir -p "$(dirname "$ini")"
     rm -f "$ini"
-    printf "[Settings]\ngtk-application-prefer-dark-theme=%d\n" "$PREFER_DARK" > "$ini"
+    if [ -n "$GTK_THEME_NAME" ]; then
+        printf "[Settings]\ngtk-theme-name=%s\ngtk-application-prefer-dark-theme=%d\n" "$GTK_THEME_NAME" "$PREFER_DARK" > "$ini"
+    else
+        printf "[Settings]\ngtk-application-prefer-dark-theme=%d\n" "$PREFER_DARK" > "$ini"
+    fi
 done
+
+# Copy GTK4 assets (break Nix symlink, copy theme CSS/assets for libadwaita theming)
+if [ -n "$GTK_THEME_NAME" ]; then
+    GTK_THEME_DIR=$(find_gtk_theme_dir "$GTK_THEME_NAME")
+    if [ -n "$GTK_THEME_DIR" ] && [ -d "$GTK_THEME_DIR/gtk-4.0" ]; then
+        GTK4_DIR="$HOME/.config/gtk-4.0"
+        mkdir -p "$GTK4_DIR"
+        rm -f "$GTK4_DIR/gtk.css" "$GTK4_DIR/gtk-dark.css"
+        rm -rf "$GTK4_DIR/assets"
+        if [ -f "$GTK_THEME_DIR/gtk-4.0/gtk.css" ]; then
+            cp "$GTK_THEME_DIR/gtk-4.0/gtk.css" "$GTK4_DIR/"
+        fi
+        if [ -f "$GTK_THEME_DIR/gtk-4.0/gtk-dark.css" ]; then
+            cp "$GTK_THEME_DIR/gtk-4.0/gtk-dark.css" "$GTK4_DIR/"
+        fi
+        if [ -d "$GTK_THEME_DIR/gtk-4.0/assets" ]; then
+            cp -r "$GTK_THEME_DIR/gtk-4.0/assets" "$GTK4_DIR/"
+        fi
+    fi
+fi
 for qtver in qt5ct qt6ct; do
     conf_dir="$HOME/.config/$qtver"
     mkdir -p "$conf_dir"
@@ -180,8 +230,9 @@ pkill quickshell 2>/dev/null || true
 sleep 0.2
 nohup quickshell >/dev/null 2>&1 & disown
 
-# 9. Save current theme
+# 9. Save current theme + reset wallpaper index
 state set current-theme "$THEME_NAME"
+state set wallpaper-idx 0
 
 # 11. GIMP 3.0 — set theme + color scheme, restart to pick up
 pkill gimp 2>/dev/null || true

@@ -42,23 +42,10 @@ in {
 
   gtk = {
     enable = true;
-    theme.name = "adw-gtk3-dark";
-    theme.package = pkgs.adw-gtk3;
-    gtk4.theme = null;
     iconTheme.name = "Adwaita";
-    gtk3.extraConfig = {
-      "gtk-application-prefer-dark-theme" = if theme.mode == "dark" then 1 else 0;
-    };
-    gtk4.extraConfig = {
-      "gtk-application-prefer-dark-theme" = if theme.mode == "dark" then 1 else 0;
-    };
   };
 
-  dconf.settings = {
-    "org/gnome/desktop/interface" = {
-      color-scheme = if theme.mode == "dark" then "prefer-dark" else "default";
-    };
-  };
+  dconf.settings = {};
 
   xdg.configFile = {
     "kitty/kitty.conf".force = true;

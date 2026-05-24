@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+SYS_THEME_DIR="/etc/headspace/themes"
+USER_THEME_DIR="$HOME/.config/headspace/themes"
+
+THEME_NAME="$(state get current-theme || true)"
+if [ -z "$THEME_NAME" ]; then
+    echo "No current theme set. Use switch-theme first."
+    exit 1
+fi
+
+if [ -f "$USER_THEME_DIR/$THEME_NAME.json" ]; then
+    THEME_DIR="$USER_THEME_DIR"
+else
+    THEME_DIR="$SYS_THEME_DIR"
+fi
+THEME_FILE="$THEME_DIR/$THEME_NAME.json"
+
+if [ ! -f "$THEME_FILE" ]; then
+    echo "Theme '$THEME_NAME' not found at $THEME_FILE"
+    exit 1
+fi
+
+WALLPAPER_COUNT=$(jq '.wallpapers | length' "$THEME_FILE")
+if [ "$WALLPAPER_COUNT" -eq 0 ]; then
+    echo "No wallpapers available for theme '$THEME_NAME'"
+    exit 1
+fi
+
+CURRENT_IDX="$(state get wallpaper-idx || echo 0)"
+CURRENT_IDX=$((CURRENT_IDX))
+
+case "${1:-next}" in
+    next)
+        NEW_IDX=$(((CURRENT_IDX + 1) % WALLPAPER_COUNT))
+        ;;
+    prev)
+        NEW_IDX=$(((CURRENT_IDX - 1 + WALLPAPER_COUNT) % WALLPAPER_COUNT))
+        ;;
+    *)
+        if [[ "$1" =~ ^[0-9]+$ ]] && [ "$1" -lt "$WALLPAPER_COUNT" ]; then
+            NEW_IDX=$1
+        else
+            echo "Usage: switch-wallpaper [next|prev|INDEX]"
+            echo "Available wallpapers for '$THEME_NAME': 0-$((WALLPAPER_COUNT - 1))"
+            exit 1
+        fi
+        ;;
+esac
+
+WALLPAPER=$(jq -r ".wallpapers[$NEW_IDX]" "$THEME_FILE")
+
+sleep 0.2
+if [ -f "$WALLPAPER" ]; then
+    hyprctl hyprpaper preload "$WALLPAPER" 2>/dev/null || true
+    hyprctl hyprpaper wallpaper ",$WALLPAPER" 2>/dev/null || true
+    state set wallpaper-idx "$NEW_IDX"
+    echo "Switched to wallpaper $NEW_IDX for theme '$THEME_NAME'"
+else
+    echo "Wallpaper not found: $WALLPAPER"
+    exit 1
+fi

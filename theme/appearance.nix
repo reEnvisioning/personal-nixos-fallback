@@ -11,7 +11,19 @@ let
     obs_style = t.obs_style;
     KDEwidgetStyle = t.KDEwidgetStyle;
     wallpaper = toString t.wallpaper;
+    wallpapers = map (x: toString x) t.wallpapers;
+    gtkThemeName = t.gtk.themeName;
     colors = t.colors;
+  };
+
+  catppuccin-mocha = pkgs.catppuccin-gtk.override {
+    variant = "mocha";
+    accents = [ "blue" "mauve" "maroon" "pink" ];
+  };
+
+  catppuccin-latte = pkgs.catppuccin-gtk.override {
+    variant = "latte";
+    accents = [ "blue" "pink" ];
   };
 
   themeJsonConfigs = builtins.listToAttrs (map (name: {
@@ -44,7 +56,10 @@ in {
       kdePackages.qt6ct
       jq
       inotify-tools
+      catppuccin-mocha
+      catppuccin-latte
       (writeShellScriptBin "switch-theme" (builtins.readFile ./switch-theme))
+      (writeShellScriptBin "switch-wallpaper" (builtins.readFile ./switch-wallpaper))
       (writeShellScriptBin "indicator" (builtins.readFile ./quickshell/scripts/indicator))
       (writeShellScriptBin "volume" (builtins.readFile ./quickshell/scripts/volume))
       (writeShellScriptBin "brightness" (builtins.readFile ./quickshell/scripts/brightness))
