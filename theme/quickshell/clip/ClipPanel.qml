@@ -94,7 +94,7 @@ PanelWindow {
         Item {
             id: header
             Layout.fillWidth: true
-            height: Math.round(36 * root.uiScale)
+            implicitHeight: Math.round(36 * root.uiScale)
 
             Text {
                 anchors.left: parent.left

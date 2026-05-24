@@ -14,8 +14,8 @@ Item {
     signal copyRequested()
     signal itemClicked(int index)
 
-    width: parent ? parent.width : 380
-    height: Math.round(44 * root.uiScale)
+    implicitWidth: parent ? parent.width : 380
+    implicitHeight: Math.round(44 * root.uiScale)
 
     Rectangle {
         id: bg

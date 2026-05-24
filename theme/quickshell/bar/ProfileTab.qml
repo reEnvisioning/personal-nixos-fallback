@@ -13,7 +13,7 @@ Item {
 
     Process {
         id: userReader
-        command: ["whoami"]
+        command: ["sh", "-c", "echo $USER"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: root.userName = text.trim()
@@ -84,7 +84,7 @@ Item {
                 anchors.centerIn: parent
                 width: 68; height: 68
                 sourceSize { width: 68; height: 68 }
-                source: "../../resources/user/" + root.userName + ".png"
+                source: "../user/" + root.userName + ".png"
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
             }
