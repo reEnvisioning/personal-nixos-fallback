@@ -84,7 +84,7 @@ Item {
                 anchors.centerIn: parent
                 width: 68; height: 68
                 sourceSize { width: 68; height: 68 }
-                source: "../user/" + root.userName + ".png"
+                source: "../../resources/user/" + root.userName + ".png"
                 fillMode: Image.PreserveAspectCrop
                 asynchronous: true
             }

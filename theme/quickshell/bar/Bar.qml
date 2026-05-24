@@ -121,7 +121,7 @@ PanelWindow {
                             }
                         }
 
-                        Item { width: 1; height: 1 }
+                        Item { implicitWidth: 1; implicitHeight: 1 }
                     }
                 }
             }
