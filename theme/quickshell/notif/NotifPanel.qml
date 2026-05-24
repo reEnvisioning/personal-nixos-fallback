@@ -108,7 +108,8 @@ PanelWindow {
         "Hypridle Indicator",
         "Theme Indicator",
         "Mic Indicator",
-        "Battery Indicator"
+        "Battery Indicator",
+        "Wallpaper Indicator"
     ]
 
     // --- Startup notification (catches IPC notif from switch-theme etc.) ---
