@@ -70,8 +70,22 @@ local function build_color_overrides(data)
       overrides[catppuccin_key] = hex
     end
   end
-  if data.text then overrides["overlay0"] = data.text end
   return overrides
+end
+
+local function fix_cmp_highlights(data)
+  if not data then return end
+  local bg = data.borderInactive
+  local sel = data.surface2
+  local fg = data.text
+  if bg and fg then
+    vim.api.nvim_set_hl(0, "Pmenu", { bg = bg, fg = fg })
+    vim.api.nvim_set_hl(0, "PmenuSbar", { bg = bg })
+  end
+  if sel and fg then
+    vim.api.nvim_set_hl(0, "PmenuSel", { bg = sel, fg = fg })
+    vim.api.nvim_set_hl(0, "PmenuThumb", { bg = sel })
+  end
 end
 
 local function apply_theme(data)
@@ -130,6 +144,7 @@ local function apply_theme(data)
     lualine.setup { options = { theme = ok_theme and lualine_theme or 'auto' } }
   end
 
+  fix_cmp_highlights(data)
   vim.cmd("redraw!")
 end
 
@@ -220,6 +235,8 @@ cmp.setup {
     { name = 'path' },
   },
 }
+
+fix_cmp_highlights(theme_data)
 
 local capabilities = require('cmp_nvim_lsp').default_capabilities()
 
