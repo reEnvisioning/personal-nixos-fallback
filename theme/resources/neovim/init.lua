@@ -72,12 +72,12 @@ end
 
 local function fix_cmp_highlights(data)
   if not data then return end
-  local bg = data.borderInactive
+  local hl = data.highlighted
   local sel = data.surface2
   local fg = data.text
-  if bg and fg then
-    vim.api.nvim_set_hl(0, "Pmenu", { bg = bg, fg = fg })
-    vim.api.nvim_set_hl(0, "PmenuSbar", { bg = bg })
+  if hl and fg then
+    vim.api.nvim_set_hl(0, "Pmenu", { bg = hl, fg = fg })
+    vim.api.nvim_set_hl(0, "PmenuSbar", { bg = hl })
   end
   if sel and fg then
     vim.api.nvim_set_hl(0, "PmenuSel", { bg = sel, fg = fg })
@@ -190,6 +190,11 @@ local function fix_theme_highlights(data)
   vim.api.nvim_set_hl(0, "SignColumn", { bg = bg })
   if st0 then vim.api.nvim_set_hl(0, "NonText", { fg = st0 }) end
   if borderIna then vim.api.nvim_set_hl(0, "Whitespace", { fg = borderIna }) end
+  if st0 then
+    vim.api.nvim_set_hl(0, "Folded", { fg = st0 })
+    vim.api.nvim_set_hl(0, "FoldColumn", { fg = st0 })
+    vim.api.nvim_set_hl(0, "Conceal", { fg = st0 })
+  end
 
   vim.api.nvim_set_hl(0, "TelescopeNormal", { fg = fg, bg = bg })
   if borderFoc then vim.api.nvim_set_hl(0, "TelescopeBorder", { fg = borderFoc, bg = bg }) end
@@ -203,7 +208,7 @@ local function fix_theme_highlights(data)
   end
   vim.api.nvim_set_hl(0, "TelescopePromptTitle", { fg = fg })
   if hl then vim.api.nvim_set_hl(0, "TelescopeSelection", { bg = hl }) end
-  if rsw then vim.api.nvim_set_hl(0, "TelescopeMatching", { fg = rsw, bold = true }) end
+  if ylw then vim.api.nvim_set_hl(0, "TelescopeMatching", { fg = ylw, bold = true }) end
   vim.api.nvim_set_hl(0, "TelescopePromptPrefix", { fg = fg, bold = true })
 
   if ov2 then

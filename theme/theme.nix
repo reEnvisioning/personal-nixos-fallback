@@ -149,10 +149,10 @@ let
         magenta = "#FF4081";
         cyan = "#4DD0E1";
         mauve = "#CE93D8";
-        lavender = "#E1BEE7";
+        lavender = "#C090C8";
         pink = "#F48FB1";
-        rosewater = "#FCE4EC";
-        flamingo = "#FFCDD2";
+        rosewater = "#D47084";
+        flamingo = "#CC7878";
         maroon = "#EF5350";
         peach = "#FFAB91";
         sky = "#81D4FA";
@@ -190,7 +190,7 @@ let
     	borderInactive = "#17100C";
     	borderFocused = "#1E1510";
     	backgroundAccent = "#1A110E";
-     	overlay2 = "#1C1310";
+      	overlay2 = "#382418";
       	surface2 = "#5A3A30";
       	overlay1 = "#2E201A";
       	highlighted = "#38261E";
