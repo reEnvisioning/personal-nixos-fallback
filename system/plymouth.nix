@@ -3,16 +3,16 @@
 {
   boot.plymouth = {
     enable = true;
-    theme = "connect";
+    theme = "vision";
     themePackages = [
       (pkgs.stdenv.mkDerivation {
-        pname = "plymouth-theme-connect";
+        pname = "plymouth-theme-vision";
         version = "1.0";
-        src = ../theme/resources/connect;
+        src = ../theme/resources/plymouth;
         installPhase = ''
-          mkdir -p $out/share/plymouth/themes/connect
-          cp -r * $out/share/plymouth/themes/connect/
-          substituteInPlace $out/share/plymouth/themes/connect/connect.plymouth \
+          mkdir -p $out/share/plymouth/themes/vision
+          cp -r * $out/share/plymouth/themes/vision/
+          substituteInPlace $out/share/plymouth/themes/vision/vision.plymouth \
             --replace "/usr" "$out"
         '';
       })
