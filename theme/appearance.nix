@@ -45,6 +45,13 @@ in {
   config = lib.mkIf (cfg.users != []) {
     environment.etc = themeJsonConfigs // yaziThemeConfigs;
 
+    environment.variables = {
+      "QT_QPA_PLATFORM" = "wayland;xcb";
+      "ADW_DISABLE_PORTAL" = "1";
+      "QT_QPA_PLATFORMTHEME" = "qt5ct";
+      "XDG_CURRENT_DESKTOP" = "Hyprland";
+    };
+
     environment.systemPackages = with pkgs; [
       quickshell
       wl-clipboard
@@ -54,6 +61,8 @@ in {
       adwaita-qt6
       libsForQt5.qt5ct
       kdePackages.qt6ct
+      qt5.qtwayland
+      qt6.qtwayland
       jq
       inotify-tools
       catppuccin-mocha
