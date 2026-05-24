@@ -20,8 +20,8 @@ PanelWindow {
     property real desiredHeight: 0
     property real animHeight: 0
     property real slideX: 0
-    width: Math.round(380 * root.uiScale)
-    height: root.animHeight
+    implicitWidth: Math.round(380 * root.uiScale)
+    implicitHeight: root.animHeight
     visible: root.animHeight > 0
     color: "transparent"
     focusable: true
