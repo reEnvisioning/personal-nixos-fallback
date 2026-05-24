@@ -129,6 +129,16 @@ local function apply_theme(data)
     lualine.setup { options = { theme = ok_theme and lualine_theme or 'auto' } }
   end
 
+  if data then
+    local pmenu_bg = data.borderInactive or "#1E1E2E"
+    local sel_bg = data.surface2 or "#45475A"
+    local fg = data.text or "#CDD6F4"
+    vim.api.nvim_set_hl(0, "Pmenu", { bg = pmenu_bg, fg = fg })
+    vim.api.nvim_set_hl(0, "PmenuSel", { bg = sel_bg, fg = fg })
+    vim.api.nvim_set_hl(0, "PmenuSbar", { bg = pmenu_bg })
+    vim.api.nvim_set_hl(0, "PmenuThumb", { bg = sel_bg })
+  end
+
   vim.cmd("redraw!")
 end
 
