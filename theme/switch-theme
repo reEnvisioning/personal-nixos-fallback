@@ -28,13 +28,23 @@ if [ ! -f "$THEME_FILE" ]; then
 fi
 
 MODE=$(jq -r '.mode' "$THEME_FILE")
-WALLPAPER=$(jq -r '.wallpaper' "$THEME_FILE")
 LS_COLOR=$(jq -r '.localsend_color' "$THEME_FILE")
 OBS_STYLE=$(jq -r '.obs_style' "$THEME_FILE")
 KDE_WIDGET_STYLE=$(jq -r '.KDEwidgetStyle // "Default"' "$THEME_FILE")
 GTK_THEME_NAME=$(jq -r '.gtkThemeName // empty' "$THEME_FILE")
 
-# 1. Wallpaper — wait for hyprpaper IPC to be ready
+# 1. Wallpaper — per-theme index with bounds check
+WALLPAPER_COUNT=$(jq '.wallpapers | length' "$THEME_FILE")
+SAVED_IDX="$(state get wallpaper-idx:$THEME_NAME || echo "")"
+
+if [ -z "$SAVED_IDX" ] || [ "$SAVED_IDX" -ge "$WALLPAPER_COUNT" ] 2>/dev/null; then
+    WALLPAPER_IDX=0
+else
+    WALLPAPER_IDX=$((SAVED_IDX))
+fi
+
+WALLPAPER=$(jq -r ".wallpapers[$WALLPAPER_IDX]" "$THEME_FILE")
+
 sleep 1
 if [ -f "$WALLPAPER" ]; then
     hyprctl hyprpaper preload "$WALLPAPER" 2>/dev/null || true
@@ -230,9 +240,8 @@ pkill quickshell 2>/dev/null || true
 sleep 0.2
 nohup quickshell >/dev/null 2>&1 & disown
 
-# 9. Save current theme + reset wallpaper index
+# 9. Save current theme (wallpaper index preserved per-theme)
 state set current-theme "$THEME_NAME"
-state set wallpaper-idx 0
 
 # 11. GIMP 3.0 — set theme + color scheme, restart to pick up
 pkill gimp 2>/dev/null || true
