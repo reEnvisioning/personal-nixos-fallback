@@ -62,6 +62,7 @@ if [ -f "$WALLPAPER" ]; then
     hyprctl hyprpaper preload "$WALLPAPER" 2>/dev/null || true
     hyprctl hyprpaper wallpaper ",$WALLPAPER" 2>/dev/null || true
     state set wallpaper-idx:$THEME_NAME "$NEW_IDX"
+    indicator "Wallpaper Indicator" "Wallpaper" "$((NEW_IDX + 1))/$WALLPAPER_COUNT"
     echo "Switched to wallpaper $NEW_IDX for theme '$THEME_NAME'"
 else
     echo "Wallpaper not found: $WALLPAPER"
