@@ -3,6 +3,7 @@
 
 import Quickshell
 import QtQuick
+import Quickshell.Io
 import "lib"
 import "bar"
 import "notif"
@@ -13,10 +14,42 @@ ShellRoot {
     id: root
     settings.watchFiles: true
 
-    property real uiScale: 1 // scale-config
+    property real uiScale: 1
 
     Colors {
         id: colors
+    }
+
+    Process {
+        id: configReader
+        command: ["sh", "-c", "cat \"$HOME/.config/headspace/config.json\""]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    const cfg = JSON.parse(text.trim())
+                    if (cfg.uiScale !== undefined) root.uiScale = cfg.uiScale
+                } catch (e) {
+                    console.log("shell: config parse error: " + e)
+                }
+            }
+        }
+    }
+
+    Process {
+        id: configWatcher
+        command: ["sh", "-c",
+            "while [ ! -f \"$HOME/.config/headspace/config.json\" ]; do sleep 1; done;" +
+            "inotifywait -qq -e close_write,modify \"$HOME/.config/headspace/config.json\""]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                configReader.running = false
+                configReader.running = true
+                configWatcher.running = false
+                configWatcher.running = true
+            }
+        }
     }
 
     BatteryMonitor {}

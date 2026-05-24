@@ -31,8 +31,8 @@
       };
 
       settings = {
-          "browser.tabs.dragDrop.createGroup.enabled" = false;
-          "sidebar.verticalTabs" = true;
+        "browser.tabs.dragDrop.createGroup.enabled" = false;
+        "sidebar.verticalTabs" = true;
         "sidebar.revamp" = true;
         "sidebar.visibility" = "show";
 

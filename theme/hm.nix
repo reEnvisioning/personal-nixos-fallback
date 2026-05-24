@@ -2,13 +2,6 @@
 let
   theme = import ./theme.nix;
 
-  uiScale = "1";
-
-  shellQml = builtins.replaceStrings
-    ["1 // scale-config"]
-    ["${uiScale} // scale-config"]
-    (builtins.readFile ./quickshell/shell.qml);
-
 in {
   home.pointerCursor = {
     package = pkgs.vanilla-dmz;
@@ -51,9 +44,10 @@ in {
     "kitty/kitty.conf".force = true;
     "gtk-3.0/settings.ini".force = true;
     "gtk-4.0/settings.ini".force = true;
-    "quickshell/shell.qml" = {
+    "quickshell/shell.qml".source = ./quickshell/shell.qml;
+    "headspace/config.json" = {
       force = true;
-      text = shellQml;
+      text = builtins.toJSON { uiScale = 1; };
     };
     "quickshell/lib".source = ./quickshell/lib;
     "quickshell/bar".source = ./quickshell/bar;
