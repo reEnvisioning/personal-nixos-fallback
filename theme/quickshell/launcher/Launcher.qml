@@ -29,8 +29,8 @@ PanelWindow {
     property var results: []
     property int currentIndex: 0
 
-    width: root.panelWidth
-    height: root.fullHeight
+    implicitWidth: root.panelWidth
+    implicitHeight: root.fullHeight
     visible: root.animHeight > 0
     color: "transparent"
     focusable: true

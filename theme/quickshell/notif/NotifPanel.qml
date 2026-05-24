@@ -23,7 +23,7 @@ PanelWindow {
     anchors.right: true
     margins { top: Math.round(8 * root.uiScale); right: Math.round(8 * root.uiScale) }
 
-    width: Math.round(380 * root.uiScale)
+    implicitWidth: Math.round(380 * root.uiScale)
     implicitHeight: notifColumn.height
 
     color: "transparent"
