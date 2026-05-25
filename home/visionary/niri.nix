@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, hostname, ... }:
 let
   theme = import ../../theme/theme.nix;
   mod = "Mod";
@@ -101,14 +101,14 @@ in {
         "Mod+Alt+M" { spawn "volume" "toggle"; }
         "Mod+Shift+M" { spawn "mic" "toggle"; }
 
-        "Mod+Alt+1" { spawn-sh "echo 0 > $XDG_RUNTIME_DIR/headspace-tab-trigger"; }
-        "Mod+Alt+2" { spawn-sh "echo 1 > $XDG_RUNTIME_DIR/headspace-tab-trigger"; }
-        "Mod+Alt+3" { spawn-sh "echo 2 > $XDG_RUNTIME_DIR/headspace-tab-trigger"; }
+        "Mod+Alt+1" { spawn-sh "echo 0 > $XDG_RUNTIME_DIR/${hostname}-tab-trigger"; }
+        "Mod+Alt+2" { spawn-sh "echo 1 > $XDG_RUNTIME_DIR/${hostname}-tab-trigger"; }
+        "Mod+Alt+3" { spawn-sh "echo 2 > $XDG_RUNTIME_DIR/${hostname}-tab-trigger"; }
 
         "Mod+Alt+N" { spawn "dnd" "toggle"; }
-        "Mod+Alt+Backspace" { spawn-sh "echo 1 > $XDG_RUNTIME_DIR/headspace-notif-dismiss"; }
-        "Mod+Space" { spawn-sh "touch $XDG_RUNTIME_DIR/headspace-launcher-toggle"; }
-        "Mod+C" { spawn-sh "f=$XDG_RUNTIME_DIR/headspace-clip-toggle; v=$(cat $f 2>/dev/null || echo 0); echo $((1 - v)) > $f"; }
+        "Mod+Alt+Backspace" { spawn-sh "echo 1 > $XDG_RUNTIME_DIR/${hostname}-notif-dismiss"; }
+        "Mod+Space" { spawn-sh "touch $XDG_RUNTIME_DIR/${hostname}-launcher-toggle"; }
+        "Mod+C" { spawn-sh "f=$XDG_RUNTIME_DIR/${hostname}-clip-toggle; v=$(cat $f 2>/dev/null || echo 0); echo $((1 - v)) > $f"; }
 
         "Mod+Shift+O" { spawn "swaylock" "-f"; }
         "Mod+I" { spawn "idle-toggle" "toggle"; }
@@ -122,7 +122,7 @@ in {
 
     spawn-at-startup "swayidle" "-w" "timeout" "300" "${pkgs.swaylock-effects}/bin/swaylock -f" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "${pkgs.swaylock-effects}/bin/swaylock -f"
 
-    spawn-sh-at-startup "echo 0 > $XDG_RUNTIME_DIR/headspace-dnd; echo 0 > $XDG_RUNTIME_DIR/headspace-notif-dismiss; echo 0 > $XDG_RUNTIME_DIR/headspace-clip-toggle; sleep 0.5; switch-theme $(state get current-theme || echo void)"
+    spawn-sh-at-startup "echo 0 > $XDG_RUNTIME_DIR/${hostname}-dnd; echo 0 > $XDG_RUNTIME_DIR/${hostname}-notif-dismiss; echo 0 > $XDG_RUNTIME_DIR/${hostname}-clip-toggle; sleep 0.5; switch-theme $(state get current-theme || echo void)"
   '';
 
   programs.swaylock = {

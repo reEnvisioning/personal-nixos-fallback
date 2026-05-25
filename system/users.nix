@@ -1,5 +1,5 @@
-{ pkgs, ... }: {
-  users.users.visionary = {
+{ pkgs, username, ... }: {
+  users.users.${username} = {
     isNormalUser = true;
     extraGroups = [
       "wheel"

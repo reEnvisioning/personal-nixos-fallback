@@ -1,8 +1,8 @@
-{ config, pkgs, inputs, lib, ... }: {
+{ config, pkgs, inputs, lib, username, ... }: {
   home = {
     stateVersion = "25.11";
-    username = "visionary";
-    homeDirectory = "/home/visionary";
+    username = username;
+    homeDirectory = "/home/${username}";
   };
 
   programs.home-manager.enable = true;

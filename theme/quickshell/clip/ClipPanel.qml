@@ -302,8 +302,8 @@ PanelWindow {
     Process {
         id: toggleWatcher
         command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/headspace-clip-toggle\" ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/headspace-clip-toggle\""]
+            "while [ ! -f \"$XDG_RUNTIME_DIR/$(hostname)-clip-toggle\" ]; do sleep 1; done;" +
+            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/$(hostname)-clip-toggle\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -317,7 +317,7 @@ PanelWindow {
 
     Process {
         id: toggleReader
-        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/headspace-clip-toggle\""]
+        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/$(hostname)-clip-toggle\""]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {

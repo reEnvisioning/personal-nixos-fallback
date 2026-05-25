@@ -22,7 +22,7 @@ ShellRoot {
 
     Process {
         id: configReader
-        command: ["sh", "-c", "cat \"$HOME/.config/headspace/config.json\""]
+        command: ["sh", "-c", "cat \"$HOME/.config/$(hostname)/config.json\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -39,8 +39,8 @@ ShellRoot {
     Process {
         id: configWatcher
         command: ["sh", "-c",
-            "while [ ! -f \"$HOME/.config/headspace/config.json\" ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify \"$HOME/.config/headspace/config.json\""]
+            "while [ ! -f \"$HOME/.config/$(hostname)/config.json\" ]; do sleep 1; done;" +
+            "inotifywait -qq -e close_write,modify \"$HOME/.config/$(hostname)/config.json\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {

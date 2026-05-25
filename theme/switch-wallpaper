@@ -2,8 +2,9 @@
 set -uo pipefail
 
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
-SYS_THEME_DIR="/etc/headspace/themes"
-USER_THEME_DIR="$HOME/.config/headspace/themes"
+H="${HOSTNAME:-$(hostname)}"
+SYS_THEME_DIR="/etc/$H/themes"
+USER_THEME_DIR="$HOME/.config/$H/themes"
 
 THEME_NAME="$(state get current-theme || true)"
 if [ -z "$THEME_NAME" ]; then

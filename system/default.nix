@@ -1,4 +1,4 @@
-{pkgs, ...}: {
+{pkgs, username, ...}: {
   imports = [
     ./hardware-configuration.nix
     ./network.nix
@@ -26,8 +26,8 @@
       "flakes"
     ];
 
-    allowed-users = ["visionary"];
-    trusted-users = ["visionary"];
+    allowed-users = [ username ];
+    trusted-users = [ username ];
     auto-optimise-store = true;
 
   };

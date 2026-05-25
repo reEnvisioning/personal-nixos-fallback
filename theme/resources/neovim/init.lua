@@ -17,10 +17,14 @@ vim.opt.signcolumn = 'yes'
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
---- Read headspace colors from JSON file
-local function read_headspace_colors()
-  local colors_path = (os.getenv("XDG_RUNTIME_DIR") or "/run/user/1000") .. "/headspace-colors.json"
-  local f = io.open(colors_path, "r")
+local _hostname = (os.getenv("HOSTNAME") or vim.fn.system("hostname"):gsub("%s+", ""))
+
+local function colors_path()
+  return (os.getenv("XDG_RUNTIME_DIR") or "/run/user/1000") .. "/" .. _hostname .. "-colors.json"
+end
+
+local function read_colors()
+  local f = io.open(colors_path(), "r")
   if not f then return nil end
   local content = f:read("*a")
   f:close()
@@ -333,7 +337,7 @@ local function apply_theme(data)
   if vim.fn.exists("syntax_on") == 1 then
     vim.cmd("syntax reset")
   end
-  vim.g.colors_name = "headspace-theme"
+  vim.g.colors_name = _hostname .. "-theme"
 
   local c = extract_colors(data)
   define_highlights(c)
@@ -366,7 +370,7 @@ local function apply_theme(data)
 end
 
 -- Apply theme on startup
-local theme_data = read_headspace_colors()
+local theme_data = read_colors()
 apply_theme(theme_data)
 
 -- Plugin setups
@@ -474,10 +478,9 @@ setup_server("lua_ls", {
   },
 })
 
--- Live-switching: watch headspace-colors.json for changes
+-- Live-switching: watch colors.json for changes
 local uv = vim.uv or vim.loop
-local colors_base = os.getenv("XDG_RUNTIME_DIR") or "/run/user/1000"
-local watch_path = colors_base .. "/headspace-colors.json"
+local watch_path = colors_path()
 local watcher = uv.new_fs_event()
 local reload_timer = nil
 
@@ -491,7 +494,7 @@ if watcher and vim.fn.filereadable(watch_path) == 1 then
 
       reload_timer = uv.new_timer()
       reload_timer:start(100, 0, vim.schedule_wrap(function()
-        local data = read_headspace_colors()
+        local data = read_colors()
         if data then
           apply_theme(data)
         end

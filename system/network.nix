@@ -2,10 +2,11 @@
   config,
   pkgs,
   lib,
+  hostname,
   ...
 }: {
   networking = {
-    hostName = "headspace";
+    hostName = hostname;
     networkmanager.enable = true;
     firewall.enable = true;
     firewall.allowedTCPPorts = [ 53317 ];

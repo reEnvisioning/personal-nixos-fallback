@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, hostname, ... }:
 let
   theme = import ./theme.nix;
 
@@ -45,7 +45,7 @@ in {
     "gtk-3.0/settings.ini".force = true;
     "gtk-4.0/settings.ini".force = true;
     "quickshell/shell.qml".source = ./quickshell/shell.qml;
-    "headspace/config.json" = {
+    "${hostname}/config.json" = {
       force = true;
       text = builtins.toJSON { uiScale = 1; };
     };

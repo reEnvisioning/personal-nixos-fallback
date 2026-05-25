@@ -286,8 +286,8 @@ PanelWindow {
     Process {
         id: toggleWatcher
         command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/headspace-launcher-toggle\" ]; do sleep 0.2; done;" +
-            "inotifywait -qq -e close_write,modify,create \"$XDG_RUNTIME_DIR/headspace-launcher-toggle\""]
+            "while [ ! -f \"$XDG_RUNTIME_DIR/$(hostname)-launcher-toggle\" ]; do sleep 0.2; done;" +
+            "inotifywait -qq -e close_write,modify,create \"$XDG_RUNTIME_DIR/$(hostname)-launcher-toggle\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {

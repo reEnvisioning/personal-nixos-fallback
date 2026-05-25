@@ -1,9 +1,9 @@
-{ pkgs, ... }: {
+{ pkgs, hostname, ... }: {
   environment.systemPackages = with pkgs; [
     (writeShellScriptBin "upgrade-system" ''
       set -x
 
-      FLAKE=''${1:-/headspace#headspace}
+      FLAKE=''${1:-/${hostname}#${hostname}}
       FLAKE_DIR=''${FLAKE%%#*}
 
       nix flake update "''${FLAKE_DIR}"
@@ -23,10 +23,9 @@
       THEME=''${1:-$(state get current-theme || echo void)}
 
       git clone https://github.com/reEnvisioning/personal-nixos-fallback.git
-      sudo rm -rf /headspace/*
-      sudo cp -rf ~/personal-nixos-fallback/* /headspace/
-      rm -rf ~/personal-nixos-fallback
-      sudo nixos-rebuild switch --flake /headspace#headspace
+      sudo rm -rf /${hostname}/*
+      sudo cp -rf ~/personal-nixos-fallback/* /${hostname}/
+      sudo nixos-rebuild switch --flake /${hostname}#${hostname}
       switch-theme "$THEME"
     '')
   ];

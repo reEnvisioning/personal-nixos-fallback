@@ -209,8 +209,8 @@ PanelWindow {
     Process {
         id: tabTriggerWatcher
         command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/headspace-tab-trigger\" ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/headspace-tab-trigger\""]
+            "while [ ! -f \"$XDG_RUNTIME_DIR/$(hostname)-tab-trigger\" ]; do sleep 1; done;" +
+            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/$(hostname)-tab-trigger\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -224,7 +224,7 @@ PanelWindow {
 
     Process {
         id: triggerReader
-        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/headspace-tab-trigger\""]
+        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/$(hostname)-tab-trigger\""]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {

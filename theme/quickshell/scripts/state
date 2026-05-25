@@ -2,7 +2,8 @@
 # Usage: state get <key>   -> prints value or empty
 #        state set <key> <value>   -> upserts
 
-FILE="$HOME/.config/headspace/state"
+H="${HOSTNAME:-$(hostname)}"
+FILE="$HOME/.config/$H/state"
 CMD="$1"; KEY="$2"; VALUE="$3"
 
 case "$CMD" in

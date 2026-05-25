@@ -2,7 +2,8 @@
 # Usage: volume up|down|toggle|set <value>
 
 CMD="${1:-up}"
-STATE_FILE="$HOME/.config/headspace/state"
+H="${HOSTNAME:-$(hostname)}"
+STATE_FILE="$HOME/.config/$H/state"
 
 case "$CMD" in
     up)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ ;;

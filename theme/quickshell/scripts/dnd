@@ -2,7 +2,8 @@
 # Usage: dnd on|off|toggle
 
 CMD="${1:-toggle}"
-f="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/headspace-dnd"
+H="${HOSTNAME:-$(hostname)}"
+f="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/$H-dnd"
 
 case "$CMD" in
     on)  echo 1 > "$f" ;;

@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, hostname, ... }:
 let
   cfg = config.appearance;
 
@@ -27,12 +27,12 @@ let
   };
 
   themeJsonConfigs = builtins.listToAttrs (map (name: {
-    name = "headspace/themes/${name}.json";
+    name = "${hostname}/themes/${name}.json";
     value.text = mkThemeJson name theme.all.${name};
   }) (builtins.attrNames theme.all));
 
   yaziThemeConfigs = builtins.listToAttrs (map (name: {
-    name = "headspace/yazi-themes/${name}.toml";
+    name = "${hostname}/yazi-themes/${name}.toml";
     value.source = theme.all.${name}.yazi;
   }) (builtins.attrNames theme.all));
 in {

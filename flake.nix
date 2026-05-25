@@ -10,24 +10,29 @@
     };
   };
 
-  outputs = inputs: {
-    nixosConfigurations.headspace = inputs.nixpkgs.lib.nixosSystem {
+  outputs = inputs: let
+    hostname = "headspace";
+    username = "visionary";
+  in {
+    nixosConfigurations.${hostname} = inputs.nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      specialArgs = {inherit inputs;};
+      specialArgs = { inherit inputs hostname username; };
       modules = [
         ./system/default.nix
         inputs.home-manager.nixosModules.home-manager
         ./theme/appearance.nix
         {
-          appearance.users = [ "visionary" ];
+          appearance.users = [ username ];
 
-          home-manager.users.visionary = {
+          home-manager.extraSpecialArgs = { inherit hostname username; };
+
+          home-manager.users.${username} = {
             imports = [
-              ./home/visionary/home.nix
-              ./home/visionary/niri.nix
-              ./home/visionary/yazi.nix
-              ./home/visionary/firefox.nix
-              ./home/visionary/neovim.nix
+              (./. + "/home/${username}/home.nix")
+              (./. + "/home/${username}/niri.nix")
+              (./. + "/home/${username}/yazi.nix")
+              (./. + "/home/${username}/firefox.nix")
+              (./. + "/home/${username}/neovim.nix")
             ];
           };
         }
@@ -44,7 +49,7 @@
     };
 
     checks.x86_64-linux = {
-      build = inputs.self.nixosConfigurations.headspace.config.system.build.toplevel;
+      build = inputs.self.nixosConfigurations.${hostname}.config.system.build.toplevel;
     };
   };
 }

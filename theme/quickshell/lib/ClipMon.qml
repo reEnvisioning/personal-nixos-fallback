@@ -28,8 +28,8 @@ Item {
             "  echo ok > \"$XDG_RUNTIME_DIR/hs-clip-t-trigger\"; " +
             "elif wl-paste -t image/png > \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" 2>/dev/null; then " +
             "  hash=$(sha256sum \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" | cut -d' ' -f1) && " +
-            "  mkdir -p \"$HOME/.local/share/headspace/clips\" && " +
-            "  cp \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" \"$HOME/.local/share/headspace/clips/$hash.png\" && " +
+            "  mkdir -p \"$HOME/.local/share/$(hostname)/clips\" && " +
+            "  cp \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" \"$HOME/.local/share/$(hostname)/clips/$hash.png\" && " +
             "  echo \"$hash.png\" > \"$XDG_RUNTIME_DIR/hs-clip-i-data\" && " +
             "  echo ok > \"$XDG_RUNTIME_DIR/hs-clip-i-trigger\"; " +
             "fi"]
@@ -115,8 +115,8 @@ Item {
         command: ["sh", "-c",
             "wl-paste -t image/png > \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" 2>/dev/null && " +
             "hash=$(sha256sum \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" | cut -d' ' -f1) && " +
-            "mkdir -p \"$HOME/.local/share/headspace/clips\" && " +
-            "cp \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" \"$HOME/.local/share/headspace/clips/$hash.png\" && " +
+            "mkdir -p \"$HOME/.local/share/$(hostname)/clips\" && " +
+            "cp \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" \"$HOME/.local/share/$(hostname)/clips/$hash.png\" && " +
             "echo \"$hash.png\" > \"$XDG_RUNTIME_DIR/hs-clip-i-data\" && " +
             "echo ok > \"$XDG_RUNTIME_DIR/hs-clip-i-trigger\""]
         running: false
@@ -188,7 +188,7 @@ Item {
         var entry = root.entries[index]
         if (entry && entry.storagePath && entry.storagePath.length > 0) {
             Quickshell.execDetached(["sh", "-c",
-                "rm -f $HOME/.local/share/headspace/" + entry.storagePath])
+                "rm -f $HOME/.local/share/$(hostname)/" + entry.storagePath])
         }
         root.entries = root.entries.filter(function(_, i) { return i !== index })
         save()
@@ -198,7 +198,7 @@ Item {
         var pinned = root.entries.filter(function(e) { return e.pinned })
         var stalePaths = root.entries
             .filter(function(e) { return !e.pinned && e.storagePath })
-            .map(function(e) { return "\"$HOME/.local/share/headspace/" + e.storagePath + "\"" })
+            .map(function(e) { return "\"$HOME/.local/share/$(hostname)/" + e.storagePath + "\"" })
         if (stalePaths.length > 0)
             Quickshell.execDetached(["sh", "-c", "rm -f " + stalePaths.join(" ")])
         root.entries = pinned
@@ -221,7 +221,7 @@ Item {
         if (entry.mimeType === "image/png" && entry.storagePath) {
             root._skipNextImage = true
             Quickshell.execDetached(["sh", "-c",
-                "wl-copy --type image/png < \"$HOME/.local/share/headspace/" + entry.storagePath + "\""])
+                "wl-copy --type image/png < \"$HOME/.local/share/$(hostname)/" + entry.storagePath + "\""])
         } else {
             Quickshell.execDetached(["wl-copy", entry.content])
         }
@@ -236,8 +236,8 @@ Item {
         var json = JSON.stringify(root.entries)
         var delim = "HS" + Math.random().toString(36).substring(2, 10) + "EOF"
         saveProcess.command = ["sh", "-c",
-            "mkdir -p $HOME/.local/share/headspace && " +
-            "cat > $HOME/.local/share/headspace/clip-history.json << '" + delim + "'\n" +
+            "mkdir -p $HOME/.local/share/$(hostname) && " +
+            "cat > $HOME/.local/share/$(hostname)/clip-history.json << '" + delim + "'\n" +
             json + "\n" +
             delim]
         saveProcess.running = false
@@ -257,7 +257,7 @@ Item {
 
     Process {
         id: loadProcess
-        command: ["sh", "-c", "cat $HOME/.local/share/headspace/clip-history.json 2>/dev/null || echo '[]'"]
+        command: ["sh", "-c", "cat $HOME/.local/share/$(hostname)/clip-history.json 2>/dev/null || echo '[]'"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
