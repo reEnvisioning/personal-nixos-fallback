@@ -4,5 +4,4 @@
     efi.canTouchEfiVariables = true;
   };
 
-  boot.kernelPackages = pkgs.linuxPackages;
 }

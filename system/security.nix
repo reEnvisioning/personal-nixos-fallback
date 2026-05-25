@@ -15,5 +15,5 @@
     "net.ipv6.conf.default.use_tempaddr" = lib.mkForce 2;
   };
 
-  services.geoclue2.enable = lib.mkDefault false;
+  services.geoclue2.enable = lib.mkForce false;
 }

@@ -38,8 +38,6 @@ in {
     iconTheme.name = "Adwaita";
   };
 
-  dconf.settings = {};
-
   xdg.configFile = {
     "kitty/kitty.conf".force = true;
     "gtk-3.0/settings.ini".force = true;

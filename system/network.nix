@@ -12,19 +12,18 @@
     firewall.allowedTCPPorts = [ 53317 ];
     firewall.allowedUDPPorts = [ 53317 ];
     firewall.extraCommands = ''
-      iptables -A OUTPUT -p udp --dport 53 -d 127.0.0.0/8 -j ACCEPT
-      ip6tables -A OUTPUT -p udp --dport 53 -d ::1 -j ACCEPT
-      iptables -A OUTPUT -p udp --dport 53 -j REJECT
-      ip6tables -A OUTPUT -p udp --dport 53 -j REJECT
+      nft add table inet dns-filter
+      nft add chain inet dns-filter output { type filter hook output priority filter + 1\; policy accept\; }
+      nft add rule inet dns-filter output udp dport 53 ip daddr 127.0.0.0/8 accept
+      nft add rule inet dns-filter output udp dport 53 ip6 daddr ::1 accept
+      nft add rule inet dns-filter output udp dport 53 reject
+      nft add rule inet dns-filter output tcp dport 53 ip daddr 127.0.0.0/8 accept
+      nft add rule inet dns-filter output tcp dport 53 ip6 daddr ::1 accept
+      nft add rule inet dns-filter output tcp dport 53 reject
     '';
     firewall.extraStopCommands = ''
-      iptables -D OUTPUT -p udp --dport 53 -d 127.0.0.0/8 -j ACCEPT 2>/dev/null || true
-      ip6tables -D OUTPUT -p udp --dport 53 -d ::1 -j ACCEPT 2>/dev/null || true
-      iptables -D OUTPUT -p udp --dport 53 -j REJECT 2>/dev/null || true
-      ip6tables -D OUTPUT -p udp --dport 53 -j REJECT 2>/dev/null || true
+      nft delete table inet dns-filter 2>/dev/null || true
     '';
-
-    # Quad9 DNS configuration
   };
 
   networking.networkmanager.dns = "systemd-resolved";

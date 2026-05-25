@@ -107,6 +107,4 @@
     };
   };
 
-  home.file."${config.xdg.configHome}/mozilla/firefox/profiles.ini".force = true;
-  home.file."${config.xdg.configHome}/mozilla/firefox/default/user.js".force = true;
 }

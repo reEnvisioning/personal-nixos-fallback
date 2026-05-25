@@ -1,5 +1,6 @@
 { pkgs, hostname, ... }: {
   environment.systemPackages = with pkgs; [
+    nvd
     (writeShellScriptBin "ng" ''
       set -x
       sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +10
