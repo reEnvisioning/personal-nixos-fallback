@@ -21,7 +21,7 @@ in {
         }
         touchpad {
             tap
-            disable-while-typing
+            dwt
             click-method "clickfinger"
         }
     }
