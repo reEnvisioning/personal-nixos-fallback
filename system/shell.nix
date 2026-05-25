@@ -1,5 +1,11 @@
 { pkgs, hostname, ... }: {
   environment.systemPackages = with pkgs; [
+    (writeShellScriptBin "ng" ''
+      set -x
+      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +10
+      nix-collect-garbage
+    '')
+
     (writeShellScriptBin "nu" ''
       set -x
 
