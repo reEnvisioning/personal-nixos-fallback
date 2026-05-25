@@ -23,11 +23,11 @@
 
           home-manager.users.visionary = {
             imports = [
-              ./home/home.nix
-              ./home/niri.nix
-              ./home/yazi.nix
-              ./home/firefox.nix
-              ./home/neovim.nix
+              ./home/visionary/home.nix
+              ./home/visionary/niri.nix
+              ./home/visionary/yazi.nix
+              ./home/visionary/firefox.nix
+              ./home/visionary/neovim.nix
             ];
           };
         }

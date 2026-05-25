@@ -3,6 +3,8 @@
     ./hardware-configuration.nix
     ./network.nix
     ./desktop.nix
+    ./local.nix
+    ./luks.nix
     ./plymouth.nix
     ./boot.nix
     ./greeter.nix
