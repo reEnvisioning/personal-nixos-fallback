@@ -35,9 +35,11 @@
         exit 1
       fi
 
-      git clone https://github.com/reEnvisioning/personal-nixos-fallback.git
+      TMPDIR=$(mktemp -d)
+      git clone --depth 1 https://github.com/reEnvisioning/personal-nixos-fallback.git "$TMPDIR"
       sudo rm -rf "$FLAKE_DIR"/*
-      sudo cp -rf ~/personal-nixos-fallback/* "$FLAKE_DIR"/
+      sudo cp -rf "$TMPDIR"/* "$FLAKE_DIR"/
+      rm -rf "$TMPDIR"
       sudo nixos-rebuild switch --flake "$FLAKE_DIR#${hostname}"
       switch-theme "$THEME"
     '')
