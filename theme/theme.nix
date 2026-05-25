@@ -215,9 +215,9 @@ let
        	borderFocused     = "#3A2818";
        	backgroundAccent  = "#1A120C";
        	overlay2          = "#281C12";
-       	surface2          = "#3C2C1C";
+       	surface2          = "#4C3420";
        	overlay1          = "#221A12";
-       	highlighted       = "#2C1E14";
+       	highlighted       = "#3C2816";
        	# UI semantic colors (for UI elements, NOT syntax)
        	ui_error          = "#D4553A";
        	ui_warning        = "#E8A040";
