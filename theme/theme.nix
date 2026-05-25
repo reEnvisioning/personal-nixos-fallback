@@ -190,61 +190,61 @@ let
       };
     };
 
-    bloody = {
+    horror = {
       mode = "dark";
       localsend_color = "oled";
       obs_style = "Acri";
       KDEwidgetStyle = "Fusion";
-      wallpaper = ./resources/wallpaper/bloody.png;
+      wallpaper = ./resources/wallpaper/horror.png;
       wallpapers = [
-        ./resources/wallpaper/bloody.png
+        ./resources/wallpaper/horror.png
       ];
-      yazi = ./resources/yazi/bloody.toml;
+      yazi = ./resources/yazi/horror.toml;
       active_opacity = 0.9;
       inactive_opacity = 0.85;
       cursor_theme = "Vanilla-DMZ";
       cursor_size = 24;
       gtk = mkCatppuccin "Mocha" "Maroon";
       colors = {
-       	crust             = "#100C08";
-       	background        = "#18120E";
-       	accent_dark       = "#A07020";
+       	crust             = "#0A0806";
+       	background        = "#120E0A";
+       	accent_dark       = "#070503";
        	accent            = "#C48830";
        	accent_light      = "#D4A040";
-       	borderInactive    = "#1E1611";
-       	borderFocused     = "#2E1E14";
-       	backgroundAccent  = "#1C1410";
-       	overlay2          = "#2A1C14";
-       	surface2          = "#6A5034";
-       	overlay1          = "#241A14";
-       	highlighted       = "#2C1E16";
+       	borderInactive    = "#1E1610";
+       	borderFocused     = "#3A2818";
+       	backgroundAccent  = "#1A120C";
+       	overlay2          = "#281C12";
+       	surface2          = "#3C2C1C";
+       	overlay1          = "#221A12";
+       	highlighted       = "#2C1E14";
        	# UI semantic colors (for UI elements, NOT syntax)
        	ui_error          = "#D4553A";
        	ui_warning        = "#E8A040";
-       	ui_success        = "#5AAA5E";
-       	ui_info           = "#6A8EAA";
-       	ui_hint           = "#8A7A6A";
-       	ui_match          = "#F0A030";
+       	ui_success        = "#7ABA5E";
+       	ui_info           = "#7AAECE";
+       	ui_hint           = "#B0A090";
+       	ui_match          = "#F0B040";
        	# Text/syntax colors (for syntax highlighting only)
-       	text              = "#E8D5C0";
-       	subtext0          = "#9A8A7A";
-       	subtext1          = "#B0A090";
-       	red               = "#E86A5A";
-       	green             = "#7AAA5E";
-       	yellow            = "#D4A84A";
-       	blue              = "#7A8EAA";
-       	magenta           = "#C86A8A";
-       	cyan              = "#5AAA7A";
-       	mauve             = "#A86A9A";
-       	lavender          = "#9A7AAA";
-       	pink              = "#D47A8A";
-       	rosewater         = "#D4947A";
-       	flamingo          = "#C4786A";
+       	text              = "#F0E0CC";
+       	subtext0          = "#B0A090";
+       	subtext1          = "#C8B8A8";
+       	red               = "#E86A4A";
+       	green             = "#9ABA5E";
+       	yellow            = "#F0C040";
+       	blue              = "#7AAECE";
+       	magenta           = "#E07A9A";
+       	cyan              = "#6ABAAA";
+       	mauve             = "#B07AAA";
+       	lavender          = "#9A8ABA";
+       	pink              = "#E08A9A";
+       	rosewater         = "#E0A080";
+       	flamingo          = "#D0806A";
        	maroon            = "#B84A3A";
-       	peach             = "#E8A04E";
-       	sky               = "#7AA0A0";
-       	sapphire          = "#6A8E9E";
-     	};
+       	peach             = "#F0A850";
+       	sky               = "#7AAABA";
+       	sapphire          = "#6A9AAA";
+      	};
     };
   };
 in {
