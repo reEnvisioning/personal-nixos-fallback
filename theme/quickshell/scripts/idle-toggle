@@ -1,0 +1,24 @@
+#!/bin/sh
+# Usage: idle-toggle on|off|toggle
+
+CMD="${1:-toggle}"
+
+case "$CMD" in
+    on)
+        systemctl --user start swayidle 2>/dev/null || true
+        text="Enabled" ;;
+    off)
+        systemctl --user stop swayidle 2>/dev/null || true
+        text="Disabled" ;;
+    *)
+        if systemctl --user is-active swayidle >/dev/null 2>&1; then
+            systemctl --user stop swayidle 2>/dev/null || true
+            text="Disabled"
+        else
+            systemctl --user start swayidle 2>/dev/null || true
+            text="Enabled"
+        fi ;;
+esac
+
+indicator "Idle Indicator" "Idle Inhibit" "$text"
+state set hypridle "$(echo "$text" | tr '[:upper:]' '[:lower:]')"

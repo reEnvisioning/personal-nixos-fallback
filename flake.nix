@@ -24,7 +24,7 @@
           home-manager.users.visionary = {
             imports = [
               ./home/home.nix
-              ./home/hyprland.nix
+              ./home/niri.nix
               ./home/yazi.nix
               ./home/firefox.nix
               ./home/neovim.nix
