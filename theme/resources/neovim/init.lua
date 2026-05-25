@@ -286,15 +286,6 @@ local function define_highlights(c)
   hl.TelescopeMatching      = { fg = c.uiMatch, bold = true }
   hl.TelescopePromptPrefix  = { fg = c.fg, bold = true }
 
-  -- BufferLine
-  hl.BufferLineBackground          = { fg = c.st0, bg = c.ov2 }
-  hl.BufferLineBufferVisible       = { fg = c.st0, bg = c.ov2 }
-  hl.BufferLineTab                 = { fg = c.st0, bg = c.ov2 }
-  hl.BufferLineFill                = { bg = c.ov2 }
-  hl.BufferLineSelected            = { fg = c.fg, bg = c.bg }
-  hl.BufferLineTabSelected         = { fg = c.fg, bg = c.bg }
-  hl.BufferLineIndicatorSelected   = { fg = c.borderFoc, bg = c.bg }
-
   -- NvimTree
   hl.NvimTreeNormal          = { fg = c.fg, bg = c.bg }
   hl.NvimTreeRootFolder      = { fg = c.fg, bold = true }
@@ -310,14 +301,6 @@ local function define_highlights(c)
   hl.NvimTreeExecFile        = { fg = c.green }
   hl.NvimTreeSpecialFile     = { fg = c.yellow }
   hl.NvimTreeCursorLine      = { bg = c.hl }
-
-  -- WhichKey
-  hl.WhichKey           = { fg = c.fg, bold = true }
-  hl.WhichKeyGroup      = { fg = c.uiInfo }
-  hl.WhichKeyDesc       = { fg = c.st0 }
-  hl.WhichKeySeparator  = { fg = c.borderIna }
-  hl.WhichKeyFloat      = { bg = c.bg }
-  hl.WhichKeyBorder     = { fg = c.borderFoc }
 
   -- GitSigns
   hl.GitSignsAdd       = { fg = c.uiSucc }
@@ -391,8 +374,6 @@ require("ibl").setup()
 require('gitsigns').setup()
 require('nvim-autopairs').setup({})
 require('Comment').setup()
-require('which-key').setup()
-
 require("nvim-tree").setup({
   filters = { dotfiles = false },
   view = { width = 30 },
@@ -413,24 +394,8 @@ vim.keymap.set('n', '<leader>fb', builtin.buffers, { desc = 'Find Buffers' })
 vim.keymap.set('n', '<leader>fh', builtin.help_tags, { desc = 'Find Help' })
 vim.keymap.set('n', '<C-n>', ':NvimTreeToggle<CR>', { desc = 'Toggle File Explorer' })
 
-require("bufferline").setup {
-  options = {
-    mode = "buffers",
-    diagnostics = "nvim_lsp",
-    separator_style = "slant",
-    offsets = {
-      {
-        filetype = "NvimTree",
-        text = "File Explorer",
-        text_align = "left",
-        separator = true,
-      },
-    },
-  },
-}
-
-vim.keymap.set("n", "<Tab>", ":BufferLineCycleNext<CR>", { silent = true })
-vim.keymap.set("n", "<S-Tab>", ":BufferLineCyclePrev<CR>", { silent = true })
+vim.keymap.set("n", "<Tab>", ":bnext<CR>", { silent = true })
+vim.keymap.set("n", "<S-Tab>", ":bprev<CR>", { silent = true })
 vim.keymap.set("n", "<leader>x", ":bdelete<CR>", { silent = true, desc = "Close Buffer" })
 
 local cmp = require 'cmp'

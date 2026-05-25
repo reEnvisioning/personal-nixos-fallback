@@ -19,13 +19,10 @@
     ];
 
     plugins = with pkgs.vimPlugins; [
-      catppuccin-nvim
       nvim-web-devicons
       lualine-nvim
-      bufferline-nvim
       indent-blankline-nvim
       gitsigns-nvim
-      which-key-nvim
       nvim-tree-lua
       plenary-nvim
       telescope-nvim
