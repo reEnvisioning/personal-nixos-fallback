@@ -173,10 +173,10 @@ let
         subtext0          = "#757575";
         subtext1          = "#616161";
         red               = "#D64545";
-        green             = "#2E7D32";
+        green             = "#43A047";
         yellow            = "#D4A017";
-        blue              = "#1565C0";
-        magenta           = "#C62863";
+        blue              = "#1976D2";
+        magenta           = "#E91E63";
         cyan              = "#00838F";
         mauve             = "#7B1FA2";
         lavender          = "#7E57C2";
@@ -208,14 +208,14 @@ let
       colors = {
        	crust             = "#100C08";
        	background        = "#18120E";
-       	accent_dark       = "#0E0A07";
-       	accent            = "#1C1510";
-       	accent_light      = "#241A14";
+       	accent_dark       = "#A07020";
+       	accent            = "#C48830";
+       	accent_light      = "#D4A040";
        	borderInactive    = "#1E1611";
        	borderFocused     = "#2E1E14";
        	backgroundAccent  = "#1C1410";
        	overlay2          = "#2A1C14";
-       	surface2          = "#4C3524";
+       	surface2          = "#6A5034";
        	overlay1          = "#241A14";
        	highlighted       = "#2C1E16";
        	# UI semantic colors (for UI elements, NOT syntax)
