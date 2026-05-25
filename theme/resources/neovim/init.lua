@@ -189,7 +189,12 @@ local function fix_theme_highlights(data)
 
   vim.api.nvim_set_hl(0, "SignColumn", { bg = bg })
   if st0 then vim.api.nvim_set_hl(0, "NonText", { fg = st0 }) end
-  if borderIna then vim.api.nvim_set_hl(0, "Whitespace", { fg = borderIna }) end
+  if ov1 then
+    vim.api.nvim_set_hl(0, "Whitespace", { fg = ov1 })
+    vim.api.nvim_set_hl(0, "VertSplit", { fg = ov1 })
+    vim.api.nvim_set_hl(0, "WinSeparator", { fg = ov1 })
+    vim.api.nvim_set_hl(0, "MsgSeparator", { fg = ov1 })
+  end
   if st0 then
     vim.api.nvim_set_hl(0, "Folded", { fg = st0 })
     vim.api.nvim_set_hl(0, "FoldColumn", { fg = st0 })
