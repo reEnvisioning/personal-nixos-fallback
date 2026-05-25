@@ -11,6 +11,8 @@ let
   ) 10);
 in {
   xdg.configFile."niri/config.kdl".text = ''
+    prefer-no-csd
+
     input {
         keyboard {
             xkb {
@@ -24,6 +26,24 @@ in {
             dwt
             click-method "clickfinger"
         }
+
+        mouse {
+            accel-profile "flat"
+        }
+    }
+
+    hotkey-overlay {
+        skip-at-startup
+    }
+
+    window-rule {
+        match is-focused=true
+        opacity 0.9
+    }
+
+    window-rule {
+        match is-focused=false
+        opacity 0.85
     }
 
     layout {
