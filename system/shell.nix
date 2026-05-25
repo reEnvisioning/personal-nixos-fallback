@@ -6,16 +6,11 @@
       FLAKE=''${1:-/${hostname}#${hostname}}
       FLAKE_DIR=''${FLAKE%%#*}
 
-      nix flake update "''${FLAKE_DIR}"
-      nixos-rebuild switch --flake "''${FLAKE}"
+      sudo nix flake update "''${FLAKE_DIR}"
+      sudo nixos-rebuild switch --flake "''${FLAKE}"
 
-      nix-env --profile /nix/var/nix/profiles/system --delete-generations +5
+      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +5
       nix-collect-garbage
-
-      files=$(ls -1t /nix/var/nix/profiles/system-*-link 2>/dev/null | head -2)
-      if [ "$(echo "$files" | wc -l)" -ge 2 ]; then
-        nvd diff $(echo "$files" | tail -2)
-      fi
     '')
 
     (writeShellScriptBin "nr" ''
