@@ -118,6 +118,13 @@ local function fix_theme_highlights(data)
 
   if not fg or not bg then return end
 
+  local uiErr = data.ui_error
+  local uiWarn = data.ui_warning
+  local uiSucc = data.ui_success
+  local uiInfo = data.ui_info
+  local uiHint = data.ui_hint
+  local uiMatch = data.ui_match
+
   vim.api.nvim_set_hl(0, "Normal", { fg = fg, bg = bg })
   vim.api.nvim_set_hl(0, "NormalFloat", { fg = fg, bg = bg })
   if hl then
@@ -136,9 +143,9 @@ local function fix_theme_highlights(data)
   end
 
   if ov2 then
-    if grn then vim.api.nvim_set_hl(0, "DiffAdd", { fg = grn, bg = ov2 }) end
-    if red then vim.api.nvim_set_hl(0, "DiffDelete", { fg = red, bg = ov2 }) end
-    if ylw then vim.api.nvim_set_hl(0, "DiffChange", { fg = ylw, bg = ov2 }) end
+    if uiSucc then vim.api.nvim_set_hl(0, "DiffAdd", { fg = uiSucc, bg = ov2 }) end
+    if uiErr then vim.api.nvim_set_hl(0, "DiffDelete", { fg = uiErr, bg = ov2 }) end
+    if uiWarn then vim.api.nvim_set_hl(0, "DiffChange", { fg = uiWarn, bg = ov2 }) end
   end
   if hl then vim.api.nvim_set_hl(0, "DiffText", { fg = fg, bg = hl }) end
 
@@ -157,35 +164,35 @@ local function fix_theme_highlights(data)
   if borderFoc then vim.api.nvim_set_hl(0, "FloatBorder", { fg = borderFoc }) end
   vim.api.nvim_set_hl(0, "FloatTitle", { fg = fg })
 
-  if red then
-    vim.api.nvim_set_hl(0, "DiagnosticError", { fg = red })
-    vim.api.nvim_set_hl(0, "DiagnosticSignError", { fg = red })
-    vim.api.nvim_set_hl(0, "DiagnosticFloatingError", { fg = red })
-    vim.api.nvim_set_hl(0, "DiagnosticUnderlineError", { sp = red, undercurl = true })
+  if uiErr then
+    vim.api.nvim_set_hl(0, "DiagnosticError", { fg = uiErr })
+    vim.api.nvim_set_hl(0, "DiagnosticSignError", { fg = uiErr })
+    vim.api.nvim_set_hl(0, "DiagnosticFloatingError", { fg = uiErr })
+    vim.api.nvim_set_hl(0, "DiagnosticUnderlineError", { sp = uiErr, undercurl = true })
   end
-  if ylw then
-    vim.api.nvim_set_hl(0, "DiagnosticWarn", { fg = ylw })
-    vim.api.nvim_set_hl(0, "DiagnosticSignWarn", { fg = ylw })
-    vim.api.nvim_set_hl(0, "DiagnosticFloatingWarn", { fg = ylw })
-    vim.api.nvim_set_hl(0, "DiagnosticUnderlineWarn", { sp = ylw, undercurl = true })
+  if uiWarn then
+    vim.api.nvim_set_hl(0, "DiagnosticWarn", { fg = uiWarn })
+    vim.api.nvim_set_hl(0, "DiagnosticSignWarn", { fg = uiWarn })
+    vim.api.nvim_set_hl(0, "DiagnosticFloatingWarn", { fg = uiWarn })
+    vim.api.nvim_set_hl(0, "DiagnosticUnderlineWarn", { sp = uiWarn, undercurl = true })
   end
-  if blu then
-    vim.api.nvim_set_hl(0, "DiagnosticInfo", { fg = blu })
-    vim.api.nvim_set_hl(0, "DiagnosticSignInfo", { fg = blu })
-    vim.api.nvim_set_hl(0, "DiagnosticFloatingInfo", { fg = blu })
-    vim.api.nvim_set_hl(0, "DiagnosticUnderlineInfo", { sp = blu, undercurl = true })
+  if uiInfo then
+    vim.api.nvim_set_hl(0, "DiagnosticInfo", { fg = uiInfo })
+    vim.api.nvim_set_hl(0, "DiagnosticSignInfo", { fg = uiInfo })
+    vim.api.nvim_set_hl(0, "DiagnosticFloatingInfo", { fg = uiInfo })
+    vim.api.nvim_set_hl(0, "DiagnosticUnderlineInfo", { sp = uiInfo, undercurl = true })
   end
-  if st0 then
-    vim.api.nvim_set_hl(0, "DiagnosticHint", { fg = st0 })
-    vim.api.nvim_set_hl(0, "DiagnosticSignHint", { fg = st0 })
-    vim.api.nvim_set_hl(0, "DiagnosticFloatingHint", { fg = st0 })
-    vim.api.nvim_set_hl(0, "DiagnosticUnderlineHint", { sp = st0, undercurl = true })
+  if uiHint then
+    vim.api.nvim_set_hl(0, "DiagnosticHint", { fg = uiHint })
+    vim.api.nvim_set_hl(0, "DiagnosticSignHint", { fg = uiHint })
+    vim.api.nvim_set_hl(0, "DiagnosticFloatingHint", { fg = uiHint })
+    vim.api.nvim_set_hl(0, "DiagnosticUnderlineHint", { sp = uiHint, undercurl = true })
   end
 
-  if red then vim.api.nvim_set_hl(0, "SpellBad", { sp = red, undercurl = true }) end
-  if ylw then vim.api.nvim_set_hl(0, "SpellCap", { sp = ylw, undercurl = true }) end
-  if blu then vim.api.nvim_set_hl(0, "SpellLocal", { sp = blu, undercurl = true }) end
-  if mve then vim.api.nvim_set_hl(0, "SpellRare", { sp = mve, undercurl = true }) end
+  if uiErr then vim.api.nvim_set_hl(0, "SpellBad", { sp = uiErr, undercurl = true }) end
+  if uiWarn then vim.api.nvim_set_hl(0, "SpellCap", { sp = uiWarn, undercurl = true }) end
+  if uiInfo then vim.api.nvim_set_hl(0, "SpellLocal", { sp = uiInfo, undercurl = true }) end
+  if uiInfo then vim.api.nvim_set_hl(0, "SpellRare", { sp = uiInfo, undercurl = true }) end
 
   vim.api.nvim_set_hl(0, "SignColumn", { bg = bg })
   if st0 then vim.api.nvim_set_hl(0, "NonText", { fg = st0 }) end
@@ -213,7 +220,7 @@ local function fix_theme_highlights(data)
   end
   vim.api.nvim_set_hl(0, "TelescopePromptTitle", { fg = fg })
   if hl then vim.api.nvim_set_hl(0, "TelescopeSelection", { bg = hl }) end
-  if ylw then vim.api.nvim_set_hl(0, "TelescopeMatching", { fg = ylw, bold = true }) end
+  if uiMatch then vim.api.nvim_set_hl(0, "TelescopeMatching", { fg = uiMatch, bold = true }) end
   vim.api.nvim_set_hl(0, "TelescopePromptPrefix", { fg = fg, bold = true })
 
   if ov2 then
@@ -228,11 +235,11 @@ local function fix_theme_highlights(data)
 
   vim.api.nvim_set_hl(0, "NvimTreeNormal", { fg = fg, bg = bg })
   vim.api.nvim_set_hl(0, "NvimTreeRootFolder", { fg = fg, bold = true })
-  if ylw then vim.api.nvim_set_hl(0, "NvimTreeGitDirty", { fg = ylw }) end
-  if grn then vim.api.nvim_set_hl(0, "NvimTreeGitNew", { fg = grn }) end
-  if red then vim.api.nvim_set_hl(0, "NvimTreeGitDeleted", { fg = red }) end
+  if uiWarn then vim.api.nvim_set_hl(0, "NvimTreeGitDirty", { fg = uiWarn }) end
+  if uiSucc then vim.api.nvim_set_hl(0, "NvimTreeGitNew", { fg = uiSucc }) end
+  if uiErr then vim.api.nvim_set_hl(0, "NvimTreeGitDeleted", { fg = uiErr }) end
   vim.api.nvim_set_hl(0, "NvimTreeOpenedFile", { fg = fg, bold = true })
-  if blu then vim.api.nvim_set_hl(0, "NvimTreeFolderName", { fg = blu }) end
+  if uiInfo then vim.api.nvim_set_hl(0, "NvimTreeFolderName", { fg = uiInfo }) end
   if st0 then vim.api.nvim_set_hl(0, "NvimTreeEmptyFolderName", { fg = st0 }) end
   if borderIna then vim.api.nvim_set_hl(0, "NvimTreeIndentMarker", { fg = borderIna }) end
   if cyn then vim.api.nvim_set_hl(0, "NvimTreeSymlink", { fg = cyn }) end
@@ -242,26 +249,26 @@ local function fix_theme_highlights(data)
   if hl then vim.api.nvim_set_hl(0, "NvimTreeCursorLine", { bg = hl }) end
 
   vim.api.nvim_set_hl(0, "WhichKey", { fg = fg, bold = true })
-  if blu then vim.api.nvim_set_hl(0, "WhichKeyGroup", { fg = blu }) end
+  if uiInfo then vim.api.nvim_set_hl(0, "WhichKeyGroup", { fg = uiInfo }) end
   if st0 then vim.api.nvim_set_hl(0, "WhichKeyDesc", { fg = st0 }) end
   if borderIna then vim.api.nvim_set_hl(0, "WhichKeySeparator", { fg = borderIna }) end
   vim.api.nvim_set_hl(0, "WhichKeyFloat", { bg = bg })
   if borderFoc then vim.api.nvim_set_hl(0, "WhichKeyBorder", { fg = borderFoc }) end
 
-  if grn then
-    vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = grn })
-    vim.api.nvim_set_hl(0, "GitSignsAddLn", { fg = grn })
-    vim.api.nvim_set_hl(0, "GitSignsAddNr", { fg = grn })
+  if uiSucc then
+    vim.api.nvim_set_hl(0, "GitSignsAdd", { fg = uiSucc })
+    vim.api.nvim_set_hl(0, "GitSignsAddLn", { fg = uiSucc })
+    vim.api.nvim_set_hl(0, "GitSignsAddNr", { fg = uiSucc })
   end
-  if ylw then
-    vim.api.nvim_set_hl(0, "GitSignsChange", { fg = ylw })
-    vim.api.nvim_set_hl(0, "GitSignsChangeLn", { fg = ylw })
-    vim.api.nvim_set_hl(0, "GitSignsChangeNr", { fg = ylw })
+  if uiWarn then
+    vim.api.nvim_set_hl(0, "GitSignsChange", { fg = uiWarn })
+    vim.api.nvim_set_hl(0, "GitSignsChangeLn", { fg = uiWarn })
+    vim.api.nvim_set_hl(0, "GitSignsChangeNr", { fg = uiWarn })
   end
-  if red then
-    vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = red })
-    vim.api.nvim_set_hl(0, "GitSignsDeleteLn", { fg = red })
-    vim.api.nvim_set_hl(0, "GitSignsDeleteNr", { fg = red })
+  if uiErr then
+    vim.api.nvim_set_hl(0, "GitSignsDelete", { fg = uiErr })
+    vim.api.nvim_set_hl(0, "GitSignsDeleteLn", { fg = uiErr })
+    vim.api.nvim_set_hl(0, "GitSignsDeleteNr", { fg = uiErr })
   end
 
   if borderIna then vim.api.nvim_set_hl(0, "IblIndent", { fg = borderIna }) end
