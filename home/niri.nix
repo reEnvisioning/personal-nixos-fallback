@@ -4,9 +4,9 @@ let
   mod = "Mod";
 
   wsBinds = builtins.concatLists (builtins.genList (x:
-    let wsNum = x + 1; ws = if wsNum == 10 then "0" else builtins.toString wsNum; in [
-      ''        "${mod}+${ws}" { focus-workspace ${wsNum}; }''
-      ''        "${mod}+Shift+${ws}" { move-window-to-workspace ${wsNum}; }''
+    let wsNum = x + 1; wsKey = if wsNum == 10 then "0" else builtins.toString wsNum; wsStr = builtins.toString wsNum; in [
+      ''        "${mod}+${wsKey}" { focus-workspace ${wsStr}; }''
+      ''        "${mod}+Shift+${wsKey}" { move-window-to-workspace ${wsStr}; }''
     ]
   ) 10);
 in {
