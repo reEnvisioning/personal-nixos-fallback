@@ -1,9 +1,0 @@
-[Plymouth Theme]
-Name=vision
-Description=plymouth
-Comment=made by reEnvisioning
-ModuleName=script
-
-[script]
-ImageDir=/usr/share/plymouth/themes/vision
-ScriptFile=/usr/share/plymouth/themes/vision/vision.script
