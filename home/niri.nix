@@ -64,7 +64,6 @@ in {
         "Mod+E" { spawn "kitty" "-e" "yazi"; }
         "Mod+B" { spawn "firefox"; }
         "Mod+Shift+W" { spawn "kitty" "-e" "nvim"; }
-        "Mod+Shift+H" { spawn "localsend_app"; }
         "Mod+Shift+G" { spawn "gimp"; }
         "Mod+Shift+B" { spawn "blueman-manager"; }
         "Mod+Shift+N" { spawn "pavucontrol"; }
@@ -95,7 +94,7 @@ in {
         ${builtins.concatStringsSep "\n" wsBinds}
     }
 
-    spawn-at-startup "swayidle" "-w" "timeout" "300" "${pkgs.swaylock-effects}/bin/swaylock -f" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "${pkgs.swaylock-effects}/bin/swaylock -f"
+    spawn-at-startup "swayidle -w timeout 300 ${pkgs.swaylock-effects}/bin/swaylock -f timeout 600 niri msg action power-off-monitors resume niri msg action power-on-monitors before-sleep ${pkgs.swaylock-effects}/bin/swaylock -f"
 
     spawn-sh-at-startup "echo 0 > $XDG_RUNTIME_DIR/headspace-dnd; echo 0 > $XDG_RUNTIME_DIR/headspace-notif-dismiss; echo 0 > $XDG_RUNTIME_DIR/headspace-clip-toggle; sleep 0.5; switch-theme $(state get current-theme || echo void)"
   '';
