@@ -1,5 +1,5 @@
 {
-  description = "NixOS configuration for headspace";
+  description = "NixOS configuration for headspace — by reEnvisioning";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -12,27 +12,32 @@
 
   outputs = inputs: let
     hostname = "headspace";
-    username = "visionary";
   in {
     nixosConfigurations.${hostname} = inputs.nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
-      specialArgs = { inherit inputs hostname username; };
+      specialArgs = { inherit inputs hostname; nixUsers = [ "visionary" ]; };
       modules = [
         ./system/default.nix
         inputs.home-manager.nixosModules.home-manager
         ./theme/appearance.nix
         {
-          appearance.users = [ username ];
+          appearance.users = [ "visionary" ];
 
-          home-manager.extraSpecialArgs = { inherit hostname username; };
+          users.users.visionary = {
+            isNormalUser = true;
+            extraGroups = [ "wheel" "networkmanager" "vboxusers" "disk" ];
+          };
 
-          home-manager.users.${username} = {
+          home-manager.extraSpecialArgs = { inherit hostname; };
+
+          home-manager.users.visionary = {
+            _module.args = { username = "visionary"; };
             imports = [
-              (./. + "/home/${username}/home.nix")
-              (./. + "/home/${username}/niri.nix")
-              (./. + "/home/${username}/yazi.nix")
-              (./. + "/home/${username}/firefox.nix")
-              (./. + "/home/${username}/neovim.nix")
+              ./home/visionary/home.nix
+              ./home/visionary/niri.nix
+              ./home/visionary/yazi.nix
+              ./home/visionary/firefox.nix
+              ./home/visionary/neovim.nix
             ];
           };
         }

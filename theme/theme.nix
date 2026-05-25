@@ -266,4 +266,5 @@ in {
   };
   hex = hexHelper;
   colors = allThemes.${default}.colors;
+  author = "reEnvisioning";
 }

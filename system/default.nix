@@ -1,4 +1,4 @@
-{pkgs, username, ...}: {
+{pkgs, nixUsers, ...}: {
   imports = [
     ./hardware-configuration.nix
     ./network.nix
@@ -11,7 +11,6 @@
     ./bluetooth.nix
     ./audio.nix
     ./compositor.nix
-    ./users.nix
     ./virtualisation.nix
     ./polkit.nix
     ./security.nix
@@ -26,8 +25,8 @@
       "flakes"
     ];
 
-    allowed-users = [ username ];
-    trusted-users = [ username ];
+    allowed-users = nixUsers;
+    trusted-users = nixUsers;
     auto-optimise-store = true;
 
   };
@@ -37,7 +36,7 @@
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-older-than 7d";
+    options = "--delete-generations +10";
   };
   services.udisks2.enable = true;
   services.power-profiles-daemon.enable = true;
