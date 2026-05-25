@@ -84,6 +84,7 @@ let
       wallpaper = ./resources/wallpaper/radiance.png;
       wallpapers = [
         ./resources/wallpaper/radiance.png
+        ./resources/wallpaper/radiance2.png
       ];
       yazi = ./resources/yazi/radiance.toml;
       active_opacity = 0.9;
@@ -198,6 +199,7 @@ let
       wallpaper = ./resources/wallpaper/horror.png;
       wallpapers = [
         ./resources/wallpaper/horror.png
+        ./resources/wallpaper/backrooms.png
       ];
       yazi = ./resources/yazi/horror.toml;
       active_opacity = 0.9;
