@@ -15,7 +15,7 @@ in {
     enable = true;
     settings = {
       font_family = "${theme.font.family}";
-      font_size = 1.0 * theme.font.size;
+      font_size = theme.font.size;
       confirm_os_window_close = 0;
       background = "${theme.colors.background}";
       foreground = "${theme.colors.text}";
