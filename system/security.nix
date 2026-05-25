@@ -13,6 +13,13 @@
     "kernel.kexec_load_disabled" = 1;
     "net.ipv6.conf.all.use_tempaddr" = lib.mkForce 2;
     "net.ipv6.conf.default.use_tempaddr" = lib.mkForce 2;
+
+    # KSPP hardening
+    "kernel.randomize_va_space" = 2;
+    "fs.protected_hardlinks" = 1;
+    "fs.protected_symlinks" = 1;
+    "net.ipv4.conf.all.rp_filter" = 1;
+    "net.ipv4.conf.all.accept_source_route" = 0;
   };
 
   services.geoclue2.enable = lib.mkForce false;

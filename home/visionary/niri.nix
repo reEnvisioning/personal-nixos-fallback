@@ -120,12 +120,12 @@ in {
         ${builtins.concatStringsSep "\n" wsBinds}
     }
 
-    spawn-sh-at-startup "echo 0 > $XDG_RUNTIME_DIR/${hostname}-dnd; echo 0 > $XDG_RUNTIME_DIR/${hostname}-notif-dismiss; echo 0 > $XDG_RUNTIME_DIR/${hostname}-clip-toggle; sleep 0.5; switch-theme $(state get current-theme || echo void); if [ \"$(state get hypridle)\" != \"disabled\" ]; then swayidle -w timeout 300 '${pkgs.swaylock-effects}/bin/swaylock -f' timeout 600 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep '${pkgs.swaylock-effects}/bin/swaylock -f' & disown; fi"
+    spawn-sh-at-startup "echo 0 > $XDG_RUNTIME_DIR/${hostname}-dnd; echo 0 > $XDG_RUNTIME_DIR/${hostname}-notif-dismiss; echo 0 > $XDG_RUNTIME_DIR/${hostname}-clip-toggle; sleep 0.5; switch-theme $(state get current-theme || echo void); if [ \"$(state get hypridle)\" != \"disabled\" ]; then swayidle -w timeout 300 '${pkgs.swaylock}/bin/swaylock -f' timeout 600 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep '${pkgs.swaylock}/bin/swaylock -f' & disown; fi"
   '';
 
   programs.swaylock = {
     enable = true;
-    package = pkgs.swaylock-effects;
+    package = pkgs.swaylock;
     settings = {
       ignore-empty-password = true;
       hide-keyboard-layout = true;

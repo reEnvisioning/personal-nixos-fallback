@@ -27,7 +27,7 @@
 
     allowed-users = nixUsers;
     trusted-users = nixUsers;
-    auto-optimise-store = true;
+    auto-optimise-store = false;
 
   };
 
@@ -38,6 +38,9 @@
     dates = "weekly";
     options = "--delete-generations +10";
   };
+
+  nix.optimise.automatic = true;
+  nix.optimise.dates = ["weekly"];
   services.udisks2.enable = true;
   services.power-profiles-daemon.enable = true;
 

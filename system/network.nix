@@ -11,19 +11,6 @@
     firewall.enable = true;
     firewall.allowedTCPPorts = [ 53317 ];
     firewall.allowedUDPPorts = [ 53317 ];
-    firewall.extraCommands = ''
-      nft add table inet dns-filter
-      nft add chain inet dns-filter output { type filter hook output priority filter + 1\; policy accept\; }
-      nft add rule inet dns-filter output udp dport 53 ip daddr 127.0.0.0/8 accept
-      nft add rule inet dns-filter output udp dport 53 ip6 daddr ::1 accept
-      nft add rule inet dns-filter output udp dport 53 reject
-      nft add rule inet dns-filter output tcp dport 53 ip daddr 127.0.0.0/8 accept
-      nft add rule inet dns-filter output tcp dport 53 ip6 daddr ::1 accept
-      nft add rule inet dns-filter output tcp dport 53 reject
-    '';
-    firewall.extraStopCommands = ''
-      nft delete table inet dns-filter 2>/dev/null || true
-    '';
   };
 
   networking.networkmanager.dns = "systemd-resolved";
@@ -32,6 +19,21 @@
     connection-check-interval = 0;
     "wifi.scan-rand-mac-address" = true;
   };
+
+  networking.nftables.enable = true;
+  networking.nftables.ruleset = ''
+    table inet dns-filter {
+      chain output {
+        type filter hook output priority filter + 1; policy accept;
+        udp dport 53 ip daddr 127.0.0.0/8 accept
+        udp dport 53 ip6 daddr ::1 accept
+        udp dport 53 reject
+        tcp dport 53 ip daddr 127.0.0.0/8 accept
+        tcp dport 53 ip6 daddr ::1 accept
+        tcp dport 53 reject
+      }
+    }
+  '';
 
   services.openssh = {
     enable = true;

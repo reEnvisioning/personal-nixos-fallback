@@ -29,6 +29,9 @@
             extraGroups = [ "wheel" "networkmanager" "vboxusers" "disk" ];
           };
 
+          home-manager.useGlobalPkgs = true;
+          home-manager.useUserPackages = true;
+
           home-manager.extraSpecialArgs = { inherit hostname; };
 
           home-manager.users.visionary = {
