@@ -123,13 +123,21 @@ in {
 
   services.swayidle = {
     enable = true;
-    events = [
+    timeouts = [
       {
         timeout = 300;
         command = "${pkgs.swaylock-effects}/bin/swaylock -f";
       }
       {
-        before-sleep = "${pkgs.swaylock-effects}/bin/swaylock -f";
+        timeout = 600;
+        command = "niri msg action power-off-monitors";
+        resumeCommand = "niri msg action power-on-monitors";
+      }
+    ];
+    events = [
+      {
+        event = "before-sleep";
+        command = "${pkgs.swaylock-effects}/bin/swaylock -f";
       }
     ];
   };
