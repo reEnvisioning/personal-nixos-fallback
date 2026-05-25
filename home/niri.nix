@@ -36,6 +36,10 @@ in {
         skip-at-startup
     }
 
+    output "HDMI-A-1" {
+        mode "1920x1080@144.000"
+    }
+
     window-rule {
         match is-focused=true
         opacity 0.9
