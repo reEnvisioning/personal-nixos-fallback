@@ -4,7 +4,10 @@
   lib,
   hostname,
   ...
-}: {
+}: let
+  # UID of the primary user (visionary)
+  userUid = "1000";
+in {
   networking = {
     hostName = hostname;
     networkmanager.enable = true;
@@ -22,6 +25,7 @@
 
   networking.nftables.enable = true;
   networking.nftables.ruleset = ''
+    # Existing DNS filter — blocks direct DNS to non-localhost
     table inet dns-filter {
       chain output {
         type filter hook output priority filter + 1; policy accept;
@@ -33,7 +37,46 @@
         tcp dport 53 reject
       }
     }
+
+    # App-level firewall — default-deny for all outbound traffic
+    table inet app-filter {
+      chain output {
+        type filter hook output priority filter; policy drop;
+
+        # Allow loopback
+        meta oif "lo" accept
+
+        # Allow response packets for established connections
+        ct state { established, related } accept
+
+        # Allow DNS to local resolver (before cgroup check)
+        udp dport 53 ip daddr { 127.0.0.0/8, ::1 } accept
+        tcp dport 53 ip daddr { 127.0.0.0/8, ::1 } accept
+
+        # Allow ICMP (ping)
+        icmp type { echo-request, echo-reply } accept
+        icmpv6 type { echo-request, echo-reply } accept
+
+        # ── Whitelist system services by cgroup path ──
+        socket cgroupv2 path "system.slice/nix-daemon.service" accept
+        socket cgroupv2 path "system.slice/systemd-resolved.service" accept
+        socket cgroupv2 path "system.slice/NetworkManager.service" accept
+        socket cgroupv2 path "system.slice/sshd.service" accept
+        socket cgroupv2 path "system.slice/fail2ban.service" accept
+
+        # ── Whitelist user apps launched in allowed.slice ──
+        socket cgroupv2 path "user.slice/user-${userUid}.slice/user@${userUid}.service/allowed.slice" accept
+
+        # Log and drop everything else
+        log prefix "NFTABLES-DROP: " drop
+      }
+    }
   '';
+
+  # Define the user-level systemd slice for network-allowed applications
+  systemd.user.slices.allowed = {
+    description = "Slice for network-allowed user applications";
+  };
 
   services.openssh = {
     enable = true;
@@ -57,5 +100,4 @@
   environment.systemPackages = with pkgs; [
     wireguard-tools
   ];
-
 }
