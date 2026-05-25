@@ -4,9 +4,9 @@ let
   mod = "Mod";
 
   wsBinds = builtins.concatLists (builtins.genList (x:
-    let ws = builtins.toString (x + 1); in [
-      ''        "${mod}+${ws}" { focus-workspace ${ws}; }''
-      ''        "${mod}+Shift+${ws}" { move-window-to-workspace ${ws}; }''
+    let wsNum = x + 1; ws = if wsNum == 10 then "0" else builtins.toString wsNum; in [
+      ''        "${mod}+${ws}" { focus-workspace ${wsNum}; }''
+      ''        "${mod}+Shift+${ws}" { move-window-to-workspace ${wsNum}; }''
     ]
   ) 10);
 in {
@@ -21,7 +21,7 @@ in {
         }
         touchpad {
             tap
-            disable-while-typing true
+            disable-while-typing
             click-method "clickfinger"
         }
     }
