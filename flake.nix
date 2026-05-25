@@ -10,8 +10,9 @@
     };
   };
 
-  outputs = inputs: let
+  outputs = { self, nixpkgs, home-manager, ... }: let
     hostname = "headspace";
+    inputs = { inherit nixpkgs home-manager; };
   in {
     nixosConfigurations.${hostname} = inputs.nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
@@ -54,7 +55,7 @@
     };
 
     checks.x86_64-linux = {
-      build = inputs.self.nixosConfigurations.${hostname}.config.system.build.toplevel;
+      build = self.nixosConfigurations.${hostname}.config.system.build.toplevel;
     };
   };
 }
