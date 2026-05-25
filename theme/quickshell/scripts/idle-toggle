@@ -5,17 +5,29 @@ CMD="${1:-toggle}"
 
 case "$CMD" in
     on)
-        systemctl --user start swayidle 2>/dev/null || true
+        if ! pgrep -x swayidle >/dev/null; then
+            swayidle -w \
+                timeout 300 'swaylock -f' \
+                timeout 600 'niri msg action power-off-monitors' \
+                resume 'niri msg action power-on-monitors' \
+                before-sleep 'swaylock -f' &
+            disown
+        fi
         text="Enabled" ;;
     off)
-        systemctl --user stop swayidle 2>/dev/null || true
+        pkill -x swayidle 2>/dev/null || true
         text="Disabled" ;;
     *)
-        if systemctl --user is-active swayidle >/dev/null 2>&1; then
-            systemctl --user stop swayidle 2>/dev/null || true
+        if pgrep -x swayidle >/dev/null; then
+            pkill -x swayidle 2>/dev/null || true
             text="Disabled"
         else
-            systemctl --user start swayidle 2>/dev/null || true
+            swayidle -w \
+                timeout 300 'swaylock -f' \
+                timeout 600 'niri msg action power-off-monitors' \
+                resume 'niri msg action power-on-monitors' \
+                before-sleep 'swaylock -f' &
+            disown
             text="Enabled"
         fi ;;
 esac

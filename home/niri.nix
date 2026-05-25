@@ -3,11 +3,10 @@ let
   theme = import ../theme/theme.nix;
   mod = "Mod";
 
-  # Generate 10 workspace keybinds
   wsBinds = builtins.concatLists (builtins.genList (x:
     let ws = builtins.toString (x + 1); in [
       ''        "${mod}+${ws}" { focus-workspace ${ws}; }''
-      ''        "${mod}+Shift+${ws}" { move-column-to-workspace ${ws}; }''
+      ''        "${mod}+Shift+${ws}" { move-window-to-workspace ${ws}; }''
     ]
   ) 10);
 in {
@@ -17,9 +16,11 @@ in {
             xkb {
                 layout "us"
             }
+            repeat-delay 250
+            repeat-rate 25
         }
         touchpad {
-            tap true
+            tap
             disable-while-typing true
             click-method "clickfinger"
         }
@@ -27,24 +28,24 @@ in {
 
     layout {
         gaps 2
-        border {
+        focus-ring {
+            width 1
             active-color "${theme.colors.borderFocused}"
             inactive-color "${theme.colors.borderInactive}"
         }
-        background-color "${theme.colors.background}"
-    }
-
-    monitor "" {
-        width 1920
-        height 1080
-        refresh-rate 144
-        scale 1
+        border {
+            off
+        }
+        default-column-width { proportion 0.5; }
     }
 
     binds {
-        "Mod+Q" { kill-focused; }
-        "Mod+Shift+F" { toggle-window-floating; }
-        "Mod+F" { fullscreen-window; }
+        "Mod+Shift+Slash" { show-hotkey-overlay; }
+        "Mod+T" hotkey-overlay-title="Terminal: kitty" { spawn "kitty"; }
+
+        "Mod+Q" { close-window; }
+        "Mod+Shift+F" { fullscreen-window; }
+        "Mod+F" { maximize-column; }
 
         "Mod+H" { focus-column-left; }
         "Mod+J" { focus-window-down; }
@@ -56,49 +57,47 @@ in {
         "Mod+Shift+K" { move-window-up; }
         "Mod+Shift+L" { move-column-right; }
 
-        "Print" { spawn "sh -c 'hyprshot --mode region --freeze --output-folder ~/Pictures'"; }
-        "Mod+Print" { spawn "sh -c 'hyprshot --mode region --freeze --clipboard-only'"; }
+        "Print" { spawn-sh "hyprshot --mode region --freeze --output-folder $HOME/Pictures"; }
+        "Mod+Print" { spawn-sh "hyprshot --mode region --freeze --clipboard-only"; }
 
         "Mod+W" { spawn "kitty"; }
-        "Mod+E" { spawn "kitty -e yazi"; }
+        "Mod+E" { spawn "kitty" "-e" "yazi"; }
         "Mod+B" { spawn "firefox"; }
-        "Mod+Shift+W" { spawn "kitty -e nvim"; }
+        "Mod+Shift+W" { spawn "kitty" "-e" "nvim"; }
         "Mod+Shift+H" { spawn "localsend_app"; }
         "Mod+Shift+G" { spawn "gimp"; }
         "Mod+Shift+B" { spawn "blueman-manager"; }
         "Mod+Shift+N" { spawn "pavucontrol"; }
 
-        "F13" { spawn "brightness down"; }
-        "F14" { spawn "brightness up"; }
-        "F24" { spawn "volume up"; }
-        "F23" { spawn "volume down"; }
-        "Mod+Alt+M" { spawn "volume toggle"; }
-        "Mod+Shift+M" { spawn "mic toggle"; }
+        "F13" { spawn "brightness" "down"; }
+        "F14" { spawn "brightness" "up"; }
+        "F24" { spawn "volume" "up"; }
+        "F23" { spawn "volume" "down"; }
+        "Mod+Alt+M" { spawn "volume" "toggle"; }
+        "Mod+Shift+M" { spawn "mic" "toggle"; }
 
-        "Mod+Alt+1" { spawn "sh -c 'echo 0 > $XDG_RUNTIME_DIR/headspace-tab-trigger'"; }
-        "Mod+Alt+2" { spawn "sh -c 'echo 1 > $XDG_RUNTIME_DIR/headspace-tab-trigger'"; }
-        "Mod+Alt+3" { spawn "sh -c 'echo 2 > $XDG_RUNTIME_DIR/headspace-tab-trigger'"; }
+        "Mod+Alt+1" { spawn-sh "echo 0 > $XDG_RUNTIME_DIR/headspace-tab-trigger"; }
+        "Mod+Alt+2" { spawn-sh "echo 1 > $XDG_RUNTIME_DIR/headspace-tab-trigger"; }
+        "Mod+Alt+3" { spawn-sh "echo 2 > $XDG_RUNTIME_DIR/headspace-tab-trigger"; }
 
-        "Mod+Alt+N" { spawn "dnd toggle"; }
-        "Mod+Alt+Backspace" { spawn "sh -c 'echo 1 > $XDG_RUNTIME_DIR/headspace-notif-dismiss'"; }
-        "Mod+Space" { spawn "sh -c 'touch $XDG_RUNTIME_DIR/headspace-launcher-toggle'"; }
-        "Mod+C" { spawn "sh -c 'f=$XDG_RUNTIME_DIR/headspace-clip-toggle; v=$(cat $f 2>/dev/null || echo 0); echo $((1 - v)) > $f'"; }
+        "Mod+Alt+N" { spawn "dnd" "toggle"; }
+        "Mod+Alt+Backspace" { spawn-sh "echo 1 > $XDG_RUNTIME_DIR/headspace-notif-dismiss"; }
+        "Mod+Space" { spawn-sh "touch $XDG_RUNTIME_DIR/headspace-launcher-toggle"; }
+        "Mod+C" { spawn-sh "f=$XDG_RUNTIME_DIR/headspace-clip-toggle; v=$(cat $f 2>/dev/null || echo 0); echo $((1 - v)) > $f"; }
 
-        "Mod+Shift+O" { spawn "${pkgs.swaylock-effects}/bin/swaylock -f"; }
-        "Mod+I" { spawn "idle-toggle toggle"; }
+        "Mod+Shift+O" { spawn "swaylock" "-f"; }
+        "Mod+I" { spawn "idle-toggle" "toggle"; }
 
         "Mod+Shift+P" { quit; }
+        "Mod+Shift+E" { quit; }
 
-        "Mod+mouse:272" { move-window; }
-        "Mod+mouse:273" { resize-window; }
-
-        # generated workspace binds
+        // workspace binds
         ${builtins.concatStringsSep "\n" wsBinds}
     }
 
-    spawn-at-startup {
-        "/bin/sh -c \"state get hypridle | grep -q disabled && systemctl --user stop swayidle; echo 0 > $XDG_RUNTIME_DIR/headspace-dnd; echo 0 > $XDG_RUNTIME_DIR/headspace-notif-dismiss; echo 0 > $XDG_RUNTIME_DIR/headspace-clip-toggle; sleep 0.5; switch-theme $(state get current-theme || echo void)\""
-    }
+    spawn-at-startup "swayidle" "-w" "timeout" "300" "${pkgs.swaylock-effects}/bin/swaylock -f" "timeout" "600" "niri msg action power-off-monitors" "resume" "niri msg action power-on-monitors" "before-sleep" "${pkgs.swaylock-effects}/bin/swaylock -f"
+
+    spawn-sh-at-startup "echo 0 > $XDG_RUNTIME_DIR/headspace-dnd; echo 0 > $XDG_RUNTIME_DIR/headspace-notif-dismiss; echo 0 > $XDG_RUNTIME_DIR/headspace-clip-toggle; sleep 0.5; switch-theme $(state get current-theme || echo void)"
   '';
 
   programs.swaylock = {
@@ -121,26 +120,5 @@ in {
     };
   };
 
-  services.swayidle = {
-    enable = true;
-    timeouts = [
-      {
-        timeout = 300;
-        command = "${pkgs.swaylock-effects}/bin/swaylock -f";
-      }
-      {
-        timeout = 600;
-        command = "niri msg action power-off-monitors";
-        resumeCommand = "niri msg action power-on-monitors";
-      }
-    ];
-    events = [
-      {
-        event = "before-sleep";
-        command = "${pkgs.swaylock-effects}/bin/swaylock -f";
-      }
-    ];
-  };
-
-  home.packages = with pkgs; [ swaybg ];
+  home.packages = with pkgs; [ swaybg swayidle ];
 }
