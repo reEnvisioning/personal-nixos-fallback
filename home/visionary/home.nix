@@ -1,7 +1,7 @@
 { config, pkgs, inputs, lib, username, ... }:
 let
   opensnitch-ui-wrapped = pkgs.opensnitch-ui.overrideAttrs (old: {
-    nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ pkgs.wrapQtAppsHook ];
+    nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ pkgs.libsForQt5.wrapQtAppsHook ];
     buildInputs = (old.buildInputs or []) ++ [ pkgs.libsForQt5.qtwayland ];
     dontWrapQtApps = false;
     preFixup = (old.preFixup or "") + ''
