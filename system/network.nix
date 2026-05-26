@@ -63,9 +63,10 @@
         action = "allow";
         duration = "always";
         operator = {
-          type = "simple";
+          type = "regexp";
+          sensitive = false;
           operand = "process.path";
-          data = "${pkgs.systemd}/lib/systemd/systemd-resolved";
+          data = "^/nix/store/.*systemd.*/lib/systemd/systemd-resolved$";
         };
       };
       NetworkManager = {
@@ -74,9 +75,10 @@
         action = "allow";
         duration = "always";
         operator = {
-          type = "simple";
+          type = "regexp";
+          sensitive = false;
           operand = "process.path";
-          data = "${pkgs.networkmanager}/bin/NetworkManager";
+          data = "^/nix/store/.*NetworkManager.*/bin/NetworkManager$";
         };
       };
       nix-daemon = {
@@ -85,9 +87,10 @@
         action = "allow";
         duration = "always";
         operator = {
-          type = "simple";
+          type = "regexp";
+          sensitive = false;
           operand = "process.path";
-          data = "${pkgs.nix}/bin/nix-daemon";
+          data = "^/nix/store/.*nix.*/bin/nix-daemon$";
         };
       };
       sshd = {
@@ -96,9 +99,10 @@
         action = "allow";
         duration = "always";
         operator = {
-          type = "simple";
+          type = "regexp";
+          sensitive = false;
           operand = "process.path";
-          data = "${pkgs.openssh}/bin/sshd";
+          data = "^/nix/store/.*sshd.*/bin/sshd$";
         };
       };
       systemd-timesyncd = {
@@ -107,9 +111,10 @@
         action = "allow";
         duration = "always";
         operator = {
-          type = "simple";
+          type = "regexp";
+          sensitive = false;
           operand = "process.path";
-          data = "${pkgs.systemd}/lib/systemd/systemd-timesyncd";
+          data = "^/nix/store/.*systemd.*/lib/systemd/systemd-timesyncd$";
         };
       };
 
@@ -120,9 +125,10 @@
         action = "allow";
         duration = "always";
         operator = {
-          type = "simple";
+          type = "regexp";
+          sensitive = false;
           operand = "process.path";
-          data = "${pkgs.firefox}/bin/firefox";
+          data = "^/nix/store/.*firefox.*/bin/firefox$";
         };
       };
       prismlauncher = {
@@ -131,9 +137,10 @@
         action = "allow";
         duration = "always";
         operator = {
-          type = "simple";
+          type = "regexp";
+          sensitive = false;
           operand = "process.path";
-          data = "${pkgs.prismlauncher}/bin/prismlauncher";
+          data = "^/nix/store/.*prismlauncher.*/bin/prismlauncher$";
         };
       };
       localsend = {
@@ -142,9 +149,10 @@
         action = "allow";
         duration = "always";
         operator = {
-          type = "simple";
+          type = "regexp";
+          sensitive = false;
           operand = "process.path";
-          data = "${pkgs.localsend}/bin/localsend";
+          data = "^/nix/store/.*localsend.*/bin/localsend$";
         };
       };
       idea-oss = {
@@ -153,9 +161,10 @@
         action = "allow";
         duration = "always";
         operator = {
-          type = "simple";
+          type = "regexp";
+          sensitive = false;
           operand = "process.path";
-          data = "${pkgs.jetbrains.idea-oss}/bin/idea";
+          data = "^/nix/store/.*idea-oss.*/bin/idea$";
         };
       };
       davinci-resolve = {
@@ -164,9 +173,10 @@
         action = "allow";
         duration = "always";
         operator = {
-          type = "simple";
+          type = "regexp";
+          sensitive = false;
           operand = "process.path";
-          data = "${pkgs.davinci-resolve-studio}/bin/davinci-resolve";
+          data = "^/nix/store/.*davinci-resolve.*/bin/davinci-resolve$";
         };
       };
       virtualbox = {
@@ -175,9 +185,10 @@
         action = "allow";
         duration = "always";
         operator = {
-          type = "simple";
+          type = "regexp";
+          sensitive = false;
           operand = "process.path";
-          data = "${pkgs.virtualbox}/bin/VirtualBox";
+          data = "^/nix/store/.*VirtualBox.*/bin/VirtualBox$";
         };
       };
     };
