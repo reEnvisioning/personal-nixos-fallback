@@ -49,7 +49,7 @@
   services.opensnitch = {
     enable = true;
     settings = {
-      DefaultAction = "reject";
+      DefaultAction = "deny";
       InterceptUnknown = true;
       ProcMonitorMethod = "ebpf";
       Firewall = "nftables";
