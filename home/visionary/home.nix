@@ -1,11 +1,10 @@
 { config, pkgs, inputs, lib, username, ... }:
 let
   opensnitch-ui-wrapped = pkgs.opensnitch-ui.overrideAttrs (old: {
-    nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ pkgs.libsForQt5.wrapQtAppsHook ];
-    buildInputs = (old.buildInputs or []) ++ [ pkgs.libsForQt5.qtwayland ];
-    dontWrapQtApps = false;
+    nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ pkgs.makeWrapper ];
+    dontWrapQtApps = true;
     preFixup = (old.preFixup or "") + ''
-      qtWrapperArgs+=(--set QT_QPA_PLATFORM "wayland;xcb")
+      wrapProgram "$out/bin/opensnitch-ui" --set QT_QPA_PLATFORM "xcb"
     '';
   });
 in {
