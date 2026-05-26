@@ -36,9 +36,11 @@
     }
 
     # App-level firewall — default-deny for all outbound traffic
+    # Cgroup rules are added dynamically by add-nftables-cgroup-rules.service
+    # after all services and user sessions exist.
     table inet app-filter {
       chain output {
-        type filter hook output priority filter; policy drop;
+        type filter hook output priority filter; policy accept;
 
         # Allow loopback
         meta oif "lo" accept
@@ -56,38 +58,51 @@
         icmp type { echo-request, echo-reply } accept
         icmpv6 type { echo-request, echo-reply } accept
 
-        # ── Whitelist system services by cgroup level ──
-        socket cgroupv2 level 2 "nix-daemon.service" accept
-        socket cgroupv2 level 2 "systemd-resolved.service" accept
-        socket cgroupv2 level 2 "NetworkManager.service" accept
-        socket cgroupv2 level 2 "sshd.service" accept
-        socket cgroupv2 level 2 "fail2ban.service" accept
+        # Check cgroup whitelist (populated dynamically)
+        jump cgroup-check
 
-        # ── Whitelist user apps launched in allowed.slice ──
-        socket cgroupv2 level 4 "allowed.slice" accept
+        # No drop here — during boot the chain is empty and returns,
+        # and policy accept ensures everything works.
+        # After boot, the drop rule lives inside cgroup-check.
+      }
 
-        # Log and drop everything else
-        log prefix "NFTABLES-DROP: " drop
+      # Populated at runtime by add-nftables-cgroup-rules.service
+      chain cgroup-check {
       }
     }
   '';
 
-  # Pre-create cgroup directories so nftables can validate them at rule-load time
-  systemd.services.precreate-nftables-cgroups = {
-    description = "Pre-create cgroup directories for nftables";
-    before = [ "nftables.service" ];
+  # Dynamically add cgroup rules after all services and user sessions exist
+  systemd.services.add-nftables-cgroup-rules = {
+    description = "Add cgroup-based nftables whitelist rules";
+    after = [ "nftables.service" "systemd-user-sessions.service" ];
+    wants = [ "nftables.service" ];
     wantedBy = [ "nftables.service" ];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
+      PartOf = [ "nftables.service" ];
     };
     script = ''
-      mkdir -p /sys/fs/cgroup/system.slice/nix-daemon.service/
-      mkdir -p /sys/fs/cgroup/system.slice/systemd-resolved.service/
-      mkdir -p /sys/fs/cgroup/system.slice/NetworkManager.service/
-      mkdir -p /sys/fs/cgroup/system.slice/sshd.service/
-      mkdir -p /sys/fs/cgroup/system.slice/fail2ban.service/
-      mkdir -p /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/allowed.slice/
+      # Flush first so repeated runs (e.g. nftables restart) don't stack duplicates
+      ${pkgs.nftables}/bin/nft flush chain inet app-filter cgroup-check
+
+      ${pkgs.nftables}/bin/nft add rule inet app-filter cgroup-check \
+        socket cgroupv2 level 2 "nix-daemon.service" accept
+      ${pkgs.nftables}/bin/nft add rule inet app-filter cgroup-check \
+        socket cgroupv2 level 2 "systemd-resolved.service" accept
+      ${pkgs.nftables}/bin/nft add rule inet app-filter cgroup-check \
+        socket cgroupv2 level 2 "NetworkManager.service" accept
+      ${pkgs.nftables}/bin/nft add rule inet app-filter cgroup-check \
+        socket cgroupv2 level 2 "sshd.service" accept
+      ${pkgs.nftables}/bin/nft add rule inet app-filter cgroup-check \
+        socket cgroupv2 level 2 "fail2ban.service" accept
+      ${pkgs.nftables}/bin/nft add rule inet app-filter cgroup-check \
+        socket cgroupv2 level 4 "allowed.slice" accept
+
+      # Non-whitelisted apps fall through to this drop rule
+      ${pkgs.nftables}/bin/nft add rule inet app-filter cgroup-check \
+        log prefix "NFTABLES-DROP: " drop
     '';
   };
 
