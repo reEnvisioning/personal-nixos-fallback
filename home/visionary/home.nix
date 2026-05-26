@@ -1,4 +1,14 @@
-{ config, pkgs, inputs, lib, username, ... }: {
+{ config, pkgs, inputs, lib, username, ... }:
+let
+  opensnitch-ui-wrapped = pkgs.opensnitch-ui.overrideAttrs (old: {
+    nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ pkgs.wrapQtAppsHook ];
+    buildInputs = (old.buildInputs or []) ++ [ pkgs.libsForQt5.qtwayland ];
+    dontWrapQtApps = false;
+    preFixup = (old.preFixup or "") + ''
+      qtWrapperArgs+=(--set QT_QPA_PLATFORM "wayland;xcb")
+    '';
+  });
+in {
   home = {
     stateVersion = "25.11";
     username = username;
@@ -19,6 +29,7 @@
     obs-studio
     davinci-resolve-studio
     ocl-icd
+    opensnitch-ui-wrapped
   ];
 
   services.udiskie = {
@@ -30,5 +41,8 @@
     };
   };
 
-  services.opensnitch-ui.enable = true;
+  services.opensnitch-ui = {
+    enable = true;
+    package = opensnitch-ui-wrapped;
+  };
 }
