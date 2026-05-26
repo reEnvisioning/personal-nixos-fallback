@@ -72,9 +72,31 @@
     }
   '';
 
+  # Pre-create cgroup directories so nftables can validate them at rule-load time
+  systemd.services.precreate-nftables-cgroups = {
+    description = "Pre-create cgroup directories for nftables";
+    before = [ "nftables.service" ];
+    wantedBy = [ "nftables.service" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      mkdir -p /sys/fs/cgroup/system.slice/nix-daemon.service/
+      mkdir -p /sys/fs/cgroup/system.slice/systemd-resolved.service/
+      mkdir -p /sys/fs/cgroup/system.slice/NetworkManager.service/
+      mkdir -p /sys/fs/cgroup/system.slice/sshd.service/
+      mkdir -p /sys/fs/cgroup/system.slice/fail2ban.service/
+      mkdir -p /sys/fs/cgroup/user.slice/user-1000.slice/user@1000.service/allowed.slice/
+    '';
+  };
+
   # Define the user-level systemd slice for network-allowed applications
-  systemd.user.slices.allowed = {
-    description = "Slice for network-allowed user applications";
+  systemd.user.units."allowed.slice" = {
+    text = ''
+      [Slice]
+      Description=Slice for network-allowed user applications
+    '';
   };
 
   services.openssh = {
