@@ -40,8 +40,5 @@ in {
     };
   };
 
-  services.opensnitch-ui = {
-    enable = true;
-    package = opensnitch-ui-wrapped;
-  };
+
 }
