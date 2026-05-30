@@ -60,7 +60,12 @@ in {
     }
 
     window-rule {
-        geometry-corner-radius 2
+        match app-id="firefox" title="YouTube"
+        opacity 1.0
+    }
+
+    window-rule {
+        geometry-corner-radius 8
         clip-to-geometry true
     }
 
