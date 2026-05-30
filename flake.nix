@@ -2,7 +2,9 @@
   description = "NixOS configuration for headspace — by reEnvisioning";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
+
+    nixpkgs-unstable.url = "github:nixos/nixpkgs/nixos-unstable";
 
     home-manager = {
       url = "github:nix-community/home-manager/master";
@@ -10,15 +12,25 @@
     };
   };
 
-  outputs = { self, nixpkgs, home-manager, ... }: let
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, ... }: let
     hostname = "headspace";
-    inputs = { inherit nixpkgs home-manager; };
+    system = "x86_64-linux";
+    inputs = { inherit nixpkgs nixpkgs-unstable home-manager; };
+    unstable = import nixpkgs-unstable {
+      inherit system;
+      config.allowUnfree = true;
+    };
   in {
     nixosConfigurations.${hostname} = inputs.nixpkgs.lib.nixosSystem {
-      system = "x86_64-linux";
-      specialArgs = { inherit inputs hostname; nixUsers = [ "visionary" ]; };
+      inherit system;
+      specialArgs = { inherit inputs hostname unstable; nixUsers = [ "visionary" ]; };
       modules = [
         ./system/default.nix
+        {
+          nixpkgs.overlays = [
+            (final: prev: { inherit unstable; })
+          ];
+        }
         inputs.home-manager.nixosModules.home-manager
         ./theme/appearance.nix
         {
@@ -32,7 +44,7 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
 
-          home-manager.extraSpecialArgs = { inherit hostname; };
+          home-manager.extraSpecialArgs = { inherit hostname unstable; };
 
           home-manager.users.visionary = {
             _module.args = { username = "visionary"; };

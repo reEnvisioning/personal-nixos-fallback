@@ -10,12 +10,27 @@
     (writeShellScriptBin "nu" ''
       set -x
 
-      FLAKE=''${1:-/${hostname}#${hostname}}
-      FLAKE_DIR=''${FLAKE%%#*}
+      FLAKE_DIR=''${1:-/${hostname}}
 
-      sudo nix flake update "''${FLAKE_DIR}"
-      sudo nixos-rebuild switch --flake "''${FLAKE}"
+      sudo nix flake update "$FLAKE_DIR"
+      sudo nixos-rebuild switch --flake "''${FLAKE_DIR}#${hostname}"
 
+      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +5
+      nix-collect-garbage
+    '')
+
+    (writeShellScriptBin "nu-stable" ''
+      set -x
+      sudo nix flake lock --update-input nixpkgs /${hostname}
+      sudo nixos-rebuild switch --flake "/${hostname}#${hostname}"
+      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +5
+      nix-collect-garbage
+    '')
+
+    (writeShellScriptBin "nu-unstable" ''
+      set -x
+      sudo nix flake lock --update-input nixpkgs-unstable /${hostname}
+      sudo nixos-rebuild switch --flake "/${hostname}#${hostname}"
       sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +5
       nix-collect-garbage
     '')
