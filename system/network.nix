@@ -51,7 +51,7 @@
     settings = {
       DefaultAction = "deny";
       InterceptUnknown = true;
-      ProcMonitorMethod = "nfqueue";
+      ProcMonitorMethod = "ebpf";
       Firewall = "nftables";
       LogLevel = 1;
     };
