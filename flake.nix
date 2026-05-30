@@ -41,6 +41,7 @@
               ./home/visionary/niri.nix
               ./home/visionary/yazi.nix
               ./home/visionary/firefox.nix
+              ./home/visionary/librewolf.nix
               ./home/visionary/neovim.nix
             ];
           };
