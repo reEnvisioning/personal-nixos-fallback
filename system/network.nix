@@ -155,6 +155,30 @@
           data = "^/nix/store/.*/bin/git$";
         };
       };
+      git-remote-http = {
+        name = "git-remote-http";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/libexec/git-core/git-remote-http$";
+        };
+      };
+      git-remote-https = {
+        name = "git-remote-https";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/libexec/git-core/git-remote-https$";
+        };
+      };
     };
   };
 
