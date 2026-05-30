@@ -139,8 +139,8 @@
         operator = {
           type = "regexp";
           sensitive = false;
-          operand = "process.name";
-          data = "^firefox";
+          operand = "process.path";
+          data = "^/nix/store/.*/lib/firefox/firefox$";
         };
       };
       git = {
@@ -151,8 +151,8 @@
         operator = {
           type = "regexp";
           sensitive = false;
-          operand = "process.name";
-          data = "^git$";
+          operand = "process.path";
+          data = "^/nix/store/.*/bin/git$";
         };
       };
     };
