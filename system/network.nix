@@ -51,7 +51,7 @@
     settings = {
       DefaultAction = "deny";
       InterceptUnknown = true;
-      ProcMonitorMethod = "ebpf";
+      ProcMonitorMethod = "nfqueue";
       Firewall = "nftables";
       LogLevel = 1;
     };
@@ -66,7 +66,7 @@
           type = "regexp";
           sensitive = false;
           operand = "process.path";
-          data = "^/nix/store/.*systemd.*/lib/systemd/systemd-resolved$";
+          data = "^/nix/store/.*/lib/systemd/systemd-resolved$";
         };
       };
       NetworkManager = {
@@ -78,7 +78,7 @@
           type = "regexp";
           sensitive = false;
           operand = "process.path";
-          data = "^/nix/store/.*NetworkManager.*/bin/NetworkManager$";
+          data = "^/nix/store/.*/bin/NetworkManager$";
         };
       };
       nix-daemon = {
@@ -90,7 +90,19 @@
           type = "regexp";
           sensitive = false;
           operand = "process.path";
-          data = "^/nix/store/.*nix.*/bin/nix-daemon$";
+          data = "^/nix/store/.*/bin/nix-daemon$";
+        };
+      };
+      nix = {
+        name = "nix";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/bin/nix$";
         };
       };
       sshd = {
@@ -102,7 +114,7 @@
           type = "regexp";
           sensitive = false;
           operand = "process.path";
-          data = "^/nix/store/.*sshd.*/bin/sshd$";
+          data = "^/nix/store/.*/bin/sshd$";
         };
       };
       systemd-timesyncd = {
@@ -114,7 +126,7 @@
           type = "regexp";
           sensitive = false;
           operand = "process.path";
-          data = "^/nix/store/.*systemd.*/lib/systemd/systemd-timesyncd$";
+          data = "^/nix/store/.*/lib/systemd/systemd-timesyncd$";
         };
       };
 
@@ -127,68 +139,20 @@
         operator = {
           type = "regexp";
           sensitive = false;
-          operand = "process.path";
-          data = "^/nix/store/.*firefox.*/bin/firefox$";
+          operand = "process.name";
+          data = "^firefox";
         };
       };
-      prismlauncher = {
-        name = "prismlauncher";
+      git = {
+        name = "git";
         enabled = true;
         action = "allow";
         duration = "always";
         operator = {
           type = "regexp";
           sensitive = false;
-          operand = "process.path";
-          data = "^/nix/store/.*prismlauncher.*/bin/prismlauncher$";
-        };
-      };
-      localsend = {
-        name = "localsend";
-        enabled = true;
-        action = "allow";
-        duration = "always";
-        operator = {
-          type = "regexp";
-          sensitive = false;
-          operand = "process.path";
-          data = "^/nix/store/.*localsend.*/bin/localsend$";
-        };
-      };
-      idea-oss = {
-        name = "idea-oss";
-        enabled = true;
-        action = "allow";
-        duration = "always";
-        operator = {
-          type = "regexp";
-          sensitive = false;
-          operand = "process.path";
-          data = "^/nix/store/.*idea-oss.*/bin/idea$";
-        };
-      };
-      davinci-resolve = {
-        name = "davinci-resolve";
-        enabled = true;
-        action = "allow";
-        duration = "always";
-        operator = {
-          type = "regexp";
-          sensitive = false;
-          operand = "process.path";
-          data = "^/nix/store/.*davinci-resolve.*/bin/davinci-resolve$";
-        };
-      };
-      virtualbox = {
-        name = "virtualbox";
-        enabled = true;
-        action = "allow";
-        duration = "always";
-        operator = {
-          type = "regexp";
-          sensitive = false;
-          operand = "process.path";
-          data = "^/nix/store/.*VirtualBox.*/bin/VirtualBox$";
+          operand = "process.name";
+          data = "^git$";
         };
       };
     };
