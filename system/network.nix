@@ -143,6 +143,18 @@
           data = "^/nix/store/.*/lib/firefox/firefox$";
         };
       };
+      librewolf = {
+        name = "librewolf";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/lib/librewolf/librewolf$";
+        };
+      };
       git = {
         name = "git";
         enabled = true;
