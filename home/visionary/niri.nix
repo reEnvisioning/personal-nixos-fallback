@@ -45,12 +45,12 @@ in {
 
     window-rule {
         match is-focused=true
-        opacity 0.9
+        opacity 0.1
     }
 
     window-rule {
         match is-focused=false
-        opacity 0.85
+        opacity 0.9
     }
 
     window-rule {
@@ -136,7 +136,7 @@ in {
 
         // System
         "Mod+Space" hotkey-overlay-title="Launcher" { spawn-sh "touch $XDG_RUNTIME_DIR/${hostname}-launcher-toggle"; }
-        "Mod+Shift+C" hotkey-overlay-title="Toggle clipboard" { spawn-sh "f=$XDG_RUNTIME_DIR/${hostname}-clip-toggle; v=$(cat $f 2>/dev/null || echo 0); echo $((1 - v)) > $f"; }
+        "Mod+V" hotkey-overlay-title="Toggle clipboard" { spawn-sh "f=$XDG_RUNTIME_DIR/${hostname}-clip-toggle; v=$(cat $f 2>/dev/null || echo 0); echo $((1 - v)) > $f"; }
         "Mod+Shift+O" hotkey-overlay-title="Lock screen" { spawn "swaylock" "-f"; }
         "Mod+Shift+I" hotkey-overlay-title="Toggle idle" { spawn "idle-toggle" "toggle"; }
         "Mod+Shift+P" hotkey-overlay-title="Quit" { quit; }
