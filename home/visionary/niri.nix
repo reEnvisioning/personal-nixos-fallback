@@ -1,6 +1,7 @@
 { pkgs, hostname, ... }:
 let
   theme = import ../../theme/theme.nix;
+  hw = import ../../hardware/hardware.nix;
   mod = "Mod";
 
   wsBinds = builtins.concatLists (builtins.genList (x:
@@ -40,9 +41,7 @@ in {
         skip-at-startup
     }
 
-    output "HDMI-A-1" {
-        mode "1920x1080@144.000"
-    }
+    ${hw.niriOutputs}
 
     window-rule {
         match is-focused=true
