@@ -154,7 +154,12 @@ in {
       netcat-openbsd
       xxd
       (writeShellScriptBin "torify" ''
-        exec sudo -n ${ipBin} netns exec tor-net "$@"
+        target_user=$(logname 2>/dev/null || echo "''${SUDO_USER:-$USER}")
+        if [ "$target_user" = "root" ]; then
+          echo "torify: cannot determine your username" >&2
+          exit 1
+        fi
+        exec sudo -n ${ipBin} netns exec tor-net ${pkgs.sudo}/bin/sudo -u "$target_user" -E -- "$@"
       '')
       (writeShellScriptBin "torshell" ''
         target_user=$(logname 2>/dev/null || echo "''${SUDO_USER:-$USER}")
