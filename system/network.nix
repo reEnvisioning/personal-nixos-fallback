@@ -36,15 +36,17 @@
     }
   '';
 
-  services.openssh = {
+  services.tailscale = {
     enable = true;
-    settings = {
-      PasswordAuthentication = false;
-      PermitRootLogin = "no";
-    };
+    openFirewall = false;
+    disableUpstreamLogging = true;
+    disableTaildrop = true;
+    useRoutingFeatures = "none";
+    extraSetFlags = [
+      "--ssh"
+      "--auto-update"
+    ];
   };
-
-  services.fail2ban.enable = true;
 
   services.opensnitch = {
     enable = true;
@@ -105,18 +107,7 @@
           data = "^/nix/store/.*/bin/nix$";
         };
       };
-      sshd = {
-        name = "sshd";
-        enabled = true;
-        action = "allow";
-        duration = "always";
-        operator = {
-          type = "regexp";
-          sensitive = false;
-          operand = "process.path";
-          data = "^/nix/store/.*/bin/sshd$";
-        };
-      };
+
       systemd-timesyncd = {
         name = "systemd-timesyncd";
         enabled = true;
@@ -127,6 +118,30 @@
           sensitive = false;
           operand = "process.path";
           data = "^/nix/store/.*/lib/systemd/systemd-timesyncd$";
+        };
+      };
+      tailscaled = {
+        name = "tailscaled";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/bin/tailscaled$";
+        };
+      };
+      tailscale = {
+        name = "tailscale";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/bin/tailscale$";
         };
       };
 

@@ -47,6 +47,7 @@ in {
   environment.systemPackages = with pkgs; [
     vim
     git
+    openssh
     hyprshot
     pavucontrol
     brightnessctl
