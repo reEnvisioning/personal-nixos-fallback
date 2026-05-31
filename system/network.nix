@@ -57,7 +57,6 @@
       LogLevel = 1;
     };
     rules = {
-      # System services — always allow
       systemd-resolved = {
         name = "systemd-resolved";
         enabled = true;
@@ -144,7 +143,6 @@
         };
       };
 
-      # User apps
       firefox = {
         name = "firefox";
         enabled = true;

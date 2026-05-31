@@ -4,6 +4,7 @@ let
 in {
   imports = [
     ./network.nix
+    ./tor.nix
     ./local.nix
     ./plymouth.nix
     ./boot.nix
