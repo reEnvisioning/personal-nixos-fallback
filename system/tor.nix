@@ -99,8 +99,8 @@ in {
       table inet tor-transparent {
         chain PREROUTING {
           type nat hook prerouting priority -100; policy accept;
-          iifname "veth-tor" meta l4proto tcp dnat to 127.0.0.1:9040
-          iifname "veth-tor" meta l4proto udp udp dport 53 dnat to 127.0.0.1:5353
+          iifname "veth-tor" meta l4proto tcp dnat ip to 127.0.0.1:9040
+          iifname "veth-tor" meta l4proto udp udp dport 53 dnat ip to 127.0.0.1:5353
         }
       }
     '';
