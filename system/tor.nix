@@ -7,28 +7,40 @@ let
   ns4 = "10.200.1.2";
   prefix = "30";
 
+  ipBin = "${pkgs.iproute2}/bin/ip";
+  nftBin = "${pkgs.nftables}/bin/nft";
+
   netns-setup = pkgs.writeShellScript "tor-netns-setup" ''
-    set -euo pipefail
+    # Clean up stale state from previous failed runs
+    ${ipBin} link delete veth-tor 2>/dev/null || true
+    ${ipBin} netns delete tor-net 2>/dev/null || true
 
-    ip netns add tor-net 2>/dev/null || true
+    # Create namespace
+    ${ipBin} netns add tor-net
 
-    ip link add veth-tor type veth peer name veth-tor-ns netns tor-net
+    # Create veth pair
+    ${ipBin} link add veth-tor type veth peer name veth-tor-ns netns tor-net
 
-    ip addr add ${gw4}/${prefix} dev veth-tor
-    ip link set veth-tor up
-    sysctl -w net.ipv4.conf.veth-tor.route_localnet=1
+    # Host side
+    ${ipBin} addr add ${gw4}/${prefix} dev veth-tor
+    ${ipBin} link set veth-tor up
+    echo 1 > /proc/sys/net/ipv4/conf/veth-tor/route_localnet
 
-    ip netns exec tor-net ip addr add ${ns4}/${prefix} dev veth-tor-ns
-    ip netns exec tor-net ip link set veth-tor-ns up
-    ip netns exec tor-net ip link set lo up
-    ip netns exec tor-net ip route add default via ${gw4}
+    # Namespace side
+    ${ipBin} netns exec tor-net ${ipBin} addr add ${ns4}/${prefix} dev veth-tor-ns
+    ${ipBin} netns exec tor-net ${ipBin} link set veth-tor-ns up
+    ${ipBin} netns exec tor-net ${ipBin} link set lo up
+    ${ipBin} netns exec tor-net ${ipBin} route add default via ${gw4}
 
-    ip netns exec tor-net sysctl -w net.ipv6.conf.all.disable_ipv6=1
+    # Disable IPv6 inside namespace (need sh -c so redirect happens inside the ns)
+    ${ipBin} netns exec tor-net ${pkgs.runtimeShell} -c 'echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6'
 
+    # DNS: ip netns exec auto-bind-mounts /etc/netns/<name>/resolv.conf
     mkdir -p /etc/netns/tor-net
     echo "nameserver ${gw4}" > /etc/netns/tor-net/resolv.conf
 
-    ip netns exec tor-net nft -f - << 'NFT'
+    # Kill-switch nftables inside namespace
+    ${ipBin} netns exec tor-net ${nftBin} -f - << 'NFT'
 table inet tor-filter {
     chain OUTPUT {
         type filter hook output priority filter; policy drop;
@@ -40,8 +52,8 @@ NFT
   '';
 
   netns-teardown = pkgs.writeShellScript "tor-netns-teardown" ''
-    ip link delete veth-tor 2>/dev/null || true
-    ip netns delete tor-net 2>/dev/null || true
+    ${ipBin} link delete veth-tor 2>/dev/null || true
+    ${ipBin} netns delete tor-net 2>/dev/null || true
     rm -rf /etc/netns/tor-net 2>/dev/null || true
   '';
 
@@ -125,11 +137,12 @@ in {
 
     environment.systemPackages = with pkgs; [
       netcat-openbsd
+      xxd
       (writeShellScriptBin "torify" ''
-        exec ${pkgs.iproute2}/bin/ip netns exec tor-net "$@"
+        exec ${ipBin} netns exec tor-net "$@"
       '')
       (writeShellScriptBin "torshell" ''
-        exec ip netns exec tor-net su - "$USER"
+        exec ${ipBin} netns exec tor-net su - "$USER"
       '')
       (writeShellScriptBin "tor-newnym" ''
         cookie="/var/lib/tor/control_auth_cookie"
@@ -137,10 +150,10 @@ in {
           echo "tor-newnym: cannot read $cookie (are you in the 'tor' group?)" >&2
           exit 1
         fi
-        raw=$(xxd -p "$cookie" | tr -d '\n')
+        raw=$(${pkgs.xxd}/bin/xxd -p "$cookie" | tr -d '\n')
         resp=$(printf "AUTHENTICATE %s\r\nSIGNAL NEWNYM\r\nQUIT\r\n" "$raw" \
-          | nc -w2 127.0.0.1 9051 2>/dev/null)
-        if echo "$resp" | grep -q "250"; then
+          | ${pkgs.netcat-openbsd}/bin/nc -w2 127.0.0.1 9051 2>/dev/null)
+        if echo "$resp" | ${pkgs.gnugrep}/bin/grep -q "250"; then
           echo "New Tor circuit established"
         else
           echo "tor-newnym: control port unreachable or auth failed" >&2
