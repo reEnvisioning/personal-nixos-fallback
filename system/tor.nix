@@ -150,9 +150,23 @@ in {
       };
     };
 
+    services.opensnitch.rules.tor-browser = {
+      name = "tor-browser";
+      enabled = true;
+      action = "allow";
+      duration = "always";
+      operator = {
+        type = "regexp";
+        sensitive = false;
+        operand = "process.path";
+        data = "^/nix/store/.*tor-browser-bundle-bin.*";
+      };
+    };
+
     environment.systemPackages = with pkgs; [
       netcat-openbsd
       xxd
+      tor-browser-bundle-bin
       (writeShellScriptBin "torify" ''
         target_user=$(logname 2>/dev/null || echo "''${SUDO_USER:-$USER}")
         if [ "$target_user" = "root" ]; then
