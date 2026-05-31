@@ -273,9 +273,15 @@ in {
       text-ver-color     = "#AAAAAA";
       text-wrong-color   = "#CC6666";
 
-      key-hl-color     = "#888888";
-      separator-color  = "#222222";
-      line-color       = "#1A1A1A";
+      key-hl-color         = "#888888";
+      bs-hl-color          = "#444444";
+      caps-lock-key-hl-color = "#555555";
+      caps-lock-bs-hl-color  = "#333333";
+      separator-color      = "#222222";
+      line-color           = "#1A1A1A";
+      line-ver-color       = "#333333";
+      line-wrong-color     = "#442222";
+      line-clear-color     = "#222222";
     };
   };
 
