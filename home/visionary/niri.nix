@@ -254,7 +254,7 @@ in {
       ignore-empty-password = true;
       hide-keyboard-layout = true;
       color = "#000000";
-      indicator-radius = 100;
+      indicator-radius = 50;
       indicator-thickness = 7;
 
       ring-color         = "#333333";
