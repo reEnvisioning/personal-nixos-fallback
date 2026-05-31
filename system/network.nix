@@ -43,7 +43,7 @@
     disableTaildrop = true;
     useRoutingFeatures = "none";
     extraSetFlags = [
-      "--ssh"
+      "--shields-up"
     ];
   };
 
