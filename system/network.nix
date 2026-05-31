@@ -44,7 +44,6 @@
     useRoutingFeatures = "none";
     extraSetFlags = [
       "--ssh"
-      "--auto-update"
     ];
   };
 
@@ -129,7 +128,7 @@
           type = "regexp";
           sensitive = false;
           operand = "process.path";
-          data = "^/nix/store/.*/bin/tailscaled$";
+          data = "^/nix/store/.*/bin/\.tailscaled(-wrapped)?$";
         };
       };
       tailscale = {
@@ -141,7 +140,7 @@
           type = "regexp";
           sensitive = false;
           operand = "process.path";
-          data = "^/nix/store/.*/bin/tailscale$";
+          data = "^/nix/store/.*/bin/\.tailscale(-wrapped)?$";
         };
       };
 
