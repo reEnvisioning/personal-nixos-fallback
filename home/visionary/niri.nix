@@ -244,7 +244,7 @@ in {
 
     spawn-sh-at-startup "opensnitch-ui --background"
 
-    spawn-sh-at-startup "echo 0 > $XDG_RUNTIME_DIR/${hostname}-dnd; echo 0 > $XDG_RUNTIME_DIR/${hostname}-notif-dismiss; echo 0 > $XDG_RUNTIME_DIR/${hostname}-clip-toggle; sleep 0.5; switch-theme $(state get current-theme || echo void); if [ \"$(state get hypridle)\" != \"disabled\" ]; then swayidle -w timeout 300 '${pkgs.swaylock}/bin/swaylock -f' timeout 600 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep '${pkgs.swaylock}/bin/swaylock -f' & disown; fi"
+    spawn-sh-at-startup "echo 0 > $XDG_RUNTIME_DIR/${hostname}-dnd; echo 0 > $XDG_RUNTIME_DIR/${hostname}-notif-dismiss; echo 0 > $XDG_RUNTIME_DIR/${hostname}-clip-toggle; sleep 0.5; switch-theme $(state get current-theme || echo void); if [ \"$(state get hypridle)\" != \"disabled\" ]; then sway-audio-idle-inhibit & swayidle -w timeout 300 '${pkgs.swaylock}/bin/swaylock -f' timeout 600 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep '${pkgs.swaylock}/bin/swaylock -f' & disown; fi"
   '';
 
   programs.swaylock = {
@@ -254,18 +254,30 @@ in {
       ignore-empty-password = true;
       hide-keyboard-layout = true;
       fade-in = 0.2;
-      image = "${theme.wallpaper}";
-      scaling = "fill";
-      effect-blur = "7x5";
+      color = "#000000";
       indicator-radius = 100;
       indicator-thickness = 7;
-      ring-color = "${theme.colors.borderFocused}";
-      key-hl-color = "${theme.colors.text}";
-      separator-color = "${theme.colors.backgroundAccent}";
-      text-color = "${theme.colors.text}";
-      line-color = "${theme.colors.background}";
+
+      ring-color         = "#333333";
+      ring-clear-color   = "#444444";
+      ring-ver-color     = "#555555";
+      ring-wrong-color   = "#662222";
+
+      inside-color         = "#111111";
+      inside-clear-color   = "#1A1A1A";
+      inside-ver-color     = "#222222";
+      inside-wrong-color   = "#330000";
+
+      text-color         = "#CCCCCC";
+      text-clear-color   = "#BBBBBB";
+      text-ver-color     = "#AAAAAA";
+      text-wrong-color   = "#CC6666";
+
+      key-hl-color     = "#888888";
+      separator-color  = "#222222";
+      line-color       = "#1A1A1A";
     };
   };
 
-  home.packages = with pkgs; [ swaybg swayidle ];
+  home.packages = with pkgs; [ sway-audio-idle-inhibit swaybg swayidle ];
 }
