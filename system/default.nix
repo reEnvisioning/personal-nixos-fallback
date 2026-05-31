@@ -17,7 +17,7 @@ in {
     ./shell.nix
   ] ++ hw.systemImports;
 
-  system.stateVersion = "25.11";
+  system.stateVersion = "26.05";
 
   nix.settings = {
     experimental-features = [
