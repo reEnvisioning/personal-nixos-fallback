@@ -92,8 +92,11 @@ in {
 
     boot.kernel.sysctl."net.ipv4.conf.all.route_localnet" = 1;
 
+    networking.firewall.allowedTCPPorts = [ 9040 ];
+    networking.firewall.allowedUDPPorts = [ 5353 ];
+
     networking.nftables.ruleset = lib.mkAfter ''
-      table ip tor-transparent {
+      table inet tor-transparent {
         chain PREROUTING {
           type nat hook prerouting priority -100; policy accept;
           iifname "veth-tor" meta l4proto tcp dnat to 127.0.0.1:9040
@@ -101,6 +104,18 @@ in {
         }
       }
     '';
+
+    security.sudo.extraRules = [
+      {
+        groups = [ "tor" ];
+        commands = [
+          {
+            command = "${pkgs.iproute2}/bin/ip netns exec tor-net *";
+            options = [ "NOPASSWD" "SETENV" ];
+          }
+        ];
+      }
+    ];
 
     networking.networkmanager.unmanaged = lib.mkBefore [ "interface-name:veth-*" ];
 
@@ -139,10 +154,15 @@ in {
       netcat-openbsd
       xxd
       (writeShellScriptBin "torify" ''
-        exec ${ipBin} netns exec tor-net "$@"
+        exec sudo -n ${ipBin} netns exec tor-net "$@"
       '')
       (writeShellScriptBin "torshell" ''
-        exec ${ipBin} netns exec tor-net su - "$USER"
+        target_user=$(logname 2>/dev/null || echo "''${SUDO_USER:-$USER}")
+        if [ "$target_user" = "root" ]; then
+          echo "torshell: cannot determine your username" >&2
+          exit 1
+        fi
+        exec sudo -n ${ipBin} netns exec tor-net su - "$target_user"
       '')
       (writeShellScriptBin "tor-newnym" ''
         cookie="/var/lib/tor/control_auth_cookie"
