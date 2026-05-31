@@ -253,7 +253,6 @@ in {
     settings = {
       ignore-empty-password = true;
       hide-keyboard-layout = true;
-      fade-in = 0.2;
       color = "#000000";
       indicator-radius = 100;
       indicator-thickness = 7;
