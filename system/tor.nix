@@ -159,7 +159,7 @@ in {
           echo "torify: cannot determine your username" >&2
           exit 1
         fi
-        exec sudo -n ${ipBin} netns exec tor-net ${pkgs.sudo}/bin/sudo -u "$target_user" -E -- "$@"
+        exec sudo -nE ${ipBin} netns exec tor-net ${pkgs.sudo}/bin/sudo -u "$target_user" -E -H -- "$@"
       '')
       (writeShellScriptBin "torshell" ''
         target_user=$(logname 2>/dev/null || echo "''${SUDO_USER:-$USER}")
