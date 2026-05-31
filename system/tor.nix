@@ -159,14 +159,14 @@ in {
         type = "regexp";
         sensitive = false;
         operand = "process.path";
-        data = "^/nix/store/.*tor-browser-bundle-bin.*";
+        data = "^/nix/store/.*tor-browser";
       };
     };
 
     environment.systemPackages = with pkgs; [
       netcat-openbsd
       xxd
-      tor-browser-bundle-bin
+tor-browser
       (writeShellScriptBin "torify" ''
         target_user=$(logname 2>/dev/null || echo "''${SUDO_USER:-$USER}")
         if [ "$target_user" = "root" ]; then
