@@ -25,6 +25,7 @@ in {
     jetbrains.idea-oss
     kdePackages.kdenlive
     libreoffice-qt
+    pcmanfm
     obs-studio
     davinci-resolve-studio
     ocl-icd
@@ -37,7 +38,7 @@ in {
     notify = true;
     settings = {
       program_options = {
-        file_manager = "yazi";
+        file_manager = "pcmanfm";
       };
     };
   };

@@ -36,6 +36,9 @@
         "sidebar.revamp" = true;
         "sidebar.visibility" = "show";
 
+        # === File picker (use portal for GTK file dialog) ===
+        "widget.use-xdg-desktop-portal.file-picker" = 1;
+
         # === General > Language and Appearance ===
         "layout.spellcheckDefault" = 0;
         "layout.css.always_underline_links" = true;
