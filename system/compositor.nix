@@ -8,6 +8,11 @@
     extraPortals = [
       pkgs.xdg-desktop-portal-gtk
     ];
+    config = {
+      niri = {
+        "org.freedesktop.impl.portal.FileChooser" = [ "gtk" ];
+      };
+    };
   };
 
   environment.systemPackages = [ pkgs.xwayland-satellite ];
