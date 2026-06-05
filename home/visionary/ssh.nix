@@ -3,42 +3,46 @@
 
   programs.ssh = {
     enable = true;
-    hashKnownHosts = true;
-    forwardAgent = false;
+    enableDefaultConfig = false;
 
-    controlMaster = "auto";
-    controlPath = "~/.ssh/control/%r@%h:%p";
-    controlPersist = "10m";
+    settings = {
+      "*" = {
+        ForwardAgent = false;
+        Compression = true;
+        HashKnownHosts = true;
+        ServerAliveInterval = 30;
+        ServerAliveCountMax = 3;
 
-    extraConfig = ''
-      KexAlgorithms sntrup761x25519-sha512@openssh.com,diffie-hellman-group-exchange-sha256
-      Ciphers chacha20-poly1305@openssh.com,aes256-gcm@openssh.com
-      MACs hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com
-      HostKeyAlgorithms ssh-ed25519-cert-v01@openssh.com,ssh-ed25519
-      PubkeyAcceptedAlgorithms ssh-ed25519
+        ControlMaster = "auto";
+        ControlPath = "~/.ssh/control/%r@%h:%p";
+        ControlPersist = "10m";
 
-      PasswordAuthentication no
-      KbdInteractiveAuthentication no
-      ChallengeResponseAuthentication no
-      GSSAPIAuthentication no
-      PreferredAuthentications publickey
+        KexAlgorithms = "sntrup761x25519-sha512@openssh.com,diffie-hellman-group-exchange-sha256";
+        Ciphers = "chacha20-poly1305@openssh.com,aes256-gcm@openssh.com";
+        MACs = "hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com";
+        HostKeyAlgorithms = "ssh-ed25519-cert-v01@openssh.com,ssh-ed25519";
+        PubkeyAcceptedAlgorithms = "ssh-ed25519";
 
-      ForwardAgent no
-      ForwardX11 no
-      ForwardX11Trusted no
-      AllowTcpForwarding no
-      AllowStreamLocalForwarding no
-      Tunnel no
+        PasswordAuthentication = false;
+        KbdInteractiveAuthentication = false;
+        ChallengeResponseAuthentication = false;
+        GSSAPIAuthentication = false;
+        PreferredAuthentications = "publickey";
 
-      RekeyLimit 1G 1h
+        ForwardX11 = false;
+        ForwardX11Trusted = false;
+        AllowTcpForwarding = false;
+        AllowStreamLocalForwarding = false;
+        Tunnel = false;
 
-      StrictHostKeyChecking ask
-      UpdateHostKeys ask
+        RekeyLimit = "1G 1h";
+        StrictHostKeyChecking = "ask";
+        UpdateHostKeys = "ask";
 
-      ServerAliveInterval 30
-      ServerAliveCountMax 3
+        UserKnownHostsFile = "~/.ssh/known_hosts";
 
-      LogLevel VERBOSE
-    '';
+        LogLevel = "VERBOSE";
+      };
+    };
   };
 }
