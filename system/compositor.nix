@@ -1,19 +1,10 @@
 { pkgs, ... }: {
   programs.niri = {
     enable = true;
+    useNautilus = false;
   };
 
-  xdg.portal = {
-    enable = true;
-    extraPortals = [
-      pkgs.xdg-desktop-portal-gtk
-    ];
-    config = {
-      niri = {
-        "org.freedesktop.impl.portal.FileChooser" = [ "gtk" ];
-      };
-    };
-  };
+  xdg.portal.extraPortals = [ pkgs.xdg-desktop-portal-gtk ];
 
   environment.systemPackages = [ pkgs.xwayland-satellite ];
 }
