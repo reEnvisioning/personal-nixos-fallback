@@ -203,6 +203,91 @@
           data = "^/nix/store/.*/libexec/git-core/git-remote-https$";
         };
       };
+
+      ssh = {
+        name = "ssh";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/bin/ssh$";
+        };
+      };
+      scp = {
+        name = "scp";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/bin/scp$";
+        };
+      };
+      sftp = {
+        name = "sftp";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/bin/sftp$";
+        };
+      };
+      ssh-keygen = {
+        name = "ssh-keygen";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/bin/ssh-keygen$";
+        };
+      };
+      ssh-agent = {
+        name = "ssh-agent";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/bin/ssh-agent$";
+        };
+      };
+      ssh-add = {
+        name = "ssh-add";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/bin/ssh-add$";
+        };
+      };
+      ssh-keyscan = {
+        name = "ssh-keyscan";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/bin/ssh-keyscan$";
+        };
+      };
     };
   };
 

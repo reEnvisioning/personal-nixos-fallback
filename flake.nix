@@ -54,6 +54,7 @@
               ./home/visionary/yazi.nix
               ./home/visionary/firefox.nix
               ./home/visionary/librewolf.nix
+              ./home/visionary/ssh.nix
               ./home/visionary/neovim.nix
             ];
           };
