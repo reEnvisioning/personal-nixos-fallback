@@ -197,10 +197,7 @@ rules = [
   # Fallback
   { url = "*", fg = "#C8B8A8" },
   { url = "*/", fg = "#7AAECE" },
-
-  # TODO: remove (changed in 26.1.4)
-  { name = "*", fg = "#C8B8A8" },
-  { name = "*/", fg = "#7AAECE" },
+,
 ]
 
 # : }}}
