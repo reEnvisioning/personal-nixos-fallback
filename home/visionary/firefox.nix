@@ -36,8 +36,8 @@
         "sidebar.revamp" = true;
         "sidebar.visibility" = "show";
 
-        # === File picker (use portal for GTK file dialog) ===
-        "widget.use-xdg-desktop-portal.file-picker" = 1;
+        # === File picker (use built-in GTK dialog instead of portal) ===
+        "widget.use-xdg-desktop-portal.file-picker" = 0;
 
         # === General > Language and Appearance ===
         "layout.spellcheckDefault" = 0;

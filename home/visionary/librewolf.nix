@@ -7,7 +7,7 @@
       isDefault = true;
 
       settings = {
-        "widget.use-xdg-desktop-portal.file-picker" = 1;
+        "widget.use-xdg-desktop-portal.file-picker" = 0;
         "network.trr.mode" = 3;
         "network.trr.uri" = "https://dns.quad9.net/dns-query";
         "sidebar.verticalTabs" = true;
