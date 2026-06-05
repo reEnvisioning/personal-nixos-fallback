@@ -27,14 +27,10 @@
           PasswordAuthentication = "no";
           KbdInteractiveAuthentication = "no";
           ChallengeResponseAuthentication = "no";
-          GSSAPIAuthentication = "no";
           PreferredAuthentications = "publickey";
 
           ForwardX11 = "no";
           ForwardX11Trusted = "no";
-          AllowTcpForwarding = "no";
-          AllowStreamLocalForwarding = "no";
-          Tunnel = "no";
 
           RekeyLimit = "1G 1h";
           StrictHostKeyChecking = "ask";
