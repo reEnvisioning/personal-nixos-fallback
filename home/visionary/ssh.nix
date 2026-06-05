@@ -27,7 +27,6 @@
           PasswordAuthentication = "no";
           KbdInteractiveAuthentication = "no";
           ChallengeResponseAuthentication = "no";
-          PreferredAuthentications = "publickey";
 
           ForwardX11 = "no";
           ForwardX11Trusted = "no";
