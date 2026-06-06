@@ -1,5 +1,4 @@
 import QtQuick
-import QtQuick.Dialogs
 import Quickshell
 import Quickshell.Io
 
@@ -68,13 +67,17 @@ Item {
         }
     }
 
-    FileDialog {
-        id: wallpaperPicker
-        title: "Choose a wallpaper image"
-        nameFilters: ["Images (*.png *.jpg *.jpeg *.bmp *.webp)"]
-        onAccepted: {
-            if (wallpaperPicker.selectedFile)
-                addWallpaper(wallpaperPicker.selectedFile)
+    Process {
+        id: filePicker
+        command: ["zenity", "--file-selection", "--title", "Choose a wallpaper image",
+            "--file-filter", "Images (*.png *.jpg *.jpeg *.bmp *.webp)"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var path = text.trim()
+                if (path.length > 0)
+                    addWallpaper(path)
+            }
         }
     }
 
@@ -105,7 +108,8 @@ Item {
 
     function activate(entry) {
         if (entry && entry.isAdd) {
-            wallpaperPicker.open()
+            filePicker.running = false
+            filePicker.running = true
             return
         }
         if (entry && entry.index !== undefined) {
@@ -158,7 +162,7 @@ Item {
                     height: Math.round(36 * uiScale)
                     radius: Math.round(4 * uiScale)
                     clip: true
-                    color: modelData && modelData.isAdd ? colors.surface0 || "#333" : "transparent"
+                    color: modelData && modelData.isAdd === true ? colors.surface0 || "#333" : "transparent"
 
                     Text {
                         anchors.centerIn: parent
@@ -166,15 +170,15 @@ Item {
                         color: colors.text
                         font.pointSize: 18
                         font.weight: Font.Bold
-                        visible: modelData && modelData.isAdd
+                        visible: modelData && modelData.isAdd === true
                     }
 
                     Image {
                         anchors.fill: parent
-                        source: modelData && !modelData.isAdd ? modelData.fullPath : ""
+                        source: modelData && modelData.isAdd !== true ? modelData.fullPath : ""
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
-                        visible: !(modelData && modelData.isAdd)
+                        visible: !modelData || modelData.isAdd !== true
                     }
                 }
 
