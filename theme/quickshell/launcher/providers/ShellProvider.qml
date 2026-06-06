@@ -16,9 +16,10 @@ Item {
             return _history.slice()
 
         var lower = text.toLowerCase()
-        var results = []
+        var results = [{ command: text }]
         for (var i = 0; i < _history.length; i++) {
-            if (_history[i].command.toLowerCase().indexOf(lower) !== -1)
+            var cmd = _history[i].command
+            if (cmd.toLowerCase().indexOf(lower) !== -1 && cmd !== text)
                 results.push(_history[i])
         }
         return results
