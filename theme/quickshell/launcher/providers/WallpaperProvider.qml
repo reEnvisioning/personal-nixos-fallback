@@ -79,13 +79,6 @@ Item {
 
     function textFor(entry) { return entry ? entry.name : "" }
 
-    function activate(entry) {
-        if (entry && entry.index !== undefined) {
-            Quickshell.execDetached(["switch-wallpaper", String(entry.index)])
-            refresh()
-        }
-    }
-
     property Component itemComponent: Component {
         Item {
             required property var modelData
