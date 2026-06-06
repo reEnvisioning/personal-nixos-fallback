@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Dialogs
 import Quickshell
 import Quickshell.Io
 
@@ -55,7 +56,58 @@ Item {
         }
     }
 
+    Process {
+        id: addProc
+        command: ["true"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                wallpaperLoader.running = false
+                wallpaperLoader.running = true
+            }
+        }
+    }
+
+    FileDialog {
+        id: wallpaperPicker
+        title: "Choose a wallpaper image"
+        nameFilters: ["Images (*.png *.jpg *.jpeg *.bmp *.webp)"]
+        onAccepted: {
+            if (wallpaperPicker.selectedFile)
+                addWallpaper(wallpaperPicker.selectedFile)
+        }
+    }
+
+    function addWallpaper(filePath) {
+        addProc.command = ["bash", "-c",
+            "H=$(hostname);" +
+            "THEME=$(state get current-theme 2>/dev/null || true);" +
+            "if [ -z \"$THEME\" ]; then exit 0; fi;" +
+            "mkdir -p \"$HOME/.local/share/$H/wallpapers\";" +
+            "cp \"$1\" \"$HOME/.local/share/$H/wallpapers/\";" +
+            "NEW_PATH=\"$HOME/.local/share/$H/wallpapers/$(basename \"$1\")\";" +
+            "if [ -f \"$HOME/.config/$H/themes/$THEME.json\" ]; then" +
+            "  THEME_FILE=\"$HOME/.config/$H/themes/$THEME.json\";" +
+            "else" +
+            "  mkdir -p \"$HOME/.config/$H/themes\";" +
+            "  cp \"/etc/$H/themes/$THEME.json\" \"$HOME/.config/$H/themes/$THEME.json\";" +
+            "  THEME_FILE=\"$HOME/.config/$H/themes/$THEME.json\";" +
+            "fi;" +
+            "jq --arg new \"$NEW_PATH\" '.wallpapers += [$new]' \"$THEME_FILE\" > \"${THEME_FILE}.tmp\" && " +
+            "mv \"${THEME_FILE}.tmp\" \"$THEME_FILE\";" +
+            "COUNT=$(jq '.wallpapers | length' \"$THEME_FILE\");" +
+            "NEW_IDX=$((COUNT - 1));" +
+            "switch-wallpaper \"$NEW_IDX\"",
+            "addWallpaper", filePath]
+        addProc.running = false
+        addProc.running = true
+    }
+
     function activate(entry) {
+        if (entry && entry.isAdd) {
+            wallpaperPicker.open()
+            return
+        }
         if (entry && entry.index !== undefined) {
             Quickshell.execDetached(["switch-wallpaper", String(entry.index)])
             for (var i = 0; i < root._wallpapers.length; i++)
@@ -68,8 +120,10 @@ Item {
     function query(text) {
         if (root._wallpapers.length === 0) return []
 
-        if (!text || !text.trim())
-            return _wallpapers.slice()
+        if (!text || !text.trim()) {
+            var results = [{ index: -1, name: "+ Add wallpaper...", isAdd: true }]
+            return results.concat(_wallpapers.slice())
+        }
 
         var lower = text.toLowerCase()
         return _wallpapers.filter(function(w) {
@@ -104,26 +158,23 @@ Item {
                     height: Math.round(36 * uiScale)
                     radius: Math.round(4 * uiScale)
                     clip: true
+                    color: modelData && modelData.isAdd ? colors.surface0 || "#333" : "transparent"
 
-                    Image {
-                        id: thumbImg
-                        anchors.fill: parent
-                        source: modelData ? modelData.fullPath : ""
-                        fillMode: Image.PreserveAspectCrop
-                        asynchronous: true
-                        onStatusChanged: if (status === Image.Error) console.log("Wallpaper load error:", source)
+                    Text {
+                        anchors.centerIn: parent
+                        text: "+"
+                        color: colors.text
+                        font.pointSize: 18
+                        font.weight: Font.Bold
+                        visible: modelData && modelData.isAdd
                     }
 
-                    Rectangle {
+                    Image {
                         anchors.fill: parent
-                        color: colors.surface0 || "#333"
-                        visible: thumbImg.status !== Image.Ready
-                        Text {
-                            anchors.centerIn: parent
-                            text: modelData ? modelData.name.charAt(0).toUpperCase() : ""
-                            color: colors.subtext0 || "#888"
-                            font.pointSize: 12
-                        }
+                        source: modelData && !modelData.isAdd ? modelData.fullPath : ""
+                        fillMode: Image.PreserveAspectCrop
+                        asynchronous: true
+                        visible: !(modelData && modelData.isAdd)
                     }
                 }
 
