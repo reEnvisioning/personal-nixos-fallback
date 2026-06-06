@@ -30,11 +30,13 @@ Item {
             "    c=\"$(sed -n 's/^Comment[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
             "    e=\"$(sed -n 's/^Exec[^=]*=//p' \"$f\" 2>/dev/null | head -1 | sed 's/%[a-zA-Z]//g')\"\n" +
             "    [ -z \"$e\" ] && continue\n" +
+            "    t=\"$(sed -n 's/^Terminal[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    [ -z \"$t\" ] && t=false\n" +
             "    nd=\"$(sed -n 's/^NoDisplay[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
             "    [ \"$nd\" = \"true\" ] && continue\n" +
             "    hd=\"$(sed -n 's/^Hidden[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
             "    [ \"$hd\" = \"true\" ] && continue\n" +
-            "    printf '%s\\t%s\\t%s\\t%s\\t%s\\n' \"$id\" \"$n\" \"$i\" \"$c\" \"$e\"\n" +
+            "    printf '%s\\t%s\\t%s\\t%s\\t%s\\t%s\\n' \"$id\" \"$n\" \"$i\" \"$c\" \"$e\" \"$t\"\n" +
             "  done\n" +
             "done\n" +
             "IFS=:\n" +
@@ -50,11 +52,13 @@ Item {
             "    c=\"$(sed -n 's/^Comment[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
             "    e=\"$(sed -n 's/^Exec[^=]*=//p' \"$f\" 2>/dev/null | head -1 | sed 's/%[a-zA-Z]//g')\"\n" +
             "    [ -z \"$e\" ] && continue\n" +
+            "    t=\"$(sed -n 's/^Terminal[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
+            "    [ -z \"$t\" ] && t=false\n" +
             "    nd=\"$(sed -n 's/^NoDisplay[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
             "    [ \"$nd\" = \"true\" ] && continue\n" +
             "    hd=\"$(sed -n 's/^Hidden[^=]*=//p' \"$f\" 2>/dev/null | head -1)\"\n" +
             "    [ \"$hd\" = \"true\" ] && continue\n" +
-            "    printf '%s\\t%s\\t%s\\t%s\\t%s\\n' \"$id\" \"$n\" \"$i\" \"$c\" \"$e\"\n" +
+            "    printf '%s\\t%s\\t%s\\t%s\\t%s\\t%s\\n' \"$id\" \"$n\" \"$i\" \"$c\" \"$e\" \"$t\"\n" +
             "  done\n" +
             "done"
         ]
@@ -74,7 +78,7 @@ Item {
                 var seen = {}
                 for (var i = 0; i < lines.length; i++) {
                     var parts = lines[i].split('\t')
-                    if (parts.length >= 5) {
+                    if (parts.length >= 6) {
                         var eid = parts[0]
                         var ename = parts[1]
                         if (!ename || seen[eid]) {
@@ -88,7 +92,8 @@ Item {
                             name: ename,
                             icon: parts[2],
                             comment: parts[3],
-                            exec: parts[4]
+                            exec: parts[4],
+                            terminal: parts[5]
                         })
                     } else {
                         failed++
@@ -132,8 +137,12 @@ Item {
     function textFor(entry) { return entry ? entry.name : "" }
 
     function activate(entry) {
-        if (entry && entry.exec)
-            Quickshell.execDetached({ command: ["sh", "-c", entry.exec] })
+        if (entry && entry.exec) {
+            if (entry.terminal === "true")
+                Quickshell.execDetached({ command: ["sh", "-c", "kitty -e " + entry.exec] })
+            else
+                Quickshell.execDetached({ command: ["sh", "-c", entry.exec] })
+        }
     }
 
     property Component itemComponent: Component {
