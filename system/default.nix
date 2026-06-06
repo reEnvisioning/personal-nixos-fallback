@@ -44,7 +44,6 @@ in {
   nix.optimise.dates = ["weekly"];
   services.udisks2.enable = true;
   services.power-profiles-daemon.enable = true;
-  services.asusd.enable = true;
 
   environment.systemPackages = with pkgs; [
     vim
@@ -53,7 +52,6 @@ in {
     hyprshot
     pavucontrol
     brightnessctl
-    asusctl
     temurin-bin-21
   ];
 
