@@ -48,10 +48,7 @@ in {
     enable = true;
     package = pkgs.openrgb-with-all-plugins;
   };
-  services.asusd = {
-    enable = true;
-    enableUserService = true;
-  };
+  services.asusd.enable = true;
 
   environment.systemPackages = with pkgs; [
     vim
