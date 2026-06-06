@@ -94,6 +94,7 @@ Item {
                         failed++
                     }
                 }
+                root._allApps.sort(function(a, b) { return a.name.localeCompare(b.name) })
                 console.log("AppProvider: loaded", root._allApps.length, "apps")
                 if (failed > 0) console.log("AppProvider:", failed, "skipped (no Name / no Exec / unparseable)")
                 if (dupes > 0) console.log("AppProvider:", dupes, "duplicates skipped")
@@ -112,11 +113,11 @@ Item {
         if (root._allApps.length === 0) return []
 
         if (!text || !text.trim())
-            return _allApps.slice(0, 15)
+            return _allApps.slice(0, 100)
 
         var results = Fuzzy.go(text, _allApps, {
             key: "name",
-            limit: 15,
+            limit: 100,
             threshold: -10000
         })
         if (results.length > 0)
