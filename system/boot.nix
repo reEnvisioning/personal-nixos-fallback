@@ -4,4 +4,6 @@
     efi.canTouchEfiVariables = true;
   };
 
+  boot.kernelModules = [ "i2c-dev" ];
+
 }
