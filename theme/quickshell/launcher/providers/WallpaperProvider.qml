@@ -30,7 +30,9 @@ Item {
             "  name=$(basename \"$path\");" +
             "  cur=\"false\";" +
             "  if [ \"$idx\" = \"$CURRENT_IDX\" ]; then cur=\"true\"; fi;" +
-            "  printf '%s\\t%s\\t%s\\t%s\\t%s\\n' \"$idx\" \"$name\" \"$path\" \"$cur\" \"$WALLPAPER_COUNT\";" +
+            "  userAdded=\"false\";" +
+            "  [[ \"$path\" == \"$HOME/.local/share/$H/wallpapers/\"* ]] && userAdded=\"true\";" +
+            "  printf '%s\\t%s\\t%s\\t%s\\t%s\\t%s\\n' \"$idx\" \"$name\" \"$path\" \"$cur\" \"$WALLPAPER_COUNT\" \"$userAdded\";" +
             "done"]
         running: true
         stdout: StdioCollector {
@@ -41,13 +43,14 @@ Item {
                 var lines = raw.split('\n')
                 for (var i = 0; i < lines.length; i++) {
                     var parts = lines[i].split('\t')
-                    if (parts.length >= 5) {
+                    if (parts.length >= 6) {
                         root._wallpapers.push({
                             index: parseInt(parts[0]),
                             name: parts[1],
                             fullPath: parts[2],
                             current: parts[3] === "true",
-                            total: parseInt(parts[4])
+                            total: parseInt(parts[4]),
+                            userAdded: parts[5] === "true"
                         })
                     }
                 }
@@ -82,6 +85,56 @@ Item {
                     addWallpaper(path)
             }
         }
+    }
+
+    Process {
+        id: deleteProc
+        command: ["true"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                wallpaperLoader.running = false
+                wallpaperLoader.running = true
+            }
+        }
+    }
+
+    function remove(entry) {
+        if (!entry || !entry.userAdded) return
+        deleteProc.command = ["bash", "-c",
+            "H=$(hostname);" +
+            "THEME=$(state get current-theme 2>/dev/null || true);" +
+            "if [ -z \"$THEME\" ]; then exit 0; fi;" +
+            "if [ -f \"$HOME/.config/$H/themes/$THEME.json\" ]; then" +
+            "  THEME_FILE=\"$HOME/.config/$H/themes/$THEME.json\";" +
+            "else exit 0; fi;" +
+            "jq --arg path \"$1\" 'del(.wallpapers[] | select(. == $path))' \"$THEME_FILE\" > \"${THEME_FILE}.tmp\" && " +
+            "mv \"${THEME_FILE}.tmp\" \"$THEME_FILE\";" +
+            "rm -f \"$1\";" +
+            "if [ \"$(state get wallpaper-idx:$THEME)\" != \"0\" ]; then" +
+            "  switch-wallpaper 0; fi",
+            "removeWallpaper", entry.fullPath]
+        deleteProc.running = false
+        deleteProc.running = true
+    }
+
+    function removeAll() {
+        deleteProc.command = ["bash", "-c",
+            "H=$(hostname);" +
+            "THEME=$(state get current-theme 2>/dev/null || true);" +
+            "if [ -z \"$THEME\" ]; then exit 0; fi;" +
+            "if [ -f \"$HOME/.config/$H/themes/$THEME.json\" ]; then" +
+            "  THEME_FILE=\"$HOME/.config/$H/themes/$THEME.json\";" +
+            "else exit 0; fi;" +
+            "PREF=\"$HOME/.local/share/$H/wallpapers/\";" +
+            "jq --arg pref \"$PREF\" 'del(.wallpapers[] | select(. | startswith($pref)))' " +
+            "  \"$THEME_FILE\" > \"${THEME_FILE}.tmp\" && " +
+            "mv \"${THEME_FILE}.tmp\" \"$THEME_FILE\";" +
+            "rm -rf \"$HOME/.local/share/$H/wallpapers/\";" +
+            "switch-wallpaper 0",
+            "removeAll"]
+        deleteProc.running = false
+        deleteProc.running = true
     }
 
     function addWallpaper(filePath) {
@@ -210,6 +263,14 @@ Item {
                     text: modelData && modelData.current ? "(current)" : ""
                     color: colors.green || colors.text
                     font.pointSize: 8
+                    visible: text !== ""
+                }
+
+                Text {
+                    text: modelData && modelData.userAdded && selected ? "Ctrl+D" : ""
+                    color: colors.subtext0 || "#888"
+                    font.pointSize: 7
+                    font.family: "monospace"
                     visible: text !== ""
                 }
             }

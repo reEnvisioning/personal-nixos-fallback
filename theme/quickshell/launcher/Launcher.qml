@@ -268,6 +268,15 @@ PanelWindow {
                             root.moveSel(1)
                             event.accepted = true
                         }
+                    } else if (event.key === Qt.Key_D && (event.modifiers & Qt.ControlModifier) && root.activeProvider && root.results.length > 0) {
+                        var prov = root.activeProvider
+                        if (typeof prov.remove !== "function") { return }
+                        if (event.modifiers & Qt.ShiftModifier) {
+                            prov.removeAll()
+                        } else {
+                            prov.remove(root.results[root.currentIndex])
+                        }
+                        event.accepted = true
                     } else if (event.key === Qt.Key_Escape) {
                         if (root.activeProvider || root.results.length > 0 || inputField.text !== "") {
                             root.activeProvider = null
