@@ -52,6 +52,7 @@ in {
     hyprshot
     pavucontrol
     brightnessctl
+    openrgb-with-all-plugins
     temurin-bin-21
   ];
 
