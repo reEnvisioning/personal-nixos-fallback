@@ -21,7 +21,8 @@ PanelWindow {
     property bool _pendingCleanup: false
 
     property list<QtObject> providers: [
-        AppProvider { id: appProv }
+        AppProvider { id: appProv },
+        ShellProvider { id: shellProv }
     ]
 
     property var activeProvider: null
