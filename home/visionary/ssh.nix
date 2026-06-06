@@ -38,6 +38,8 @@
           UserKnownHostsFile = "~/.ssh/known_hosts";
 
           LogLevel = "INFO";
+
+          ObscureKeystrokeTiming = "no";
         };
       };
     };
