@@ -23,7 +23,8 @@ PanelWindow {
     property list<QtObject> providers: [
         AppProvider { id: appProv },
         ShellProvider { id: shellProv },
-        ThemeProvider { id: themeProv }
+        ThemeProvider { id: themeProv },
+        WallpaperProvider { id: wallpaperProv }
     ]
 
     property var activeProvider: null
