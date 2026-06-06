@@ -244,6 +244,9 @@ PanelWindow {
                     if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                         root.selectCurrent()
                         event.accepted = true
+                    } else if (event.key === Qt.Key_Backspace && inputField.text === "") {
+                        root.close()
+                        event.accepted = true
                     } else if (event.key === Qt.Key_Up) {
                         if (root.results.length > 0) {
                             root.moveSel(-1)
