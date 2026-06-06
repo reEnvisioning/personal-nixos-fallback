@@ -69,6 +69,11 @@ in {
         clip-to-geometry true
     }
 
+    window-rule {
+        match app-id="kitty" title="fzf"
+        open-floating true
+    }
+
     layout {
         gaps 2
         focus-ring {

@@ -77,7 +77,7 @@ Item {
         command: ["bash", "-c",
             "find ~/Pictures ~/Downloads ~/ -maxdepth 3 -type f \\(" +
             "  -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.bmp' -o -name '*.webp'" +
-            "\\) 2>/dev/null | sort | kitty sh -c 'fzf --prompt=\"Wallpaper > \" > /tmp/wallpaper-choice' && " +
+            "\\) 2>/dev/null | sort | kitty -T fzf sh -c 'fzf --prompt=\"Wallpaper > \" > /tmp/wallpaper-choice' && " +
             "cat /tmp/wallpaper-choice"]
         running: false
         stdout: StdioCollector {
@@ -268,13 +268,6 @@ Item {
                     visible: text !== ""
                 }
 
-                Text {
-                    text: modelData && modelData.userAdded && selected ? "Ctrl+D" : ""
-                    color: colors.subtext0 || "#888"
-                    font.pointSize: 7
-                    font.family: "monospace"
-                    visible: text !== ""
-                }
             }
         }
     }
