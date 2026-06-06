@@ -11,6 +11,39 @@ Item {
 
     property var _history: []
 
+    Process {
+        id: historyLoader
+        command: ["sh", "-c", "cat $HOME/.local/share/$(hostname)/shell-history.json 2>/dev/null || echo '[]'"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: {
+                try {
+                    var arr = JSON.parse(text.trim())
+                    if (Array.isArray(arr))
+                        root._history = arr
+                } catch (e) {}
+            }
+        }
+    }
+
+    function save() {
+        var json = JSON.stringify(root._history)
+        var delim = "HS" + Math.random().toString(36).substring(2, 10) + "EOF"
+        historySaver.command = ["sh", "-c",
+            "mkdir -p $HOME/.local/share/$(hostname) && " +
+            "cat > $HOME/.local/share/$(hostname)/shell-history.json << '" + delim + "'\n" +
+            json + "\n" +
+            delim]
+        historySaver.running = false
+        historySaver.running = true
+    }
+
+    Process {
+        id: historySaver
+        command: ["true"]
+        running: false
+    }
+
     function textFor(entry) { return entry ? entry.command : "" }
 
     function query(text) {
@@ -36,6 +69,7 @@ Item {
             if (idx >= 0) _history.splice(idx, 1)
             _history.unshift({ command: entry.command })
             if (_history.length > 10) _history.length = 10
+            save()
 
             Quickshell.execDetached({ command: ["sh", "-c", entry.command] })
         }
