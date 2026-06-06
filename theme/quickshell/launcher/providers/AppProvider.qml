@@ -129,6 +129,8 @@ Item {
         }).slice(0, 15)
     }
 
+    function textFor(entry) { return entry ? entry.name : "" }
+
     function activate(entry) {
         if (entry && entry.exec)
             Quickshell.execDetached({ command: ["sh", "-c", entry.exec] })

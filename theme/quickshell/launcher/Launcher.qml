@@ -248,6 +248,14 @@ PanelWindow {
                     } else if (event.key === Qt.Key_Backspace && inputField.text === "") {
                         root.close()
                         event.accepted = true
+                    } else if ((event.key === Qt.Key_Tab || event.key === Qt.Key_Right) && root.activeProvider && root.results.length > 0) {
+                        if (event.key === Qt.Key_Right && inputField.cursorPosition < inputField.text.length) {
+                            return
+                        }
+                        var entry = root.results[root.currentIndex]
+                        inputField.text = root.activeProvider.prefix + root.activeProvider.textFor(entry)
+                        inputField.cursorPosition = inputField.text.length
+                        event.accepted = true
                     } else if (event.key === Qt.Key_Up) {
                         if (root.results.length > 0) {
                             root.moveSel(-1)

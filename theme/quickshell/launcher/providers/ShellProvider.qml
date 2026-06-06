@@ -11,6 +11,8 @@ Item {
 
     property var _history: []
 
+    function textFor(entry) { return entry ? entry.command : "" }
+
     function query(text) {
         if (!text || !text.trim())
             return _history.slice()
