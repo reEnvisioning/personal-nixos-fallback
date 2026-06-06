@@ -11,6 +11,7 @@ Item {
     property string placeholderText: "Switch wallpaper..."
 
     property var _wallpapers: []
+    property int refreshKey: 0
 
     Process {
         id: wallpaperLoader
@@ -54,6 +55,7 @@ Item {
                         })
                     }
                 }
+                root.refreshKey++
             }
         }
     }
@@ -199,7 +201,7 @@ Item {
             required property bool selected
             required property var colors
             required property real uiScale
-            height: Math.round(48 * uiScale)
+            height: Math.round(44 * uiScale)
 
             Rectangle {
                 anchors.fill: parent

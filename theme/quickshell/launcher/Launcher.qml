@@ -27,6 +27,14 @@ PanelWindow {
         WallpaperProvider { id: wallpaperProv }
     ]
 
+    Connections {
+        target: wallpaperProv
+        function onRefreshKeyChanged() {
+            if (root.activeProvider === wallpaperProv)
+                root.processInput(inputField.text)
+        }
+    }
+
     property var activeProvider: null
     property string queryText: ""
     property var results: []
