@@ -72,6 +72,7 @@ in {
     window-rule {
         match app-id="kitty" title="fzf"
         open-floating true
+        open-height "30%"
     }
 
     layout {
