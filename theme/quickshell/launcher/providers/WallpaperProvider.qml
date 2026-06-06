@@ -69,8 +69,11 @@ Item {
 
     Process {
         id: filePicker
-        command: ["zenity", "--file-selection", "--title", "Choose a wallpaper image",
-            "--file-filter", "Images (*.png *.jpg *.jpeg *.bmp *.webp)"]
+        command: ["bash", "-c",
+            "find ~/Pictures ~/Downloads ~/ -maxdepth 3 -type f \\(" +
+            "  -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.bmp' -o -name '*.webp'" +
+            "\\) 2>/dev/null | sort | kitty sh -c 'fzf --prompt=\"Wallpaper > \" > /tmp/wallpaper-choice' && " +
+            "cat /tmp/wallpaper-choice"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
@@ -164,6 +167,20 @@ Item {
                     clip: true
                     color: modelData && modelData.isAdd === true ? colors.surface0 || "#333" : "transparent"
 
+                    Rectangle {
+                        anchors.fill: parent
+                        color: colors.surface0 || "#333"
+                        visible: modelData && modelData.isAdd !== true
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: modelData ? modelData.name.charAt(0).toUpperCase() : ""
+                            color: colors.subtext0 || "#888"
+                            font.pointSize: 14
+                            font.weight: Font.Bold
+                        }
+                    }
+
                     Text {
                         anchors.centerIn: parent
                         text: "+"
@@ -178,7 +195,7 @@ Item {
                         source: modelData && modelData.isAdd !== true ? modelData.fullPath : ""
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
-                        visible: !modelData || modelData.isAdd !== true
+                        visible: modelData && modelData.isAdd !== true
                     }
                 }
 

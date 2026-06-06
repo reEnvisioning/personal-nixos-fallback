@@ -66,7 +66,7 @@ in {
       qt6.qtwayland
       jq
       inotify-tools
-      zenity
+      fzf
       catppuccin-mocha
       catppuccin-latte
       (writeShellScriptBin "switch-theme" (builtins.readFile ./switch-theme))
