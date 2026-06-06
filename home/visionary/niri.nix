@@ -72,7 +72,9 @@ in {
     window-rule {
         match app-id="kitty" title="fzf"
         open-floating true
-        default-window-height { proportion 0.3; }
+        default-column-width { proportion 0.4; }
+        min-height 300
+        max-height 300
     }
 
     layout {
