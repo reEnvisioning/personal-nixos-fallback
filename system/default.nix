@@ -44,6 +44,10 @@ in {
   nix.optimise.dates = ["weekly"];
   services.udisks2.enable = true;
   services.power-profiles-daemon.enable = true;
+  services.hardware.openrgb = {
+    enable = true;
+    package = pkgs.openrgb-with-all-plugins;
+  };
 
   environment.systemPackages = with pkgs; [
     vim
