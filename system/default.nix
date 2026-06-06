@@ -44,10 +44,6 @@ in {
   nix.optimise.dates = ["weekly"];
   services.udisks2.enable = true;
   services.power-profiles-daemon.enable = true;
-  services.hardware.openrgb = {
-    enable = true;
-    package = pkgs.openrgb-with-all-plugins;
-  };
   services.asusd.enable = true;
 
   environment.systemPackages = with pkgs; [
@@ -58,7 +54,6 @@ in {
     pavucontrol
     brightnessctl
     asusctl
-    openrgb-with-all-plugins
     temurin-bin-21
   ];
 
