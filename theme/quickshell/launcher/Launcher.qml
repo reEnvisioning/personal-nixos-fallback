@@ -22,7 +22,8 @@ PanelWindow {
 
     property list<QtObject> providers: [
         AppProvider { id: appProv },
-        ShellProvider { id: shellProv }
+        ShellProvider { id: shellProv },
+        ThemeProvider { id: themeProv }
     ]
 
     property var activeProvider: null
