@@ -24,7 +24,8 @@ PanelWindow {
         AppProvider { id: appProv },
         ShellProvider { id: shellProv },
         ThemeProvider { id: themeProv },
-        WallpaperProvider { id: wallpaperProv }
+        WallpaperProvider { id: wallpaperProv },
+        SystemProvider { id: systemProv }
     ]
 
     Connections {
