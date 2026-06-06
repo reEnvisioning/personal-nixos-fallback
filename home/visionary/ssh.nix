@@ -37,7 +37,7 @@
 
           UserKnownHostsFile = "~/.ssh/known_hosts";
 
-          LogLevel = "DEBUG2";
+          LogLevel = "INFO";
         };
       };
     };
