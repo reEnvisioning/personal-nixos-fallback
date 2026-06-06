@@ -106,12 +106,24 @@ Item {
                     clip: true
 
                     Image {
+                        id: thumbImg
                         anchors.fill: parent
                         source: modelData ? modelData.fullPath : ""
-                        sourceSize { width: 120; height: 72 }
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
                         onStatusChanged: if (status === Image.Error) console.log("Wallpaper load error:", source)
+                    }
+
+                    Rectangle {
+                        anchors.fill: parent
+                        color: colors.surface0 || "#333"
+                        visible: thumbImg.status !== Image.Ready
+                        Text {
+                            anchors.centerIn: parent
+                            text: modelData ? modelData.name.charAt(0).toUpperCase() : ""
+                            color: colors.subtext0 || "#888"
+                            font.pointSize: 12
+                        }
                     }
                 }
 
