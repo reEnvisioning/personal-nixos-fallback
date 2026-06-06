@@ -13,7 +13,10 @@ Item {
         { id: "shutdown", cmd: "systemctl poweroff" },
         { id: "reboot",   cmd: "systemctl reboot" },
         { id: "logout",   cmd: "loginctl terminate-user $USER" },
-        { id: "lock",     cmd: "swaylock -f" }
+        { id: "lock",     cmd: "swaylock -f" },
+        { id: "performance", cmd: "powerprofile performance" },
+        { id: "balanced",    cmd: "powerprofile balanced" },
+        { id: "powersave",   cmd: "powerprofile powersave" }
     ]
 
     function query(text) {

@@ -109,6 +109,7 @@ PanelWindow {
         "Theme Indicator",
         "Mic Indicator",
         "Battery Indicator",
+        "Power Profile Indicator",
         "Wallpaper Indicator"
     ]
 
