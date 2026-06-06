@@ -16,7 +16,7 @@ Item {
         { id: "lock",     cmd: "swaylock -f" },
         { id: "performance", cmd: "powerprofile performance" },
         { id: "balanced",    cmd: "powerprofile balanced" },
-        { id: "powersave",   cmd: "powerprofile powersave" }
+        { id: "powersave",   cmd: "powerprofile power-saver" }
     ]
 
     function query(text) {
