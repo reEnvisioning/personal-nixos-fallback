@@ -55,9 +55,14 @@ Item {
         }
     }
 
-    function refresh() {
-        wallpaperLoader.running = false
-        wallpaperLoader.running = true
+    function activate(entry) {
+        if (entry && entry.index !== undefined) {
+            Quickshell.execDetached(["switch-wallpaper", String(entry.index)])
+            for (var i = 0; i < root._wallpapers.length; i++)
+                root._wallpapers[i].current = root._wallpapers[i].index === entry.index
+            var tmp = root._wallpapers.slice()
+            root._wallpapers = tmp
+        }
     }
 
     function query(text) {
@@ -109,9 +114,11 @@ Item {
 
                     Image {
                         anchors.fill: parent
-                        source: modelData ? "file://" + modelData.fullPath : ""
+                        source: modelData ? modelData.fullPath : ""
+                        sourceSize { width: 120; height: 72 }
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
+                        onStatusChanged: if (status === Image.Error) console.log("Wallpaper load error:", source)
                     }
                 }
 
