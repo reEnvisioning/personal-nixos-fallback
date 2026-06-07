@@ -27,7 +27,8 @@ PanelWindow {
         WallpaperProvider { id: wallpaperProv },
         SystemProvider { id: systemProv },
         ShareProvider { id: shareProv },
-        EmojiProvider { id: emojiProv }
+        EmojiProvider { id: emojiProv },
+        CalcProvider { id: calcProv }
     ]
 
     Connections {
