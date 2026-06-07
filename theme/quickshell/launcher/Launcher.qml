@@ -25,13 +25,22 @@ PanelWindow {
         ShellProvider { id: shellProv },
         ThemeProvider { id: themeProv },
         WallpaperProvider { id: wallpaperProv },
-        SystemProvider { id: systemProv }
+        SystemProvider { id: systemProv },
+        ShareProvider { id: shareProv }
     ]
 
     Connections {
         target: wallpaperProv
         function onRefreshKeyChanged() {
             if (root.activeProvider === wallpaperProv)
+                root.processInput(inputField.text)
+        }
+    }
+
+    Connections {
+        target: shareProv
+        function onRefreshKeyChanged() {
+            if (root.activeProvider === shareProv)
                 root.processInput(inputField.text)
         }
     }
