@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../scripts/fuzzy.js" as Fuzzy
 
 Item {
     id: root
@@ -17,7 +18,8 @@ Item {
         id: fileScanner
         command: ["bash", "-c",
             "cd ~ && find Documents Downloads Pictures Videos Music . " +
-            "-maxdepth 3 -not -path '*/.*' -type f 2>/dev/null | sort"]
+            "-maxdepth 3 -not -path '*/.*' -type f " +
+            "-printf '%T@\\t%p\\n' 2>/dev/null | sort -rn | head -100 | cut -f2-"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -26,9 +28,16 @@ Item {
                 if (raw === "") return
                 var lines = raw.split('\n')
                 for (var i = 0; i < lines.length; i++) {
+                    var parts = lines[i].split('/')
+                    var name = parts.pop()
+                    var dir = parts.join('/')
+                    var displayPath = dir.length > 25
+                        ? ".." + dir.slice(-22) + "/" + name
+                        : lines[i]
                     root._files.push({
                         relPath: lines[i],
-                        name: lines[i].split('/').pop()
+                        name: name,
+                        displayPath: displayPath
                     })
                 }
                 root.refreshKey++
@@ -55,19 +64,37 @@ Item {
         }
     }
 
+    Timer {
+        interval: 30000
+        running: true
+        repeat: true
+        onTriggered: {
+            fileScanner.running = false
+            fileScanner.running = true
+        }
+    }
+
     function query(text) {
         if (root._files.length === 0) return []
 
         if (!text || !text.trim())
             return [{ isBrowse: true }]
 
+        var results = Fuzzy.go(text, root._files, {
+            key: "relPath",
+            limit: 100,
+            threshold: -10000
+        })
+        if (results.length > 0)
+            return results.map(function(r) { return r.obj })
+
         var lower = text.toLowerCase()
-        var results = []
+        var fallback = []
         for (var i = 0; i < root._files.length; i++) {
-            if (root._files[i].relPath.toLowerCase().indexOf(lower) !== -1)
-                results.push(root._files[i])
+            if (root._files[i].name.toLowerCase().indexOf(lower) !== -1)
+                fallback.push(root._files[i])
         }
-        return results
+        return fallback
     }
 
     function textFor(entry) { return entry ? (entry.isBrowse ? "" : entry.relPath) : "" }
@@ -102,7 +129,7 @@ Item {
                 anchors.left: parent.left
                 anchors.leftMargin: Math.round(10 * uiScale)
                 anchors.verticalCenter: parent.verticalCenter
-                text: modelData && modelData.isBrowse ? "^ Browse via fzf..." : ("^ " + modelData.relPath)
+                text: modelData && modelData.isBrowse ? "^ Browse via fzf..." : ("^ " + modelData.displayPath)
                 color: colors.text
                 font.pointSize: 9
                 font.family: "monospace"
