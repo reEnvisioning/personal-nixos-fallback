@@ -104,7 +104,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 text: modelData && modelData.isBrowse ? "^ Browse via fzf..." : ("^ " + modelData.relPath)
                 color: colors.text
-                font.pointSize: 10
+                font.pointSize: 9
                 font.family: "monospace"
                 elide: Text.ElideLeft
             }
