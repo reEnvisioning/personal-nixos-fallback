@@ -24,9 +24,11 @@ in
         ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
+        ${pkgs.iptables}/bin/iptables -t mangle -A OUTPUT -m cgroup --path "/system.slice/bypass-wg.slice" -j MARK --set-mark 2 2>/dev/null || true
       '';
 
       postShutdown = ''
+        ${pkgs.iptables}/bin/iptables -t mangle -D OUTPUT -m cgroup --path "/system.slice/bypass-wg.slice" -j MARK --set-mark 2 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip rule del fwmark 2 table 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del default via ${s.gateway} table 100 2>/dev/null || true
@@ -43,7 +45,7 @@ in
           ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept
           meta mark 0xca6c accept
           oifname "wg0" accept
-          meta cgroupv2 "/system.slice/bypass-wg.slice" accept
+          meta mark 2 accept
           reject with icmpx type admin-prohibited
         }
       }
