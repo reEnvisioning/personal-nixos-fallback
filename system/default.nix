@@ -16,6 +16,7 @@ in {
     ./polkit.nix
     ./security.nix
     ./shell.nix
+    ./proxy.nix
   ] ++ hw.systemImports;
 
   system.stateVersion = "26.05";
