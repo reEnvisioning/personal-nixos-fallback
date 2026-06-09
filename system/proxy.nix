@@ -21,21 +21,16 @@ in
       }];
 
       postSetup = ''
+        ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
+        ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
       '';
 
       postShutdown = ''
+        ${pkgs.iproute2}/bin/ip route del ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
+        ${pkgs.iproute2}/bin/ip rule del fwmark 2 table 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del default via ${s.gateway} table 100 2>/dev/null || true
       '';
-    };
-
-    networking.iproute2 = {
-      routes = [
-        { destination = "${s.serverIp}/32"; via = s.gateway; }
-      ];
-      rules = [
-        { fwmark = 2; priority = 100; table = 100; }
-      ];
     };
 
     networking.nftables.ruleset = lib.mkAfter ''
