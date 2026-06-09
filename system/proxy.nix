@@ -93,6 +93,18 @@ in
           data = "^/nix/store/.*[Vv]irtual[Bb]ox";
         };
       };
+      wireguard-kernel = {
+        name = "wireguard-kernel";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "simple";
+          sensitive = false;
+          operand = "dest.ip";
+          data = s.serverIp;
+        };
+      };
     };
   });
 }
