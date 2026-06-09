@@ -56,6 +56,7 @@
       git clone --depth 1 https://github.com/reEnvisioning/personal-nixos-fallback.git "$TMPDIR"
       sudo rm -rf "$FLAKE_DIR"/*
       sudo cp -rf "$TMPDIR"/* "$FLAKE_DIR"/
+      sudo cp /resources/secret.nix "$FLAKE_DIR"/
       rm -rf "$TMPDIR"
       sudo nixos-rebuild switch --flake "$FLAKE_DIR#${hostname}"
       switch-theme "$THEME"
