@@ -25,16 +25,20 @@ in
         ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
         ${pkgs.iptables}/bin/iptables -t mangle -A OUTPUT -m cgroup --path "/system.slice/bypass-wg.slice" -j MARK --set-mark 2 2>/dev/null || true
-        ${pkgs.nftables}/bin/nft insert rule inet wg-killswitch output \
-          oifname != "lo" oifname != "wg0" meta mark != 0xca6c meta mark != 2 \
+        ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+          ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept
+        ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+          oifname != "lo" oifname != "wg0" meta mark != 2 \
           counter reject with icmpx type admin-prohibited 2>/dev/null || true
       '';
 
       postShutdown = ''
-        handle=$(${pkgs.nftables}/bin/nft -a list chain inet wg-killswitch output 2>/dev/null \
-          | ${pkgs.gnugrep}/bin/grep "counter reject" \
-          | ${pkgs.gnugrep}/bin/grep -oP 'handle \K\d+')
-        [ -n "$handle" ] && ${pkgs.nftables}/bin/nft delete rule inet wg-killswitch output handle $handle 2>/dev/null || true
+        for pattern in "daddr ${s.serverIp}" "counter reject"; do
+          handle=$(${pkgs.nftables}/bin/nft -a list chain inet wg-killswitch output 2>/dev/null \
+            | ${pkgs.gnugrep}/bin/grep "$pattern" \
+            | ${pkgs.gnugrep}/bin/grep -oP 'handle \K\d+')
+          [ -n "$handle" ] && ${pkgs.nftables}/bin/nft delete rule inet wg-killswitch output handle $handle 2>/dev/null || true
+        done
         ${pkgs.iptables}/bin/iptables -t mangle -D OUTPUT -m cgroup --path "/system.slice/bypass-wg.slice" -j MARK --set-mark 2 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip rule del fwmark 2 table 100 2>/dev/null || true
@@ -51,6 +55,8 @@ in
         }
       }
     '';
+
+    boot.kernelModules = [ "xt_cgroup" ];
 
     systemd.slices.bypass-wg = {};
 
