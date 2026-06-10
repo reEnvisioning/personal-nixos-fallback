@@ -25,9 +25,9 @@ in
         ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
         ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-          socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2
+          socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2 2>/dev/null || true
         ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-          ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept
+          ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept 2>/dev/null || true
         ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
           oifname != "lo" oifname != "wg0" meta mark != 2 \
           counter reject with icmpx type admin-prohibited 2>/dev/null || true
@@ -49,24 +49,16 @@ in
     systemd.services.wireguard-wg0 = {
       after = [ "network-online.target" "NetworkManager-wait-online.service" "nftables.service" ];
       wants = [ "network-online.target" "nftables.service" ];
+      unitConfig.StartLimitIntervalSec = 0;
       serviceConfig = {
         Restart = "on-failure";
         RestartSec = "10s";
-        StartLimitIntervalSec = 0;
       };
     };
 
-    networking.nftables.ruleset = lib.mkAfter ''
-      table inet wg-killswitch {
-        chain output {
-          type filter hook output priority -100; policy accept;
-          oif "lo" accept
-          ct state established,related accept
-        }
-      }
-    '';
-
-    systemd.slices.bypass-wg = {};
+    systemd.slices.bypass-wg = {
+      wantedBy = [ "multi-user.target" ];
+    };
 
     security.sudo.extraRules = [{
       users = [ "visionary" ];
