@@ -25,6 +25,8 @@ in
         ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
         ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+          socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2
+        ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
           ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept
         ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
           oifname != "lo" oifname != "wg0" meta mark != 2 \
@@ -32,7 +34,7 @@ in
       '';
 
       postShutdown = ''
-        for pattern in "daddr ${s.serverIp}" "counter reject"; do
+        for pattern in "daddr ${s.serverIp}" "counter reject" "bypass-wg.slice"; do
           handle=$(${pkgs.nftables}/bin/nft -a list chain inet wg-killswitch output 2>/dev/null \
             | ${pkgs.gnugrep}/bin/grep "$pattern" \
             | ${pkgs.gnugrep}/bin/grep -oP 'handle \K\d+')
@@ -60,7 +62,6 @@ in
           type filter hook output priority -100; policy accept;
           oif "lo" accept
           ct state established,related accept
-          socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2
         }
       }
     '';
