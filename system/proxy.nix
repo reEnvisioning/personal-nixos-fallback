@@ -23,24 +23,37 @@ in
       postSetup = ''
         echo "pending" > /tmp/wg-vpn-status
         (
-          if ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null; then
-            echo "connected" > /tmp/wg-vpn-status
-            ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
-            ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
-            ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-              socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2 2>/dev/null || true
-            ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-              ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept
-            ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-              oifname != "lo" oifname != "wg0" meta mark != 2 \
-              counter reject with icmpx type admin-prohibited
-          else
-            echo "unreachable" > /tmp/wg-vpn-status
-            sudo -u visionary \
-              DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus" \
-              ${pkgs.libnotify}/bin/notify-send -a "Proxy" "VPN server unreachable" \
-              2>/dev/null || true
-          fi
+          # Route to VPN server (relies on LAN, not on the server itself)
+          ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
+
+          # Poll for a WireGuard handshake — up to 10 seconds
+          for i in 1 2 3 4 5 6 7 8 9 10; do
+            hs=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
+            ts=$(echo "$hs" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
+            now=$(${pkgs.coreutils}/bin/date +%s)
+            if [ -n "$ts" ] && [ "$ts" != "0" ] && [ $((now - ts)) -lt 30 ]; then
+              # Handshake confirmed — tunnel is up, enable kill switch
+              ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
+              ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
+              ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+                socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2 2>/dev/null || true
+              ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+                ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept
+              ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+                oifname != "lo" oifname != "wg0" meta mark != 2 \
+                counter reject with icmpx type admin-prohibited
+              echo "connected" > /tmp/wg-vpn-status
+              sudo -u visionary \
+                DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus" \
+                ${pkgs.libnotify}/bin/notify-send -a "Proxy" "VPN connected" \
+                2>/dev/null || true
+              exit 0
+            fi
+            sleep 1
+          done
+
+          # No handshake — server unreachable, don't install kill switch
+          echo "unreachable" > /tmp/wg-vpn-status
         ) &
       '';
 
