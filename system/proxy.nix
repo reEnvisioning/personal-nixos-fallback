@@ -25,9 +25,16 @@ in
         ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
         ${pkgs.iptables}/bin/iptables -t mangle -A OUTPUT -m cgroup --path "/system.slice/bypass-wg.slice" -j MARK --set-mark 2 2>/dev/null || true
+        ${pkgs.nftables}/bin/nft insert rule inet wg-killswitch output \
+          oifname != "lo" oifname != "wg0" meta mark != 0xca6c meta mark != 2 \
+          counter reject with icmpx type admin-prohibited 2>/dev/null || true
       '';
 
       postShutdown = ''
+        handle=$(${pkgs.nftables}/bin/nft -a list chain inet wg-killswitch output 2>/dev/null \
+          | ${pkgs.gnugrep}/bin/grep "counter reject" \
+          | ${pkgs.gnugrep}/bin/grep -oP 'handle \K\d+')
+        [ -n "$handle" ] && ${pkgs.nftables}/bin/nft delete rule inet wg-killswitch output handle $handle 2>/dev/null || true
         ${pkgs.iptables}/bin/iptables -t mangle -D OUTPUT -m cgroup --path "/system.slice/bypass-wg.slice" -j MARK --set-mark 2 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip rule del fwmark 2 table 100 2>/dev/null || true
@@ -38,15 +45,9 @@ in
     networking.nftables.ruleset = lib.mkAfter ''
       table inet wg-killswitch {
         chain output {
-          type filter hook output priority -100; policy drop;
+          type filter hook output priority -100; policy accept;
           oif "lo" accept
           ct state established,related accept
-          ip daddr { 9.9.9.9, 149.112.112.112 } tcp dport 853 accept
-          ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept
-          meta mark 0xca6c accept
-          oifname "wg0" accept
-          meta mark 2 accept
-          reject with icmpx type admin-prohibited
         }
       }
     '';
