@@ -23,6 +23,7 @@ in
       postSetup = ''
         (
           if ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null; then
+            echo "connected" > /tmp/wg-vpn-status
             ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
             ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
             ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
@@ -37,10 +38,7 @@ in
               ${pkgs.libnotify}/bin/notify-send -a "Proxy" "VPN connected" \
               2>/dev/null || true
           else
-            sudo -u visionary \
-              DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus" \
-              ${pkgs.libnotify}/bin/notify-send -a "Proxy" "VPN server unreachable" \
-              2>/dev/null || true
+            echo "unreachable" > /tmp/wg-vpn-status
           fi
         ) &
       '';
