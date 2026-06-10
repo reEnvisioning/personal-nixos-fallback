@@ -56,21 +56,16 @@ in
 
     networking.nftables.ruleset = lib.mkAfter ''
       table inet wg-killswitch {
-        set bypass_set {
-          type cgroupv2
-        }
         chain output {
           type filter hook output priority -100; policy accept;
           oif "lo" accept
           ct state established,related accept
-          socket cgroupv2 level 2 @bypass_set meta mark set 2
+          socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2
         }
       }
     '';
 
-    systemd.slices.bypass-wg = {
-      unitConfig.NFTSet = "inet:wg-killswitch:bypass_set";
-    };
+    systemd.slices.bypass-wg = {};
 
     security.sudo.extraRules = [{
       users = [ "visionary" ];
