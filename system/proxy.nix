@@ -21,6 +21,7 @@ in
       }];
 
       postSetup = ''
+        echo "pending" > /tmp/wg-vpn-status
         (
           if ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null; then
             echo "connected" > /tmp/wg-vpn-status
@@ -33,12 +34,12 @@ in
             ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
               oifname != "lo" oifname != "wg0" meta mark != 2 \
               counter reject with icmpx type admin-prohibited
-            sudo -u visionary \
-              DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus" \
-              ${pkgs.libnotify}/bin/notify-send -a "Proxy" "VPN connected" \
-              2>/dev/null || true
           else
             echo "unreachable" > /tmp/wg-vpn-status
+            sudo -u visionary \
+              DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus" \
+              ${pkgs.libnotify}/bin/notify-send -a "Proxy" "VPN server unreachable" \
+              2>/dev/null || true
           fi
         ) &
       '';
