@@ -31,6 +31,10 @@ in
         ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
           oifname != "lo" oifname != "wg0" meta mark != 2 \
           counter reject with icmpx type admin-prohibited
+        sudo -u visionary \
+          DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus" \
+          ${pkgs.libnotify}/bin/notify-send -a "Proxy" "VPN connected" \
+          2>/dev/null || true
       '';
 
       postShutdown = ''
@@ -43,6 +47,10 @@ in
         ${pkgs.iproute2}/bin/ip route del ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip rule del fwmark 2 table 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del default via ${s.gateway} table 100 2>/dev/null || true
+        sudo -u visionary \
+          DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus" \
+          ${pkgs.libnotify}/bin/notify-send -a "Proxy" "Proxy disabled" \
+          2>/dev/null || true
       '';
     };
 
@@ -62,16 +70,34 @@ in
 
     security.sudo.extraRules = [{
       users = [ "visionary" ];
-      commands = [{
-        command = "${pkgs.systemd}/bin/systemd-run --slice=bypass-wg *";
-        options = [ "NOPASSWD" "SETENV" ];
-      }];
+      commands = [
+        {
+          command = "${pkgs.systemd}/bin/systemd-run --slice=bypass-wg *";
+          options = [ "NOPASSWD" "SETENV" ];
+        }
+        {
+          command = "${pkgs.systemd}/bin/systemctl stop wireguard-wg0";
+          options = [ "NOPASSWD" "SETENV" ];
+        }
+        {
+          command = "${pkgs.systemd}/bin/systemctl start wireguard-wg0";
+          options = [ "NOPASSWD" "SETENV" ];
+        }
+      ];
     }];
 
     environment.systemPackages = with pkgs; [
+      libnotify
       (writeShellScriptBin "vbox-bypass" ''
         exec sudo ${systemd}/bin/systemd-run --slice=bypass-wg --scope --property=KillMode=process --property=User=visionary \
           ${virtualbox}/bin/VirtualBox "$@"
+      '')
+      (writeShellScriptBin "proxy-off" ''
+        notify-send -a "Proxy" "Disabling proxy..."
+        sudo systemctl stop wireguard-wg0
+      '')
+      (writeShellScriptBin "proxy-on" ''
+        sudo systemctl start wireguard-wg0
       '')
     ];
 
