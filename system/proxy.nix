@@ -21,20 +21,28 @@ in
       }];
 
       postSetup = ''
-        ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway}
-        ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
-        ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
-        ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-          socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2 2>/dev/null || true
-        ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-          ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept
-        ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-          oifname != "lo" oifname != "wg0" meta mark != 2 \
-          counter reject with icmpx type admin-prohibited
-        sudo -u visionary \
-          DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus" \
-          ${pkgs.libnotify}/bin/notify-send -a "Proxy" "VPN connected" \
-          2>/dev/null || true
+        (
+          if ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null; then
+            ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
+            ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
+            ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+              socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2 2>/dev/null || true
+            ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+              ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept
+            ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+              oifname != "lo" oifname != "wg0" meta mark != 2 \
+              counter reject with icmpx type admin-prohibited
+            sudo -u visionary \
+              DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus" \
+              ${pkgs.libnotify}/bin/notify-send -a "Proxy" "VPN connected" \
+              2>/dev/null || true
+          else
+            sudo -u visionary \
+              DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus" \
+              ${pkgs.libnotify}/bin/notify-send -a "Proxy" "VPN server unreachable" \
+              2>/dev/null || true
+          fi
+        ) &
       '';
 
       postShutdown = ''
@@ -47,20 +55,32 @@ in
         ${pkgs.iproute2}/bin/ip route del ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip rule del fwmark 2 table 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del default via ${s.gateway} table 100 2>/dev/null || true
-        sudo -u visionary \
-          DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/1000/bus" \
-          ${pkgs.libnotify}/bin/notify-send -a "Proxy" "Proxy disabled" \
-          2>/dev/null || true
       '';
     };
 
     systemd.services.wireguard-wg0 = {
-      after = [ "network-online.target" "NetworkManager-wait-online.service" "nftables.service" ];
-      wants = [ "network-online.target" "nftables.service" ];
-      unitConfig.StartLimitIntervalSec = 0;
-      serviceConfig = {
-        Restart = "on-failure";
-        RestartSec = "10s";
+      after = [ "nftables.service" ];
+      wants = [ "nftables.service" ];
+    };
+
+    systemd.services.wireguard-retry = {
+      description = "Retry WireGuard connection if VPN route is missing";
+      after = [ "network.target" ];
+      serviceConfig.Type = "oneshot";
+      script = ''
+        if [ ! -f /tmp/wg-disabled ] && \
+           ! ${pkgs.iproute2}/bin/ip route show ${s.serverIp} >/dev/null 2>&1; then
+          ${pkgs.systemd}/bin/systemctl restart wireguard-wg0
+        fi
+      '';
+    };
+
+    systemd.timers.wireguard-retry = {
+      description = "Retry WireGuard connection every 60s";
+      wantedBy = [ "timers.target" ];
+      timerConfig = {
+        OnBootSec = "30s";
+        OnUnitActiveSec = "60s";
       };
     };
 
@@ -93,10 +113,12 @@ in
           ${virtualbox}/bin/VirtualBox "$@"
       '')
       (writeShellScriptBin "proxy-off" ''
-        notify-send -a "Proxy" "Disabling proxy..."
+        touch /tmp/wg-disabled
+        notify-send -a "Proxy" "Proxy disabled"
         sudo systemctl stop wireguard-wg0
       '')
       (writeShellScriptBin "proxy-on" ''
+        rm -f /tmp/wg-disabled
         sudo systemctl start wireguard-wg0
       '')
     ];
