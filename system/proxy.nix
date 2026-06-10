@@ -21,16 +21,16 @@ in
       }];
 
       postSetup = ''
-        ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
+        ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway}
         ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
         ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
           socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2 2>/dev/null || true
         ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-          ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept 2>/dev/null || true
+          ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept
         ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
           oifname != "lo" oifname != "wg0" meta mark != 2 \
-          counter reject with icmpx type admin-prohibited 2>/dev/null || true
+          counter reject with icmpx type admin-prohibited
       '';
 
       postShutdown = ''
