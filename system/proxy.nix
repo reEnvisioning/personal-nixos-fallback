@@ -53,6 +53,8 @@ in {
       };
     };
 
+    systemd.targets.wireguard-wg0.wantedBy = lib.mkForce [ ];
+
     systemd.services.wireguard-monitor = {
       description = "WireGuard connection monitor";
       after = [ "network.target" "nftables.service" ];

@@ -13,7 +13,7 @@
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
 
-  boot.kernelParams = [ "nvidia-drm.modeset=1" ];
+  boot.kernelParams = [ "nvidia-drm.modeset=1" "nvidia-drm.fbdev=1" "video=1920x1080" ];
 
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
