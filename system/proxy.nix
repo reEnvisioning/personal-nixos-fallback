@@ -4,8 +4,6 @@ let
   secretResult = builtins.tryEval (import ../secret.nix);
   hasSecret = secretResult.success;
   inherit (pkgs) systemd;
-  # Helper to send notifications from root systemd services to the user session
-  notifyUser = "${pkgs.sudo}/bin/sudo -u visionary DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus WAYLAND_DISPLAY=wayland-1 DISPLAY=:0 ${pkgs.libnotify}/bin/notify-send -a Proxy";
 in {
   config = lib.mkIf hasSecret (let
     s = secretResult.value;
@@ -40,17 +38,18 @@ in {
         ${pkgs.iproute2}/bin/ip route del default via ${s.gateway} table 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
         echo "disconnected" > /tmp/wg-vpn-status
-        ${notifyUser} "VPN disconnected" 2>/dev/null || true
+        echo "disconnected" > /tmp/wg-last-state
+        echo "VPN disconnected" > /tmp/wg-notify
       '';
     };
 
     systemd.services.wireguard-wg0 = {
+      wantedBy = lib.mkForce [ ];
       after = [ "nftables.service" ];
       wants = [ "nftables.service" ];
       serviceConfig = {
         TimeoutStartSec = 5;
-        Restart = "on-failure";
-        RestartSec = 10;
+        Restart = "no";
       };
     };
 
@@ -64,47 +63,86 @@ in {
           exit 0
         fi
 
+        # If wg0 doesn't exist, try to start it and try again next cycle
         if ! ${pkgs.wireguard-tools}/bin/wg show wg0 >/dev/null 2>&1; then
+          ${pkgs.systemd}/bin/systemctl start wireguard-wg0 2>/dev/null || true
           exit 0
         fi
+
         HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
         TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
         NOW=$(${pkgs.coreutils}/bin/date +%s)
         ROUTES=$(${pkgs.iproute2}/bin/ip route show 0.0.0.0/1 2>/dev/null | ${pkgs.gnugrep}/bin/grep -c "dev wg0" || true)
 
+        # Determine current state
+        CUR="pending"
         if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 30 ]; then
-          if [ "$ROUTES" -eq 0 ]; then
-            ${pkgs.iproute2}/bin/ip route add 0.0.0.0/1 dev wg0 2>/dev/null || true
-            ${pkgs.iproute2}/bin/ip route add 128.0.0.0/1 dev wg0 2>/dev/null || true
-            ${pkgs.iproute2}/bin/ip -6 route add ::/1 dev wg0 2>/dev/null || true
-            ${pkgs.iproute2}/bin/ip -6 route add 8000::/1 dev wg0 2>/dev/null || true
+          CUR="connected"
+        elif [ "$ROUTES" -gt 0 ] || { [ -n "$TS" ] && [ "$TS" != "0" ]; }; then
+          CUR="unreachable"
+        fi
 
-            ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
-            ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
-
-            ${pkgs.nftables}/bin/nft add table inet wg-killswitch 2>/dev/null || true
-            ${pkgs.nftables}/bin/nft add chain inet wg-killswitch output { type filter hook output priority filter + 2\; policy accept\; } 2>/dev/null || true
-            ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-              socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2 2>/dev/null || true
-            ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-              ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept
-            ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-              oifname != "lo" oifname != "wg0" meta mark != 2 \
-              counter reject with icmpx type admin-prohibited
-
-            echo "connected" > /tmp/wg-vpn-status
-            ${notifyUser} "VPN connected" 2>/dev/null || true
+        # If still pending after more than one monitor cycle, transition to unreachable
+        if [ "$CUR" = "pending" ]; then
+          if [ ! -f /tmp/wg-pending-since ]; then
+            date +%s > /tmp/wg-pending-since
+          else
+            PENDING_SINCE=$(cat /tmp/wg-pending-since 2>/dev/null || echo "$NOW")
+            if [ $((NOW - PENDING_SINCE)) -gt 35 ]; then
+              CUR="unreachable"
+            fi
           fi
         else
-          if [ "$ROUTES" -gt 0 ]; then
-            ${pkgs.nftables}/bin/nft flush chain inet wg-killswitch output 2>/dev/null || true
-            ${pkgs.iproute2}/bin/ip route del 0.0.0.0/1 2>/dev/null || true
-            ${pkgs.iproute2}/bin/ip route del 128.0.0.0/1 2>/dev/null || true
-            ${pkgs.iproute2}/bin/ip -6 route del ::/1 2>/dev/null || true
-            ${pkgs.iproute2}/bin/ip -6 route del 8000::/1 2>/dev/null || true
-            echo "unreachable" > /tmp/wg-vpn-status
-            ${notifyUser} "VPN server unreachable — using direct connection" 2>/dev/null || true
-          fi
+          rm -f /tmp/wg-pending-since 2>/dev/null || true
+        fi
+
+        # Read previous state for transition detection
+        LAST=$(cat /tmp/wg-last-state 2>/dev/null || echo "unknown")
+        echo "$CUR" > /tmp/wg-last-state
+
+        case "$CUR" in
+          connected)
+            if [ "$ROUTES" -eq 0 ]; then
+              ${pkgs.iproute2}/bin/ip route add 0.0.0.0/1 dev wg0 2>/dev/null || true
+              ${pkgs.iproute2}/bin/ip route add 128.0.0.0/1 dev wg0 2>/dev/null || true
+              ${pkgs.iproute2}/bin/ip -6 route add ::/1 dev wg0 2>/dev/null || true
+              ${pkgs.iproute2}/bin/ip -6 route add 8000::/1 dev wg0 2>/dev/null || true
+
+              ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
+              ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
+
+              ${pkgs.nftables}/bin/nft add table inet wg-killswitch 2>/dev/null || true
+              ${pkgs.nftables}/bin/nft add chain inet wg-killswitch output { type filter hook output priority filter + 2\; policy accept\; } 2>/dev/null || true
+              ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+                socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2 2>/dev/null || true
+              ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+                ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept
+              ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+                oifname != "lo" oifname != "wg0" meta mark != 2 \
+                counter reject with icmpx type admin-prohibited
+            fi
+            ;;
+          unreachable)
+            if [ "$ROUTES" -gt 0 ]; then
+              ${pkgs.nftables}/bin/nft flush chain inet wg-killswitch output 2>/dev/null || true
+              ${pkgs.iproute2}/bin/ip route del 0.0.0.0/1 2>/dev/null || true
+              ${pkgs.iproute2}/bin/ip route del 128.0.0.0/1 2>/dev/null || true
+              ${pkgs.iproute2}/bin/ip -6 route del ::/1 2>/dev/null || true
+              ${pkgs.iproute2}/bin/ip -6 route del 8000::/1 2>/dev/null || true
+            fi
+            ;;
+        esac
+
+        # Always write current status
+        echo "$CUR" > /tmp/wg-vpn-status
+
+        # Only queue a notification on state transitions
+        if [ "$CUR" != "$LAST" ] && [ "$CUR" != "pending" ]; then
+          case "$CUR" in
+            connected)  echo "VPN connected" > /tmp/wg-notify ;;
+            unreachable) echo "VPN server unreachable — using direct connection" > /tmp/wg-notify ;;
+            disconnected) echo "VPN disconnected" > /tmp/wg-notify ;;
+          esac
         fi
       '';
     };

@@ -42,5 +42,38 @@ in {
     };
   };
 
+  systemd.user.services.wg-notify = let
+    notifyScript = pkgs.writeShellScript "wg-notify" ''
+      msg=$(cat /tmp/wg-notify 2>/dev/null)
+      if [ -n "$msg" ]; then
+        ${pkgs.libnotify}/bin/notify-send -a Proxy "$msg"
+      fi
+      rm -f /tmp/wg-notify
+    '';
+  in {
+    Unit = {
+      Description = "Show WireGuard connection notifications";
+    };
+    Service = {
+      Type = "oneshot";
+      ExecStart = notifyScript;
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
+
+  systemd.user.paths.wg-notify = {
+    Unit = {
+      Description = "Watch for WireGuard connection changes";
+    };
+    Path = {
+      PathChanged = [ "/tmp/wg-notify" ];
+      Unit = "wg-notify.service";
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
+    };
+  };
 
 }
