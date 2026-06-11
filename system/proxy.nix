@@ -14,7 +14,6 @@ in {
       ips = [ s.tunnelIp ];
       privateKey = s.clientPriv;
       fwMark = "0xca6c";
-      table = "off";
       peers = [{
         publicKey = s.serverPub;
         presharedKey = s.wgPsk;
@@ -24,6 +23,8 @@ in {
       }];
 
       postSetup = ''
+        ${pkgs.iproute2}/bin/ip route del default dev wg0 2>/dev/null || true
+        ${pkgs.iproute2}/bin/ip -6 route del default dev wg0 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
         echo "pending" > /tmp/wg-vpn-status
       '';
