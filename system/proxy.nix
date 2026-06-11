@@ -5,7 +5,7 @@ let
   hasSecret = secretResult.success;
   inherit (pkgs) systemd;
   # Helper to send notifications from root systemd services to the user session
-  notifyUser = "${pkgs.sudo}/bin/sudo -u visionary DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus ${pkgs.libnotify}/bin/notify-send -a Proxy";
+  notifyUser = "${pkgs.sudo}/bin/sudo -u visionary DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus WAYLAND_DISPLAY=wayland-1 DISPLAY=:0 ${pkgs.libnotify}/bin/notify-send -a Proxy";
 in {
   config = lib.mkIf hasSecret (let
     s = secretResult.value;
@@ -13,6 +13,7 @@ in {
     networking.wireguard.interfaces.wg0 = {
       ips = [ s.tunnelIp ];
       privateKey = s.clientPriv;
+      allowedIPsAsRoutes = false;
       fwMark = "0xca6c";
       peers = [{
         publicKey = s.serverPub;
@@ -23,8 +24,6 @@ in {
       }];
 
       postSetup = ''
-        ${pkgs.iproute2}/bin/ip route del default dev wg0 2>/dev/null || true
-        ${pkgs.iproute2}/bin/ip -6 route del default dev wg0 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
         echo "pending" > /tmp/wg-vpn-status
       '';
@@ -114,7 +113,7 @@ in {
       description = "Check WireGuard connection every 30s";
       wantedBy = [ "timers.target" ];
       timerConfig = {
-        OnBootSec = "15s";
+        OnBootSec = "5s";
         OnUnitActiveSec = "30s";
       };
     };
@@ -140,16 +139,17 @@ in {
           --property=KillMode=process --property=User=visionary \
           ${virtualbox}/bin/VirtualBox "$@"
       '')
-      (pkgs.runCommand "virtualbox-desktop-override" {
+      (pkgs.runCommand "virtualbox-bypass-wrapper" {
         preferLocalBuild = true;
       } ''
-        mkdir -p $out/share/applications
-        for f in ${virtualbox}/share/applications/*.desktop; do
-          [ -f "$f" ] || continue
-          cp "$f" "$out/share/applications/"
-          substituteInPlace "$out/share/applications/$(basename "$f")" \
-            --replace "Exec=VirtualBox" "Exec=vbox-bypass"
-        done
+        mkdir -p $out/bin
+        cat > $out/bin/VirtualBox << 'WRAPPER'
+        #!${pkgs.runtimeShell}
+        exec ${systemd}/bin/systemd-run --slice=bypass-wg --scope \
+          --property=KillMode=process --property=User=visionary \
+          ${virtualbox}/bin/VirtualBox "$@"
+        WRAPPER
+        chmod +x $out/bin/VirtualBox
       '')
       (writeShellScriptBin "proxy-off" ''
         touch /tmp/wg-disabled
