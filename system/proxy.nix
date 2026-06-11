@@ -39,7 +39,6 @@ in {
         ${pkgs.iproute2}/bin/ip route del ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
         echo "disconnected" > /tmp/wg-vpn-status
         echo "disconnected" > /tmp/wg-last-state
-        echo "VPN disconnected" > /tmp/wg-notify
       '';
     };
 
@@ -153,7 +152,7 @@ in {
       description = "Check WireGuard connection every 30s";
       wantedBy = [ "timers.target" ];
       timerConfig = {
-        OnBootSec = "5s";
+        OnBootSec = "30s";
         OnUnitActiveSec = "30s";
       };
     };
