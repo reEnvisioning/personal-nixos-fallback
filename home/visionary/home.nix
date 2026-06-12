@@ -59,13 +59,13 @@ in {
               case "$cur" in
                 offline)
                   ${pkgs.libnotify}/bin/notify-send -a "Proxy" -u critical \
-                    "Proxy Offline" "Run 'proxy-on' to reconnect"
-                  notified="$cur"
+                    "Proxy Offline" "Run 'proxy-on' to reconnect" \
+                    && notified="$cur"
                   ;;
                 connected)
                   ${pkgs.libnotify}/bin/notify-send -a "Proxy" \
-                    "Proxy Online" "WireGuard connection established"
-                  notified="$cur"
+                    "Proxy Online" "WireGuard connection established" \
+                    && notified="$cur"
                   ;;
               esac
             fi

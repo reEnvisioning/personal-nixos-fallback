@@ -184,17 +184,14 @@ in {
       (writeShellScriptBin "proxy-on" ''
         rm -f /tmp/wg-disabled /tmp/wg-offline /tmp/wg-retry-count
         systemctl start wireguard-wg0
-        for i in 1 2 3 4 5; do
-          HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
-          TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
-          NOW=$(${pkgs.coreutils}/bin/date +%s)
-          if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 10 ]; then
-            notify-send -a "Proxy" "Proxy connecting..."
-            exit 0
-          fi
-          sleep 1
-        done
-        notify-send -a "Proxy" -u critical "Proxy Offline" "Could not reach WireGuard server"
+        HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
+        TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
+        NOW=$(${pkgs.coreutils}/bin/date +%s)
+        if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 10 ]; then
+          notify-send -a "Proxy" "Proxy enabled"
+        else
+          notify-send -a "Proxy" -u critical "Proxy Offline" "Could not reach WireGuard server"
+        fi
       '')
     ];
 
