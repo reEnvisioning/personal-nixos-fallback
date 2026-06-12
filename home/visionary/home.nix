@@ -53,32 +53,22 @@ in {
       ExecStart = let
         pollScript = pkgs.writeShellScript "proxy-notify-poll" ''
           notified=""
-          last=""
           while true; do
             cur=$(cat /tmp/wg-vpn-status 2>/dev/null || echo "")
             if [ -n "$cur" ] && [ "$cur" != "$notified" ]; then
               case "$cur" in
-                unreachable)
-                  if ${pkgs.libnotify}/bin/notify-send -a "Proxy" \
-                       -u critical "Proxy Offline" \
-                       "WireGuard server unreachable — using direct connection" \
-                       2>/dev/null; then
-                    notified="$cur"
-                  fi
+                offline)
+                  ${pkgs.libnotify}/bin/notify-send -a "Proxy" -u critical \
+                    "Proxy Offline" "Run 'proxy-on' to reconnect"
+                  notified="$cur"
                   ;;
                 connected)
-                  if [ "$last" = "unreachable" ] || [ -z "$last" ]; then
-                    if ${pkgs.libnotify}/bin/notify-send -a "Proxy" \
-                         "Proxy Online" \
-                         "WireGuard connection established" \
-                         2>/dev/null; then
-                      notified="$cur"
-                    fi
-                  fi
+                  ${pkgs.libnotify}/bin/notify-send -a "Proxy" \
+                    "Proxy Online" "WireGuard connection established"
+                  notified="$cur"
                   ;;
               esac
             fi
-            last="$cur"
             sleep 2
           done
         '';

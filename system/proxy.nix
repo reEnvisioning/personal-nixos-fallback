@@ -60,11 +60,15 @@ in {
       wants = [ "nftables.service" ];
       serviceConfig.Type = "oneshot";
       script = ''
+        if [ -f /tmp/wg-offline ]; then
+          exit 0
+        fi
+
         if [ -f /tmp/wg-disabled ]; then
           exit 0
         fi
 
-        # If wg0 doesn't exist, try to start it and try again next cycle
+        # If wg0 doesn't exist, try to start it
         if ! ${pkgs.wireguard-tools}/bin/wg show wg0 >/dev/null 2>&1; then
           ${pkgs.systemd}/bin/systemctl start wireguard-wg0 2>/dev/null || true
           exit 0
@@ -76,25 +80,25 @@ in {
         ROUTES=$(${pkgs.iproute2}/bin/ip route show 0.0.0.0/1 2>/dev/null | ${pkgs.gnugrep}/bin/grep -c "dev wg0" || true)
 
         # Determine current state
-        CUR="pending"
         if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 30 ]; then
           CUR="connected"
-        elif [ "$ROUTES" -gt 0 ] || { [ -n "$TS" ] && [ "$TS" != "0" ]; }; then
-          CUR="unreachable"
+        else
+          CUR="pending"
         fi
 
-        # If still pending after more than one monitor cycle, transition to unreachable
-        if [ "$CUR" = "pending" ]; then
-          if [ ! -f /tmp/wg-pending-since ]; then
-            date +%s > /tmp/wg-pending-since
-          else
-            PENDING_SINCE=$(cat /tmp/wg-pending-since 2>/dev/null || echo "$NOW")
-            if [ $((NOW - PENDING_SINCE)) -gt 8 ]; then
-              CUR="unreachable"
-            fi
-          fi
+        # Strike tracking: 3 consecutive failures → give up
+        if [ "$CUR" = "connected" ]; then
+          rm -f /tmp/wg-retry-count 2>/dev/null || true
         else
-          rm -f /tmp/wg-pending-since 2>/dev/null || true
+          RETRY=$(cat /tmp/wg-retry-count 2>/dev/null || echo 0)
+          RETRY=$((RETRY + 1))
+          echo "$RETRY" > /tmp/wg-retry-count
+          if [ "$RETRY" -ge 3 ]; then
+            touch /tmp/wg-offline
+            echo "offline" > /tmp/wg-vpn-status
+            ${pkgs.systemd}/bin/systemctl stop wireguard-wg0 2>/dev/null || true
+            exit 0
+          fi
         fi
 
         # Read previous state for transition detection
@@ -123,18 +127,9 @@ in {
                 counter reject with icmpx type admin-prohibited
             fi
             ;;
-          unreachable)
-            if [ "$ROUTES" -gt 0 ]; then
-              ${pkgs.nftables}/bin/nft flush chain inet wg-killswitch output 2>/dev/null || true
-              ${pkgs.iproute2}/bin/ip route del 0.0.0.0/1 2>/dev/null || true
-              ${pkgs.iproute2}/bin/ip route del 128.0.0.0/1 2>/dev/null || true
-              ${pkgs.iproute2}/bin/ip -6 route del ::/1 2>/dev/null || true
-              ${pkgs.iproute2}/bin/ip -6 route del 8000::/1 2>/dev/null || true
-            fi
-            ;;
         esac
 
-        # Always write current status
+        # Write current status
         echo "$CUR" > /tmp/wg-vpn-status
       '';
     };
@@ -187,7 +182,7 @@ in {
         systemctl stop wireguard-wg0
       '')
       (writeShellScriptBin "proxy-on" ''
-        rm -f /tmp/wg-disabled
+        rm -f /tmp/wg-disabled /tmp/wg-offline /tmp/wg-retry-count
         systemctl start wireguard-wg0
         for i in 1 2 3 4 5; do
           HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
