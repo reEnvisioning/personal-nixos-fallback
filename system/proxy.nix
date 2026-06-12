@@ -131,6 +131,14 @@ in {
               ${pkgs.iproute2}/bin/ip -6 route del ::/1 2>/dev/null || true
               ${pkgs.iproute2}/bin/ip -6 route del 8000::/1 2>/dev/null || true
             fi
+            if [ "$LAST" != "unreachable" ]; then
+              VISIONARY_UID=$(${pkgs.shadow}/bin/id -u visionary 2>/dev/null || echo 1000)
+              ${pkgs.shadow}/bin/su - visionary -c \
+                "DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$VISIONARY_UID/bus \
+                 ${pkgs.libnotify}/bin/notify-send -a 'Proxy' -u critical 'Proxy Offline' \
+                   'WireGuard server unreachable — using direct connection'" \
+                >/dev/null 2>&1 || true
+            fi
             ;;
         esac
 
@@ -189,7 +197,17 @@ in {
       (writeShellScriptBin "proxy-on" ''
         rm -f /tmp/wg-disabled
         systemctl start wireguard-wg0
-        notify-send -a "Proxy" "Proxy enabled"
+        for i in 1 2 3 4 5; do
+          HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
+          TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
+          NOW=$(${pkgs.coreutils}/bin/date +%s)
+          if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 10 ]; then
+            notify-send -a "Proxy" "Proxy enabled"
+            exit 0
+          fi
+          sleep 1
+        done
+        notify-send -a "Proxy" -u critical "Proxy Offline" "Could not reach WireGuard server"
       '')
     ];
 

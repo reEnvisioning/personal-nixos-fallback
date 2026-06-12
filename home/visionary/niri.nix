@@ -252,7 +252,7 @@ in {
 
     spawn-sh-at-startup "opensnitch-ui --background"
 
-    spawn-sh-at-startup "echo 0 > $XDG_RUNTIME_DIR/${hostname}-dnd; echo 0 > $XDG_RUNTIME_DIR/${hostname}-notif-dismiss; echo 0 > $XDG_RUNTIME_DIR/${hostname}-clip-toggle; echo 0 > $XDG_RUNTIME_DIR/${hostname}-launcher-toggle; echo 0 > $XDG_RUNTIME_DIR/${hostname}-tab-trigger; sleep 0.5; switch-theme $(state get current-theme || echo void); if [ \"$(state get hypridle)\" != \"disabled\" ]; then sway-audio-idle-inhibit & swayidle -w timeout 300 '${pkgs.swaylock}/bin/swaylock -f' timeout 600 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep '${pkgs.swaylock}/bin/swaylock -f' & disown; fi"
+    spawn-sh-at-startup "echo 0 > $XDG_RUNTIME_DIR/${hostname}-dnd; echo 0 > $XDG_RUNTIME_DIR/${hostname}-notif-dismiss; echo 0 > $XDG_RUNTIME_DIR/${hostname}-clip-toggle; echo 0 > $XDG_RUNTIME_DIR/${hostname}-launcher-toggle; echo 0 > $XDG_RUNTIME_DIR/${hostname}-tab-trigger; sleep 0.5; switch-theme $(state get current-theme || echo void); if [ \"$(state get hypridle)\" != \"disabled\" ]; then sway-audio-idle-inhibit & swayidle -w timeout 300 '${pkgs.swaylock}/bin/swaylock -f' timeout 600 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep '${pkgs.swaylock}/bin/swaylock -f' & disown; fi; nohup sh -c 'for i in $(seq 1 30); do s=$(cat /tmp/wg-vpn-status 2>/dev/null); case \"$s\" in connected) break;; unreachable) notify-send -a Proxy -u critical \"Proxy Offline\" \"Server unreachable — direct connection active\"; break;; esac; sleep 2; done' >/dev/null 2>&1 &"
   '';
 
   programs.swaylock = {
