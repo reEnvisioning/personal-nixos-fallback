@@ -252,7 +252,7 @@ in {
 
     spawn-sh-at-startup "opensnitch-ui --background"
 
-    spawn-sh-at-startup "${pkgs.bash}/bin/bash -c 'p=;while true;do s=$(cat /tmp/wg-vpn-status 2>/dev/null||echo d);[ \"$s\" = \"$p\" ]&&{ sleep 5;continue;};case $s in connected)notify-send -r 9999 -t 1 -a Proxy \" \" 2>/dev/null;;unreachable)notify-send -r 9999 -u critical -t 0 -a Proxy \"VPN server unreachable — using direct connection\";;*)notify-send -r 9999 -u critical -t 0 -a Proxy \"VPN disconnected\";;esac;p=$s;sleep 5;done'"
+    spawn-at-startup "wg-vpn-poller"
 
     spawn-sh-at-startup "echo 0 > $XDG_RUNTIME_DIR/${hostname}-dnd; echo 0 > $XDG_RUNTIME_DIR/${hostname}-notif-dismiss; echo 0 > $XDG_RUNTIME_DIR/${hostname}-clip-toggle; echo 0 > $XDG_RUNTIME_DIR/${hostname}-launcher-toggle; echo 0 > $XDG_RUNTIME_DIR/${hostname}-tab-trigger; sleep 0.5; switch-theme $(state get current-theme || echo void); if [ \"$(state get hypridle)\" != \"disabled\" ]; then sway-audio-idle-inhibit & swayidle -w timeout 300 '${pkgs.swaylock}/bin/swaylock -f' timeout 600 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep '${pkgs.swaylock}/bin/swaylock -f' & disown; fi"
   '';
