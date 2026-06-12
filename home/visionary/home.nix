@@ -69,6 +69,7 @@ in {
     };
     Path = {
       PathChanged = [ "/tmp/wg-notify" ];
+      PathExists = [ "/tmp/wg-notify" ];
       Unit = "wg-notify.service";
     };
     Install = {
