@@ -42,4 +42,40 @@ in {
     };
   };
 
+  systemd.user.services.wg-vpn-poller = let
+    pollerScript = pkgs.writeShellScript "wg-vpn-poller" ''
+      prev=""
+      while true; do
+        s=$(cat /tmp/wg-vpn-status 2>/dev/null || echo disconnected)
+        if [ "$s" != "$prev" ]; then
+          case "$s" in
+            connected)
+              notify-send -r 9999 -t 1 -a Proxy "" 2>/dev/null
+              ;;
+            unreachable)
+              notify-send -r 9999 -u critical -a Proxy "VPN server unreachable — using direct connection"
+              ;;
+            *)
+              notify-send -r 9999 -u critical -a Proxy "VPN disconnected"
+              ;;
+          esac
+          prev="$s"
+        fi
+        sleep 5
+      done
+    '';
+  in {
+    Unit = {
+      Description = "WireGuard VPN notification poller";
+      After = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = pollerScript;
+      Restart = "on-failure";
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
+  };
 }
