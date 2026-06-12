@@ -194,8 +194,6 @@ in {
         NOW=$(${pkgs.coreutils}/bin/date +%s)
         if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 10 ]; then
           notify-send -a "Proxy" -u critical "Proxy enabled"
-        else
-          notify-send -a "Proxy" -u critical "Proxy Offline" "Could not reach WireGuard server"
         fi
       '')
     ];
