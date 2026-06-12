@@ -61,7 +61,12 @@ in {
       serviceConfig.Type = "oneshot";
       script = ''
         if [ -f /tmp/wg-offline ]; then
-          exit 0
+          # If proxy-on started wg0 behind our back, clear offline and continue
+          if ${pkgs.wireguard-tools}/bin/wg show wg0 >/dev/null 2>&1; then
+            rm -f /tmp/wg-offline /tmp/wg-retry-count 2>/dev/null || true
+          else
+            exit 0
+          fi
         fi
 
         if [ -f /tmp/wg-disabled ]; then
@@ -182,7 +187,7 @@ in {
         systemctl stop wireguard-wg0
       '')
       (writeShellScriptBin "proxy-on" ''
-        rm -f /tmp/wg-disabled /tmp/wg-offline /tmp/wg-retry-count
+        rm -f /tmp/wg-disabled
         systemctl start wireguard-wg0
         HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
         TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
