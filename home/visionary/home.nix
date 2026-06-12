@@ -66,7 +66,7 @@ in {
       ExecStart = notifyScript;
     };
     Install = {
-      WantedBy = [ "default.target" ];
+      WantedBy = lib.mkForce [ ];
     };
   };
 
@@ -75,7 +75,7 @@ in {
       Description = "Poll WireGuard status every 30s";
     };
     Timer = {
-      OnBootSec = "5s";
+      OnBootSec = "10s";
       OnUnitActiveSec = "30s";
     };
     Install = {
