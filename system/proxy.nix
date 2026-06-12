@@ -95,8 +95,8 @@ in {
           echo "$RETRY" > /tmp/wg-retry-count
           if [ "$RETRY" -ge 3 ]; then
             touch /tmp/wg-offline
-            echo "offline" > /tmp/wg-vpn-status
             ${pkgs.systemd}/bin/systemctl stop wireguard-wg0 2>/dev/null || true
+            echo "offline" > /tmp/wg-vpn-status
             exit 0
           fi
         fi
@@ -189,7 +189,7 @@ in {
           TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
           NOW=$(${pkgs.coreutils}/bin/date +%s)
           if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 10 ]; then
-            notify-send -a "Proxy" "Proxy enabled"
+            notify-send -a "Proxy" "Proxy connecting..."
             exit 0
           fi
           sleep 1
