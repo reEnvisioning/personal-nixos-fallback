@@ -131,14 +131,6 @@ in {
               ${pkgs.iproute2}/bin/ip -6 route del ::/1 2>/dev/null || true
               ${pkgs.iproute2}/bin/ip -6 route del 8000::/1 2>/dev/null || true
             fi
-            if [ "$LAST" != "unreachable" ]; then
-              VISIONARY_UID=$(${pkgs.shadow}/bin/id -u visionary 2>/dev/null || echo 1000)
-              ${pkgs.shadow}/bin/su - visionary -c \
-                "DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$VISIONARY_UID/bus \
-                 ${pkgs.libnotify}/bin/notify-send -a 'Proxy' -u critical 'Proxy Offline' \
-                   'WireGuard server unreachable — using direct connection'" \
-                >/dev/null 2>&1 || true
-            fi
             ;;
         esac
 

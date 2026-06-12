@@ -42,4 +42,43 @@ in {
     };
   };
 
+  systemd.user.services.proxy-notify = {
+    Unit = {
+      Description = "Proxy connection state notification";
+      After = [ "graphical-session.target" ];
+      PartOf = [ "graphical-session.target" ];
+    };
+    Service = {
+      Type = "simple";
+      ExecStart = let
+        pollScript = pkgs.writeShellScript "proxy-notify-poll" ''
+          last=""
+          while true; do
+            cur=$(cat /tmp/wg-vpn-status 2>/dev/null || echo "")
+            if [ -n "$cur" ] && [ "$cur" != "$last" ]; then
+              case "$cur" in
+                unreachable)
+                  notify-send -a "Proxy" -u critical "Proxy Offline" \
+                    "WireGuard server unreachable — using direct connection"
+                  ;;
+                connected)
+                  if [ "$last" = "unreachable" ] || [ "$last" = "" ]; then
+                    notify-send -a "Proxy" "Proxy Online" \
+                      "WireGuard connection established"
+                  fi
+                  ;;
+              esac
+              last="$cur"
+            fi
+            sleep 5
+          done
+        '';
+      in "${pollScript}";
+      Restart = "on-failure";
+      RestartSec = 5;
+    };
+    Install = {
+      WantedBy = [ "graphical-session.target" ];
+    };
+  };
 }
