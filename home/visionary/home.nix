@@ -42,40 +42,37 @@ in {
     };
   };
 
-  systemd.user.services.wg-vpn-poller = let
-    pollerScript = pkgs.writeShellScript "wg-vpn-poller" ''
-      prev=""
-      while true; do
-        s=$(cat /tmp/wg-vpn-status 2>/dev/null || echo disconnected)
-        if [ "$s" != "$prev" ]; then
-          case "$s" in
-            connected)
-              notify-send -r 9999 -t 1 -a Proxy "" 2>/dev/null
-              ;;
-            unreachable)
-              notify-send -r 9999 -u critical -a Proxy "VPN server unreachable — using direct connection"
-              ;;
-            *)
-              notify-send -r 9999 -u critical -a Proxy "VPN disconnected"
-              ;;
-          esac
-          prev="$s"
-        fi
-        sleep 5
-      done
+  systemd.user.services.wg-notify = let
+    notifyScript = pkgs.writeShellScript "wg-notify" ''
+      msg=$(cat /tmp/wg-notify 2>/dev/null)
+      if [ -n "$msg" ]; then
+        notify-send -r 9999 -a Proxy "$msg"
+      fi
+      rm -f /tmp/wg-notify
     '';
   in {
     Unit = {
-      Description = "WireGuard VPN notification poller";
-      After = [ "graphical-session.target" ];
+      Description = "Show WireGuard connection notifications";
     };
     Service = {
-      Type = "simple";
-      ExecStart = pollerScript;
-      Restart = "on-failure";
+      Type = "oneshot";
+      ExecStart = notifyScript;
     };
     Install = {
-      WantedBy = [ "graphical-session.target" ];
+      WantedBy = [ "default.target" ];
+    };
+  };
+
+  systemd.user.paths.wg-notify = {
+    Unit = {
+      Description = "Watch for WireGuard connection changes";
+    };
+    Path = {
+      PathChanged = [ "/tmp/wg-notify" ];
+      Unit = "wg-notify.service";
+    };
+    Install = {
+      WantedBy = [ "default.target" ];
     };
   };
 }

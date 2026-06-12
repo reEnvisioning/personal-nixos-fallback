@@ -136,6 +136,15 @@ in {
 
         # Always write current status
         echo "$CUR" > /tmp/wg-vpn-status
+
+        # Queue notification on state transitions
+        if [ "$CUR" != "$LAST" ] && [ "$CUR" != "pending" ]; then
+          case "$CUR" in
+            connected)  echo "VPN connected" > /tmp/wg-notify ;;
+            unreachable) echo "VPN server unreachable — using direct connection" > /tmp/wg-notify ;;
+            disconnected) echo "VPN disconnected" > /tmp/wg-notify ;;
+          esac
+        fi
       '';
     };
 
