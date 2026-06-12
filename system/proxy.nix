@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+﻿{ config, pkgs, lib, ... }:
 
 let
   secretResult = builtins.tryEval (import ../secret.nix);
@@ -89,7 +89,7 @@ in {
             date +%s > /tmp/wg-pending-since
           else
             PENDING_SINCE=$(cat /tmp/wg-pending-since 2>/dev/null || echo "$NOW")
-            if [ $((NOW - PENDING_SINCE)) -gt 35 ]; then
+            if [ $((NOW - PENDING_SINCE)) -gt 8 ]; then
               CUR="unreachable"
             fi
           fi
@@ -140,11 +140,11 @@ in {
     };
 
     systemd.timers.wireguard-monitor = {
-      description = "Check WireGuard connection every 30s";
+      description = "Check WireGuard connection every 5s";
       wantedBy = [ "timers.target" ];
       timerConfig = {
-        OnBootSec = "30s";
-        OnUnitActiveSec = "30s";
+        OnBootSec = "1s";
+        OnUnitActiveSec = "5s";
       };
     };
 
