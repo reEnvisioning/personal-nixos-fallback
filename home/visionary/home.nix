@@ -1,4 +1,4 @@
-﻿{ config, pkgs, inputs, lib, username, ... }:
+{ config, pkgs, inputs, lib, username, ... }:
 let
   opensnitch-ui-wrapped = pkgs.opensnitch-ui.overrideAttrs (old: {
     nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ pkgs.makeWrapper ];

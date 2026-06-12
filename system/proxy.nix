@@ -1,4 +1,4 @@
-﻿{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, ... }:
 
 let
   secretResult = builtins.tryEval (import ../secret.nix);
