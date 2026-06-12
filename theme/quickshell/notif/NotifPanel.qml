@@ -110,7 +110,8 @@ PanelWindow {
         "Mic Indicator",
         "Battery Indicator",
         "Power Profile Indicator",
-        "Wallpaper Indicator"
+        "Wallpaper Indicator",
+        "Proxy"
     ]
 
     // --- Startup notification (catches IPC notif from switch-theme etc.) ---

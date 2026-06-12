@@ -183,7 +183,7 @@ in {
       '')
       (writeShellScriptBin "proxy-off" ''
         touch /tmp/wg-disabled
-        notify-send -a "Proxy" "Proxy disabled"
+        notify-send -a "Proxy" -u critical "Proxy disabled"
         systemctl stop wireguard-wg0
       '')
       (writeShellScriptBin "proxy-on" ''
@@ -193,7 +193,7 @@ in {
         TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
         NOW=$(${pkgs.coreutils}/bin/date +%s)
         if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 10 ]; then
-          notify-send -a "Proxy" "Proxy enabled"
+          notify-send -a "Proxy" -u critical "Proxy enabled"
         else
           notify-send -a "Proxy" -u critical "Proxy Offline" "Could not reach WireGuard server"
         fi
