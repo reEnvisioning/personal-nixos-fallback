@@ -84,9 +84,6 @@ in {
 
     boot.kernel.sysctl."net.ipv4.conf.all.route_localnet" = 1;
 
-    networking.firewall.allowedTCPPorts = [ 9040 ];
-    networking.firewall.allowedUDPPorts = [ 5353 ];
-
     networking.nftables.ruleset = lib.mkAfter ''
       table inet tor-transparent {
         chain PREROUTING {
