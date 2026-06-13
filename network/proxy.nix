@@ -42,8 +42,9 @@ in {
 
     systemd.services.wireguard-wg0 = {
       wantedBy = lib.mkForce [ ];
-      after = [ "nftables.service" ];
-      wants = [ "nftables.service" ];
+      after = [ "nftables.service" "systemd-tmpfiles-setup.service" ];
+      wants = [ "nftables.service" "systemd-tmpfiles-setup.service" ];
+      requires = [ "systemd-tmpfiles-setup.service" ];
       serviceConfig = {
         TimeoutStartSec = 5;
         Restart = "no";
@@ -54,8 +55,9 @@ in {
 
     systemd.services.wireguard-monitor = {
       description = "WireGuard connection monitor";
-      after = [ "network.target" "nftables.service" ];
-      wants = [ "nftables.service" ];
+      after = [ "network.target" "nftables.service" "systemd-tmpfiles-setup.service" ];
+      wants = [ "nftables.service" "systemd-tmpfiles-setup.service" ];
+      requires = [ "systemd-tmpfiles-setup.service" ];
       serviceConfig.Type = "oneshot";
       script = ''
         if [ -f ${stateDir}/wg-offline ]; then
