@@ -11,9 +11,14 @@ let
       echo "error: proxy-off must be run with sudo" >&2
       exit 1
     fi
+    notifyUser() {
+      sudo -u "$SUDO_USER" \
+        DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u "$SUDO_USER")/bus" \
+        "$@"
+    }
     mkdir -p ${stateDir}
     touch ${stateDir}/wg-disabled
-    sudo -u "$SUDO_USER" notify-send -a "Proxy Control" --expire-time=4000 "Proxy disabled"
+    notifyUser notify-send -a "Proxy Control" --expire-time=4000 "Proxy disabled"
     systemctl stop wireguard-wg0
   '';
 
@@ -22,15 +27,20 @@ let
       echo "error: proxy-on must be run with sudo" >&2
       exit 1
     fi
+    notifyUser() {
+      sudo -u "$SUDO_USER" \
+        DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u "$SUDO_USER")/bus" \
+        "$@"
+    }
     rm -f ${stateDir}/wg-disabled
     systemctl start wireguard-wg0
     HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
     TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
     NOW=$(${pkgs.coreutils}/bin/date +%s)
     if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 10 ]; then
-      sudo -u "$SUDO_USER" notify-send -a "Proxy Control" --expire-time=4000 "Proxy enabled"
+      notifyUser notify-send -a "Proxy Control" --expire-time=4000 "Proxy enabled"
     else
-      sudo -u "$SUDO_USER" notify-send -a "Proxy" --expire-time=86400000 -u critical "Proxy Offline" "Could not reach WireGuard server"
+      notifyUser notify-send -a "Proxy" --expire-time=86400000 -u critical "Proxy Offline" "Could not reach WireGuard server"
     fi
   '';
 in {
@@ -85,11 +95,7 @@ in {
       description = "WireGuard connection monitor";
       after = [ "network.target" "nftables.service" ];
       wants = [ "nftables.service" ];
-      serviceConfig = {
-        Type = "oneshot";
-        RuntimeDirectory = "wireguard-monitor";
-        RuntimeDirectoryMode = "0750";
-      };
+      serviceConfig.Type = "oneshot";
       script = ''
         if [ -f ${stateDir}/wg-offline ]; then
           if ${pkgs.wireguard-tools}/bin/wg show wg0 >/dev/null 2>&1; then
@@ -175,6 +181,14 @@ in {
 
     systemd.slices.bypass-wg = {
       wantedBy = [ "multi-user.target" ];
+    };
+
+    systemd.tmpfiles.settings."10-wireguard-monitor" = {
+      "/run/wireguard-monitor".d = {
+        mode = "0750";
+        user = "root";
+        group = "root";
+      };
     };
 
     security.sudo.extraRules = [{
