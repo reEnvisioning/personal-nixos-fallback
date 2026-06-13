@@ -6,7 +6,7 @@
   nix.gc = {
     automatic = true;
     dates = "weekly";
-    options = "--delete-generations +10";
+    options = "--delete-generations +20";
   };
 
   # Automatic Nix store optimisation
@@ -28,41 +28,49 @@
     nvd
 
     (writeShellScriptBin "ng" ''
-      set -x
+      set -xeuo pipefail
+
       sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +10
-      nix-collect-garbage
+      sudo -u visionary nix-env --profile /nix/var/nix/profiles/per-user/visionary/profile --delete-generations +10 2>/dev/null || true
+      sudo nix-collect-garbage
+      sudo nix store optimise
+
+      bootctl=$(which bootctl 2>/dev/null || echo /run/current-system/sw/bin/bootctl)
+      if [ -x "$bootctl" ]; then
+        "$bootctl" remove-old 2>/dev/null || true
+      fi
     '')
 
     (writeShellScriptBin "nu" ''
-      set -x
+      set -xeuo pipefail
 
       FLAKE_DIR=''${1:-/${hostname}}
 
       sudo nix flake update "$FLAKE_DIR"
       sudo nixos-rebuild switch --flake "''${FLAKE_DIR}#${hostname}"
 
-      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +5
+      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +10
       nix-collect-garbage
     '')
 
     (writeShellScriptBin "nu-stable" ''
-      set -x
+      set -xeuo pipefail
       sudo nix flake lock --update-input nixpkgs /${hostname}
       sudo nixos-rebuild switch --flake "/${hostname}#${hostname}"
-      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +5
+      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +10
       nix-collect-garbage
     '')
 
     (writeShellScriptBin "nu-unstable" ''
-      set -x
+      set -xeuo pipefail
       sudo nix flake lock --update-input nixpkgs-unstable /${hostname}
       sudo nixos-rebuild switch --flake "/${hostname}#${hostname}"
-      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +5
+      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +10
       nix-collect-garbage
     '')
 
     (writeShellScriptBin "nr" ''
-      set -x
+      set -xeuo pipefail
 
       THEME=''${1:-$(state get current-theme || echo void)}
 
@@ -79,7 +87,11 @@
       fi
 
       TMPDIR=$(mktemp -d)
-      git clone --depth 1 https://github.com/reEnvisioning/personal-nixos-fallback.git "$TMPDIR"
+      git clone --depth 1 https://github.com/reEnvisioning/personal-nixos-fallback.git "$TMPDIR" || {
+        echo "FATAL: git clone failed, aborting"
+        rm -rf "$TMPDIR"
+        exit 1
+      }
       sudo rm -rf "$FLAKE_DIR"/*
       sudo cp -rf "$TMPDIR"/* "$FLAKE_DIR"/
       sudo cp /resources/secret.nix "$FLAKE_DIR"/
