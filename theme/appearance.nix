@@ -4,35 +4,22 @@ let
 
   theme = import ./theme.nix;
 
-  mkThemeJson = name: t: let
-    inherit (builtins) toJSON;
-    # Manual JSON construction using ${path} interpolation instead of
-    # builtins.toJSON to preserve Nix string context (store path deps)
-    esc = toJSON;
-  in ''
-    {
-      "name": ${esc name},
-      "mode": ${esc t.mode},
-      "localsend_color": ${esc t.localsend_color},
-      "obs_style": ${esc t.obs_style},
-      "KDEwidgetStyle": ${esc t.KDEwidgetStyle},
-      "wallpaper": "${t.wallpaper}",
-      "wallpapers": [${lib.concatMapStringsSep ", " (wp: ''"${wp}"'') t.wallpapers}],
-      "gtkThemeName": ${esc t.gtk.themeName},
-      "colors": ${toJSON t.colors}
-    }
-  '';
+  mkThemeJson = name: t: builtins.toJSON {
+    name = name;
+    mode = t.mode;
+    localsend_color = t.localsend_color;
+    obs_style = t.obs_style;
+    KDEwidgetStyle = t.KDEwidgetStyle;
+    wallpaper = toString t.wallpaper;
+    wallpapers = map (x: toString x) t.wallpapers;
+    gtkThemeName = t.gtk.themeName;
+    colors = t.colors;
+  };
 
-  # Collect all wallpaper paths to ensure they're in the runtime closure
+  # Collect all wallpaper store paths to prevent garbage collection
   allWallpaperPaths = let
     themes = builtins.attrValues theme.all;
   in lib.unique (lib.flatten (map (t: [t.wallpaper] ++ t.wallpapers) themes));
-
-  wallpapers = pkgs.runCommand "theme-wallpapers" {} (
-    builtins.concatStringsSep "\n" (
-      ["mkdir -p $out"] ++ map (wp: "ln -s '${wp}' $out/") allWallpaperPaths
-    )
-  );
 
   catppuccin-mocha = pkgs.catppuccin-gtk.override {
     variant = "mocha";
@@ -63,6 +50,10 @@ in {
   config = lib.mkIf (cfg.users != []) {
     environment.etc = themeJsonConfigs // yaziThemeConfigs;
 
+    # Pin all wallpaper store paths into the system closure so they
+    # cannot be garbage-collected even if string context is lost by toJSON
+    system.extraDependencies = allWallpaperPaths;
+
     environment.variables = {
       "QT_QPA_PLATFORM" = "wayland;xcb";
       "ADW_DISABLE_PORTAL" = "1";
@@ -72,7 +63,6 @@ in {
     };
 
     environment.systemPackages = with pkgs; [
-      wallpapers
       quickshell
       wl-clipboard
       libnotify

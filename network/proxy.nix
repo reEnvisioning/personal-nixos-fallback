@@ -4,7 +4,6 @@ let
   network = import ./network.nix;
   s = network.secrets;
   inherit (pkgs) systemd;
-  stateDir = "/run/wg-proxy";
 in {
     networking.wireguard.interfaces.wg0 = {
       ips = [ s.tunnelIp ];
@@ -20,13 +19,11 @@ in {
       }];
 
       postSetup = ''
-        mkdir -p ${stateDir}
         ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
-        echo "pending" > ${stateDir}/wg-vpn-status
+        echo "pending" > /tmp/wg-vpn-status
       '';
 
       postShutdown = ''
-        mkdir -p ${stateDir}
         ${pkgs.nftables}/bin/nft flush chain inet wg-killswitch output 2>/dev/null || true
         ${pkgs.nftables}/bin/nft delete chain inet wg-killswitch output 2>/dev/null || true
         ${pkgs.nftables}/bin/nft delete table inet wg-killswitch 2>/dev/null || true
@@ -37,8 +34,8 @@ in {
         ${pkgs.iproute2}/bin/ip rule del fwmark 2 table 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del default via ${s.gateway} table 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
-        echo "disconnected" > ${stateDir}/wg-vpn-status
-        echo "disconnected" > ${stateDir}/wg-last-state
+        echo "disconnected" > /tmp/wg-vpn-status
+        echo "disconnected" > /tmp/wg-last-state
       '';
     };
 
@@ -60,16 +57,15 @@ in {
       wants = [ "nftables.service" ];
       serviceConfig.Type = "oneshot";
       script = ''
-        mkdir -p ${stateDir}
-        if [ -f ${stateDir}/wg-offline ]; then
+        if [ -f /tmp/wg-offline ]; then
           if ${pkgs.wireguard-tools}/bin/wg show wg0 >/dev/null 2>&1; then
-            rm -f ${stateDir}/wg-offline ${stateDir}/wg-retry-count 2>/dev/null || true
+            rm -f /tmp/wg-offline /tmp/wg-retry-count 2>/dev/null || true
           else
             exit 0
           fi
         fi
 
-        if [ -f ${stateDir}/wg-disabled ]; then
+        if [ -f /tmp/wg-disabled ]; then
           exit 0
         fi
 
@@ -90,21 +86,21 @@ in {
         fi
 
         if [ "$CUR" = "connected" ]; then
-          rm -f ${stateDir}/wg-retry-count 2>/dev/null || true
+          rm -f /tmp/wg-retry-count 2>/dev/null || true
         else
-          RETRY=$(cat ${stateDir}/wg-retry-count 2>/dev/null || echo 0)
+          RETRY=$(cat /tmp/wg-retry-count 2>/dev/null || echo 0)
           RETRY=$((RETRY + 1))
-          echo "$RETRY" > ${stateDir}/wg-retry-count
+          echo "$RETRY" > /tmp/wg-retry-count
           if [ "$RETRY" -ge 3 ]; then
-            touch ${stateDir}/wg-offline
+            touch /tmp/wg-offline
             ${pkgs.systemd}/bin/systemctl stop wireguard-wg0 2>/dev/null || true
-            echo "offline" > ${stateDir}/wg-vpn-status
+            echo "offline" > /tmp/wg-vpn-status
             exit 0
           fi
         fi
 
-        LAST=$(cat ${stateDir}/wg-last-state 2>/dev/null || echo "unknown")
-        echo "$CUR" > ${stateDir}/wg-last-state
+        LAST=$(cat /tmp/wg-last-state 2>/dev/null || echo "unknown")
+        echo "$CUR" > /tmp/wg-last-state
 
         case "$CUR" in
           connected)
@@ -130,7 +126,7 @@ in {
             ;;
         esac
 
-        echo "$CUR" > ${stateDir}/wg-vpn-status
+        echo "$CUR" > /tmp/wg-vpn-status
       '';
     };
 
@@ -141,13 +137,6 @@ in {
         OnBootSec = "1s";
         OnUnitActiveSec = "5s";
       };
-    };
-
-    users.groups.proxy = {};
-    users.users.visionary.extraGroups = [ "proxy" ];
-
-    systemd.tmpfiles.settings."proxy"."/run/wg-proxy" = {
-      d = { mode = "0770"; user = "root"; group = "proxy"; };
     };
 
     systemd.slices.bypass-wg = {
@@ -194,14 +183,12 @@ in {
         chmod +x $out/bin/VirtualBox
       '')
       (writeShellScriptBin "proxy-off" ''
-        mkdir -p ${stateDir}
-        touch ${stateDir}/wg-disabled
+        touch /tmp/wg-disabled
         notify-send -a "Proxy Control" --expire-time=4000 "Proxy disabled"
         systemctl stop wireguard-wg0
       '')
       (writeShellScriptBin "proxy-on" ''
-        mkdir -p ${stateDir}
-        rm -f ${stateDir}/wg-disabled
+        rm -f /tmp/wg-disabled
         systemctl start wireguard-wg0
         HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
         TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
