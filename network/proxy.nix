@@ -58,7 +58,6 @@ in {
       }];
 
       postSetup = ''
-        mkdir -p ${stateDir}
         ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
         echo "pending" > ${stateDir}/wg-vpn-status
       '';
@@ -97,6 +96,7 @@ in {
       wants = [ "nftables.service" ];
       serviceConfig.Type = "oneshot";
       script = ''
+        mkdir -p ${stateDir}
         if [ -f ${stateDir}/wg-offline ]; then
           if ${pkgs.wireguard-tools}/bin/wg show wg0 >/dev/null 2>&1; then
             rm -f ${stateDir}/wg-offline ${stateDir}/wg-retry-count 2>/dev/null || true
@@ -131,7 +131,7 @@ in {
           RETRY=$(cat ${stateDir}/wg-retry-count 2>/dev/null || echo 0)
           RETRY=$((RETRY + 1))
           echo "$RETRY" > ${stateDir}/wg-retry-count
-          if [ "$RETRY" -ge 3 ]; then
+          if [ "$RETRY" -ge 1 ]; then
             touch ${stateDir}/wg-offline
             ${pkgs.systemd}/bin/systemctl stop wireguard-wg0 2>/dev/null || true
             echo "offline" > ${stateDir}/wg-vpn-status
@@ -181,14 +181,6 @@ in {
 
     systemd.slices.bypass-wg = {
       wantedBy = [ "multi-user.target" ];
-    };
-
-    systemd.tmpfiles.settings."10-wireguard-monitor" = {
-      "/run/wireguard-monitor".d = {
-        mode = "0750";
-        user = "root";
-        group = "root";
-      };
     };
 
     security.sudo.extraRules = [{
