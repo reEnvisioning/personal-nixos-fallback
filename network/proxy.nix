@@ -179,6 +179,8 @@ in {
               ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
                 ip daddr "$serverIp" udp dport "$serverPort" accept
               ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+                ip daddr "$serverIp" icmp type echo-request accept
+              ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
                 oifname != "lo" oifname != "wg0" meta mark != 2 \
                 counter reject with icmpx type admin-prohibited
             fi

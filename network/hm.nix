@@ -24,7 +24,7 @@ in {
         pollScript = pkgs.writeShellScript "proxy-notify-poll" ''
           notified=""
           while true; do
-            cur=$(cat /tmp/wg-vpn-status 2>/dev/null || echo "")
+            cur=$(cat /run/wireguard-monitor/wg-vpn-status 2>/dev/null || echo "")
             if [ -n "$cur" ] && [ "$cur" != "$notified" ]; then
               case "$cur" in
                 offline)
