@@ -84,6 +84,9 @@ in {
 
     boot.kernel.sysctl."net.ipv4.conf.all.route_localnet" = 1;
 
+    networking.firewall.interfaces."veth-tor".allowedTCPPorts = [ 9040 ];
+    networking.firewall.interfaces."veth-tor".allowedUDPPorts = [ 5353 ];
+
     networking.nftables.ruleset = lib.mkAfter ''
       table inet tor-transparent {
         chain PREROUTING {
