@@ -195,7 +195,7 @@ in {
         if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 10 ]; then
           notify-send -a "Proxy Control" --expire-time=4000 "Proxy enabled"
         else
-          notify-send -a "Proxy Control" --expire-time=0 -u critical "Proxy Offline" "Could not reach WireGuard server"
+          notify-send -a "Proxy" --expire-time=86400000 -u critical "Proxy Offline" "Could not reach WireGuard server"
         fi
       '')
     ];
