@@ -16,14 +16,16 @@ in {
       Unit = {
         Description = "Proxy connection state notification";
         After = [ "graphical-session.target" "default.target" ];
+        Wants = [ "graphical-session.target" ];
         PartOf = [ "default.target" ];
       };
       Service = {
         Type = "simple";
+        ExecStartPre = "${pkgs.coreutils}/bin/sleep 3";
         ExecStart = let
           pollScript = pkgs.writeShellScript "proxy-notify-poll" ''
             notified=""
-            retries=3
+            retries=5
             while true; do
               cur=$(cat /run/wireguard-monitor/wg-vpn-status 2>/dev/null || echo "")
               if [ -n "$cur" ] && [ "$cur" != "$notified" ]; then

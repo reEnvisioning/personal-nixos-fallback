@@ -104,14 +104,6 @@ in {
         mkdir -p "$stateDir"
         chmod 0755 "$stateDir"
 
-        notifyUser() {
-            local user="visionary"
-            local uid=$(id -u "$user")
-            sudo -u "$user" \
-                DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
-                "$@"
-        }
-
         # Check if server endpoint is reachable via ICMP
         ${pkgs.iputils}/bin/ping -c 1 -W 1 "$serverIp" >/dev/null 2>&1
         PING_OK=$?
@@ -128,8 +120,6 @@ in {
             ${pkgs.systemd}/bin/systemctl stop wireguard-wg0 2>/dev/null || true
             touch "$stateDir"/wg-offline
             echo "offline" > "$stateDir"/wg-vpn-status
-            notifyUser notify-send -a "Proxy" --expire-time=86400000 -u critical \
-                "Proxy Offline" "Could not reach WireGuard server"
           fi
           exit 0
         fi
@@ -137,8 +127,6 @@ in {
         # Server reachable — clear offline flag if set
         if [ -f "$stateDir"/wg-offline ]; then
           rm -f "$stateDir"/wg-offline "$stateDir"/wg-retry-count 2>/dev/null || true
-          notifyUser notify-send -a "Proxy" --expire-time=4000 \
-              "Proxy online" "WireGuard server reachable"
         fi
 
         # wg0 not up — start it
@@ -169,8 +157,6 @@ in {
             ${pkgs.systemd}/bin/systemctl stop wireguard-wg0 2>/dev/null || true
             touch "$stateDir"/wg-offline
             echo "offline" > "$stateDir"/wg-vpn-status
-            notifyUser notify-send -a "Proxy" --expire-time=86400000 -u critical \
-                "Proxy Offline" "WireGuard tunnel handshake timed out"
           fi
           exit 0
         fi
