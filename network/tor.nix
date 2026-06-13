@@ -72,7 +72,7 @@ in {
           flags = [ "IsolateDestAddr" "IsolateDestPort" "IsolateClientProtocol" ];
         }];
         DNSPort = [{ addr = "127.0.0.1"; port = 5353; }];
-        ControlPort = "127.0.0.1:9051";
+        ControlPort = [{ addr = "127.0.0.1"; port = 9051; }];
         CookieAuthFileGroupReadable = true;
         VirtualAddrNetworkIPv4 = "10.192.0.0/10";
         AutomapHostsOnResolve = true;
