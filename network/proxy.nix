@@ -105,8 +105,8 @@ in {
         chmod 0755 "$stateDir"
 
         # Check if server endpoint is reachable via ICMP
-        ${pkgs.iputils}/bin/ping -c 1 -W 1 "$serverIp" >/dev/null 2>&1
-        PING_OK=$?
+        PING_OK=0
+        ${pkgs.iputils}/bin/ping -c 1 -W 1 "$serverIp" >/dev/null 2>&1 || PING_OK=$?
 
         # User disabled — exit immediately
         if [ -f "$stateDir"/wg-disabled ]; then
