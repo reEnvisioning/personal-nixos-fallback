@@ -12,12 +12,27 @@ if [ -z "$THEME_NAME" ]; then
     exit 1
 fi
 
-if [ -f "$USER_THEME_DIR/$THEME_NAME.json" ]; then
-    THEME_DIR="$USER_THEME_DIR"
-else
-    THEME_DIR="$SYS_THEME_DIR"
+SYS_FILE="$SYS_THEME_DIR/$THEME_NAME.json"
+USER_FILE="$USER_THEME_DIR/$THEME_NAME.json"
+
+# Sync system JSON to user-local, preserving any user-added wallpapers
+if [ -f "$SYS_FILE" ]; then
+    mkdir -p "$USER_THEME_DIR"
+    if [ -f "$USER_FILE" ]; then
+        jq -s '
+            .[0] as $sys | .[1] as $user |
+            $sys + {
+                wallpapers: ($sys.wallpapers + ($user.wallpapers - $sys.wallpapers)),
+                wallpaper: $sys.wallpapers[0]
+            }
+        ' "$SYS_FILE" "$USER_FILE" > "$USER_FILE.tmp" && mv "$USER_FILE.tmp" "$USER_FILE"
+    else
+        cp "$SYS_FILE" "$USER_FILE"
+    fi
 fi
-THEME_FILE="$THEME_DIR/$THEME_NAME.json"
+
+THEME_DIR="$USER_THEME_DIR"
+THEME_FILE="$USER_FILE"
 
 if [ ! -f "$THEME_FILE" ]; then
     echo "Theme '$THEME_NAME' not found at $THEME_FILE"
