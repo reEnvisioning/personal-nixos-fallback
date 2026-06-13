@@ -4,6 +4,35 @@ let
   network = import ./network.nix;
   s = network.secrets;
   inherit (pkgs) systemd;
+  stateDir = "/run/wireguard-monitor";
+
+  proxy-off = pkgs.writeShellScriptBin "proxy-off" ''
+    if [ -z "$SUDO_USER" ]; then
+      echo "error: proxy-off must be run with sudo" >&2
+      exit 1
+    fi
+    mkdir -p ${stateDir}
+    touch ${stateDir}/wg-disabled
+    sudo -u "$SUDO_USER" notify-send -a "Proxy Control" --expire-time=4000 "Proxy disabled"
+    systemctl stop wireguard-wg0
+  '';
+
+  proxy-on = pkgs.writeShellScriptBin "proxy-on" ''
+    if [ -z "$SUDO_USER" ]; then
+      echo "error: proxy-on must be run with sudo" >&2
+      exit 1
+    fi
+    rm -f ${stateDir}/wg-disabled
+    systemctl start wireguard-wg0
+    HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
+    TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
+    NOW=$(${pkgs.coreutils}/bin/date +%s)
+    if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 10 ]; then
+      sudo -u "$SUDO_USER" notify-send -a "Proxy Control" --expire-time=4000 "Proxy enabled"
+    else
+      sudo -u "$SUDO_USER" notify-send -a "Proxy" --expire-time=86400000 -u critical "Proxy Offline" "Could not reach WireGuard server"
+    fi
+  '';
 in {
     networking.wireguard.interfaces.wg0 = {
       ips = [ s.tunnelIp ];
@@ -19,8 +48,9 @@ in {
       }];
 
       postSetup = ''
+        mkdir -p ${stateDir}
         ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
-        echo "pending" > /tmp/wg-vpn-status
+        echo "pending" > ${stateDir}/wg-vpn-status
       '';
 
       postShutdown = ''
@@ -34,8 +64,8 @@ in {
         ${pkgs.iproute2}/bin/ip rule del fwmark 2 table 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del default via ${s.gateway} table 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
-        echo "disconnected" > /tmp/wg-vpn-status
-        echo "disconnected" > /tmp/wg-last-state
+        echo "disconnected" > ${stateDir}/wg-vpn-status
+        echo "disconnected" > ${stateDir}/wg-last-state
       '';
     };
 
@@ -55,17 +85,21 @@ in {
       description = "WireGuard connection monitor";
       after = [ "network.target" "nftables.service" ];
       wants = [ "nftables.service" ];
-      serviceConfig.Type = "oneshot";
+      serviceConfig = {
+        Type = "oneshot";
+        RuntimeDirectory = "wireguard-monitor";
+        RuntimeDirectoryMode = "0750";
+      };
       script = ''
-        if [ -f /tmp/wg-offline ]; then
+        if [ -f ${stateDir}/wg-offline ]; then
           if ${pkgs.wireguard-tools}/bin/wg show wg0 >/dev/null 2>&1; then
-            rm -f /tmp/wg-offline /tmp/wg-retry-count 2>/dev/null || true
+            rm -f ${stateDir}/wg-offline ${stateDir}/wg-retry-count 2>/dev/null || true
           else
             exit 0
           fi
         fi
 
-        if [ -f /tmp/wg-disabled ]; then
+        if [ -f ${stateDir}/wg-disabled ]; then
           exit 0
         fi
 
@@ -86,21 +120,21 @@ in {
         fi
 
         if [ "$CUR" = "connected" ]; then
-          rm -f /tmp/wg-retry-count 2>/dev/null || true
+          rm -f ${stateDir}/wg-retry-count 2>/dev/null || true
         else
-          RETRY=$(cat /tmp/wg-retry-count 2>/dev/null || echo 0)
+          RETRY=$(cat ${stateDir}/wg-retry-count 2>/dev/null || echo 0)
           RETRY=$((RETRY + 1))
-          echo "$RETRY" > /tmp/wg-retry-count
+          echo "$RETRY" > ${stateDir}/wg-retry-count
           if [ "$RETRY" -ge 3 ]; then
-            touch /tmp/wg-offline
+            touch ${stateDir}/wg-offline
             ${pkgs.systemd}/bin/systemctl stop wireguard-wg0 2>/dev/null || true
-            echo "offline" > /tmp/wg-vpn-status
+            echo "offline" > ${stateDir}/wg-vpn-status
             exit 0
           fi
         fi
 
-        LAST=$(cat /tmp/wg-last-state 2>/dev/null || echo "unknown")
-        echo "$CUR" > /tmp/wg-last-state
+        LAST=$(cat ${stateDir}/wg-last-state 2>/dev/null || echo "unknown")
+        echo "$CUR" > ${stateDir}/wg-last-state
 
         case "$CUR" in
           connected)
@@ -126,7 +160,7 @@ in {
             ;;
         esac
 
-        echo "$CUR" > /tmp/wg-vpn-status
+        echo "$CUR" > ${stateDir}/wg-vpn-status
       '';
     };
 
@@ -182,23 +216,8 @@ in {
         WRAPPER
         chmod +x $out/bin/VirtualBox
       '')
-      (writeShellScriptBin "proxy-off" ''
-        touch /tmp/wg-disabled
-        notify-send -a "Proxy Control" --expire-time=4000 "Proxy disabled"
-        systemctl stop wireguard-wg0
-      '')
-      (writeShellScriptBin "proxy-on" ''
-        rm -f /tmp/wg-disabled
-        systemctl start wireguard-wg0
-        HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
-        TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
-        NOW=$(${pkgs.coreutils}/bin/date +%s)
-        if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 10 ]; then
-          notify-send -a "Proxy Control" --expire-time=4000 "Proxy enabled"
-        else
-          notify-send -a "Proxy" --expire-time=86400000 -u critical "Proxy Offline" "Could not reach WireGuard server"
-        fi
-      '')
+      proxy-off
+      proxy-on
     ];
 
 
