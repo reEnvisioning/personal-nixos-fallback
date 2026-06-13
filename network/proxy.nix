@@ -102,6 +102,7 @@ in {
         gateway="${s.gateway}"
 
         mkdir -p "$stateDir"
+        chmod 0755 "$stateDir"
 
         # Check if server endpoint is reachable via ICMP
         ping -c 1 -W 1 "$serverIp" >/dev/null 2>&1
