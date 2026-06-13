@@ -58,12 +58,12 @@ in {
             if [ -n "$cur" ] && [ "$cur" != "$notified" ]; then
               case "$cur" in
                 offline)
-                  ${pkgs.libnotify}/bin/notify-send -a "Proxy" --expire-time=5000 -u critical \
+                  ${pkgs.libnotify}/bin/notify-send -a "Proxy" --expire-time=0 -u critical \
                     "Proxy Offline" "Could not reach Wireguard server" \
                     && notified="$cur"
                   ;;
                 connected)
-                  ${pkgs.libnotify}/bin/notify-send -a "Proxy" --expire-time=5000 -u critical \
+                  ${pkgs.libnotify}/bin/notify-send -a "Proxy" --expire-time=0 -u critical \
                     "Proxy Online" "WireGuard connection established" \
                     && notified="$cur"
                   ;;
