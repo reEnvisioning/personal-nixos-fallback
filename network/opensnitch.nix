@@ -303,5 +303,6 @@ in {
           data = "^/nix/store/.*tor-browser";
         };
       };
+    };
   };
 }
