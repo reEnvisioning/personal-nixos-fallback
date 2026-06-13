@@ -35,6 +35,7 @@
         ./theme/appearance.nix
         {
           appearance.users = [ "visionary" ];
+          networking.home.users = [ "visionary" ];
 
           users.users.visionary = {
             isNormalUser = true;
