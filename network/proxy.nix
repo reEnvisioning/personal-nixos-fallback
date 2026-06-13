@@ -96,24 +96,46 @@ in {
       wants = [ "nftables.service" ];
       serviceConfig.Type = "oneshot";
       script = ''
-        mkdir -p ${stateDir}
-        if [ -f ${stateDir}/wg-offline ]; then
-          if ${pkgs.wireguard-tools}/bin/wg show wg0 >/dev/null 2>&1; then
-            rm -f ${stateDir}/wg-offline ${stateDir}/wg-retry-count 2>/dev/null || true
-          else
-            exit 0
-          fi
-        fi
+        stateDir="${stateDir}"
+        serverIp="${s.serverIp}"
+        serverPort="${toString s.serverPort}"
+        gateway="${s.gateway}"
 
-        if [ -f ${stateDir}/wg-disabled ]; then
+        mkdir -p "$stateDir"
+
+        # Check if server endpoint is reachable via ICMP
+        ping -c 1 -W 1 "$serverIp" >/dev/null 2>&1
+        PING_OK=$?
+
+        # User disabled — exit immediately
+        if [ -f "$stateDir"/wg-disabled ]; then
           exit 0
         fi
 
+        # Server unreachable — stop wg0 if running, mark offline, done
+        if [ "$PING_OK" -ne 0 ]; then
+          if [ ! -f "$stateDir"/wg-offline ]; then
+            rm -f "$stateDir"/wg-retry-count 2>/dev/null || true
+            ${pkgs.systemd}/bin/systemctl stop wireguard-wg0 2>/dev/null || true
+            touch "$stateDir"/wg-offline
+            echo "offline" > "$stateDir"/wg-vpn-status
+          fi
+          exit 0
+        fi
+
+        # Server reachable — clear offline flag if set
+        if [ -f "$stateDir"/wg-offline ]; then
+          rm -f "$stateDir"/wg-offline "$stateDir"/wg-retry-count 2>/dev/null || true
+        fi
+
+        # wg0 not up — start it
         if ! ${pkgs.wireguard-tools}/bin/wg show wg0 >/dev/null 2>&1; then
           ${pkgs.systemd}/bin/systemctl start wireguard-wg0 2>/dev/null || true
+          echo "pending" > "$stateDir"/wg-vpn-status
           exit 0
         fi
 
+        # wg0 is up — use handshake for tunnel health
         HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
         TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
         NOW=$(${pkgs.coreutils}/bin/date +%s)
@@ -126,21 +148,18 @@ in {
         fi
 
         if [ "$CUR" = "connected" ]; then
-          rm -f ${stateDir}/wg-retry-count 2>/dev/null || true
+          rm -f "$stateDir"/wg-retry-count 2>/dev/null || true
         else
-          RETRY=$(cat ${stateDir}/wg-retry-count 2>/dev/null || echo 0)
-          RETRY=$((RETRY + 1))
-          echo "$RETRY" > ${stateDir}/wg-retry-count
-          if [ "$RETRY" -ge 1 ]; then
-            touch ${stateDir}/wg-offline
-            ${pkgs.systemd}/bin/systemctl stop wireguard-wg0 2>/dev/null || true
-            echo "offline" > ${stateDir}/wg-vpn-status
-            exit 0
-          fi
+          # No recent handshake — mark offline, server will be rechecked next cycle
+          rm -f "$stateDir"/wg-retry-count 2>/dev/null || true
+          ${pkgs.systemd}/bin/systemctl stop wireguard-wg0 2>/dev/null || true
+          touch "$stateDir"/wg-offline
+          echo "offline" > "$stateDir"/wg-vpn-status
+          exit 0
         fi
 
-        LAST=$(cat ${stateDir}/wg-last-state 2>/dev/null || echo "unknown")
-        echo "$CUR" > ${stateDir}/wg-last-state
+        LAST=$(cat "$stateDir"/wg-last-state 2>/dev/null || echo "unknown")
+        echo "$CUR" > "$stateDir"/wg-last-state
 
         case "$CUR" in
           connected)
@@ -151,14 +170,14 @@ in {
               ${pkgs.iproute2}/bin/ip -6 route add 8000::/1 dev wg0 2>/dev/null || true
 
               ${pkgs.iproute2}/bin/ip rule add fwmark 2 table 100 priority 100 2>/dev/null || true
-              ${pkgs.iproute2}/bin/ip route add default via ${s.gateway} table 100 2>/dev/null || true
+              ${pkgs.iproute2}/bin/ip route add default via "$gateway" table 100 2>/dev/null || true
 
               ${pkgs.nftables}/bin/nft add table inet wg-killswitch 2>/dev/null || true
               ${pkgs.nftables}/bin/nft add chain inet wg-killswitch output { type filter hook output priority filter + 2\; policy accept\; } 2>/dev/null || true
               ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
                 socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2 2>/dev/null || true
               ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-                ip daddr ${s.serverIp} udp dport ${toString s.serverPort} accept
+                ip daddr "$serverIp" udp dport "$serverPort" accept
               ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
                 oifname != "lo" oifname != "wg0" meta mark != 2 \
                 counter reject with icmpx type admin-prohibited
@@ -166,7 +185,7 @@ in {
             ;;
         esac
 
-        echo "$CUR" > ${stateDir}/wg-vpn-status
+        echo "$CUR" > "$stateDir"/wg-vpn-status
       '';
     };
 
