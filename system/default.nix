@@ -5,7 +5,7 @@ in {
   imports = [
     ../network/networking.nix
     ./local.nix
-    ./plymouth.nix
+    ../theme/plymouth.nix
     ./boot.nix
     ./greeter.nix
     ./bluetooth.nix
@@ -27,8 +27,6 @@ in {
 
     allowed-users = nixUsers;
     trusted-users = nixUsers;
-    auto-optimise-store = true;
-
   };
 
   nixpkgs.config.allowUnfree = true;

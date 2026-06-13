@@ -129,31 +129,7 @@ in {
       reloadIfChanged = true;
     };
 
-    services.opensnitch.rules.tor = {
-      name = "tor";
-      enabled = true;
-      action = "allow";
-      duration = "always";
-      operator = {
-        type = "regexp";
-        sensitive = false;
-        operand = "process.path";
-        data = "^/nix/store/.*/bin/tor$";
-      };
-    };
 
-    services.opensnitch.rules.tor-browser = {
-      name = "tor-browser";
-      enabled = true;
-      action = "allow";
-      duration = "always";
-      operator = {
-        type = "regexp";
-        sensitive = false;
-        operand = "process.path";
-        data = "^/nix/store/.*tor-browser";
-      };
-    };
 
     environment.systemPackages = with pkgs; [
       netcat-openbsd

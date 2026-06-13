@@ -1,9 +1,5 @@
-let
-  secretResult = builtins.tryEval (import ../secret.nix);
-  hasSecret = secretResult.success;
-in {
-  inherit hasSecret;
-  secrets = if hasSecret then secretResult.value else {};
+{
+  secrets = import ../secret.nix;
 
   dns = {
     servers = [ "9.9.9.9" "149.112.112.112" "2620:fe::fe" "2620:fe::9" ];

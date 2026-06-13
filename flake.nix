@@ -36,7 +36,6 @@
         {
           networking.hostName = hostname;
           appearance.users = [ "visionary" ];
-          networking.home.users = [ "visionary" ];
 
           users.users.visionary = {
             isNormalUser = true;
@@ -58,6 +57,7 @@
               ./home/visionary/librewolf.nix
               ./home/visionary/ssh.nix
               ./home/visionary/neovim.nix
+              ./network/hm.nix
             ];
           };
         }

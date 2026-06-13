@@ -169,24 +169,24 @@ let
         ui_hint           = "#757575";
         ui_match          = "#F57C00";
         # Text/syntax colors (for syntax highlighting only)
-        text              = "#2D2D2D";
-        subtext0          = "#757575";
-        subtext1          = "#616161";
         red               = "#D64545";
-        green             = "#43A047";
-        yellow            = "#D4A017";
         blue              = "#1976D2";
-        magenta           = "#E91E63";
-        cyan              = "#00838F";
+        sapphire          = "#0277BD";
+        maroon            = "#C62828";
         mauve             = "#7B1FA2";
         lavender          = "#7E57C2";
-        pink              = "#E05A77";
-        rosewater         = "#D46A7A";
-        flamingo          = "#CC7A7A";
-        maroon            = "#C62828";
         peach             = "#E65100";
         sky               = "#0288D1";
-        sapphire          = "#0277BD";
+        green             = "#43A047";
+        cyan              = "#00838F";
+        pink              = "#E05A77";
+        magenta           = "#E91E63";
+        flamingo          = "#CC7A7A";
+        yellow            = "#D4A017";
+        rosewater         = "#D46A7A";
+        subtext0          = "#757575";
+        subtext1          = "#616161";
+        text              = "#2D2D2D";
       };
     };
 

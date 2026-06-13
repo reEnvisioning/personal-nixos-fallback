@@ -2,12 +2,9 @@
 
 let
   network = import ./network.nix;
-  hasSecret = network.hasSecret;
+  s = network.secrets;
   inherit (pkgs) systemd;
 in {
-  config = lib.mkIf hasSecret (let
-    s = network.secrets;
-  in {
     networking.wireguard.interfaces.wg0 = {
       ips = [ s.tunnelIp ];
       privateKey = s.clientPriv;
@@ -204,43 +201,5 @@ in {
       '')
     ];
 
-    services.opensnitch.rules = {
-      wireguard-daemon = {
-        name = "wireguard-daemon";
-        enabled = true;
-        action = "allow";
-        duration = "always";
-        operator = {
-          type = "regexp";
-          sensitive = false;
-          operand = "process.path";
-          data = "^/nix/store/.*/bin/wg$";
-        };
-      };
-      virtualbox-bypass = {
-        name = "virtualbox-bypass";
-        enabled = true;
-        action = "allow";
-        duration = "always";
-        operator = {
-          type = "regexp";
-          sensitive = false;
-          operand = "process.path";
-          data = "^/nix/store/.*[Vv]irtual[Bb]ox";
-        };
-      };
-      wireguard-kernel = {
-        name = "wireguard-kernel";
-        enabled = true;
-        action = "allow";
-        duration = "always";
-        operator = {
-          type = "simple";
-          sensitive = false;
-          operand = "dest.ip";
-          data = s.serverIp;
-        };
-      };
-    };
-  });
+
 }

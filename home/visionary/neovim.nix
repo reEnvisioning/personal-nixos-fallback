@@ -4,7 +4,6 @@
   programs.neovim = {
     enable = true;
     withPython3 = true;
-    withRuby = true;
     defaultEditor = true;
     viAlias = true;
     vimAlias = true;

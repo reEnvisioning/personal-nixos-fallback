@@ -1,4 +1,7 @@
-{ ... }: {
+{ ... }:
+let
+  network = import ./network.nix;
+in {
   services.opensnitch = {
     enable = true;
     settings = {
@@ -240,6 +243,65 @@
           data = "^/nix/store/.*/bin/ssh-keyscan$";
         };
       };
-    };
+      wireguard-daemon = {
+        name = "wireguard-daemon";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/bin/wg$";
+        };
+      };
+      virtualbox-bypass = {
+        name = "virtualbox-bypass";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*[Vv]irtual[Bb]ox";
+        };
+      };
+      wireguard-kernel = {
+        name = "wireguard-kernel";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "simple";
+          sensitive = false;
+          operand = "dest.ip";
+          data = network.secrets.serverIp;
+        };
+      };
+      tor = {
+        name = "tor";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*/bin/tor$";
+        };
+      };
+      tor-browser = {
+        name = "tor-browser";
+        enabled = true;
+        action = "allow";
+        duration = "always";
+        operator = {
+          type = "regexp";
+          sensitive = false;
+          operand = "process.path";
+          data = "^/nix/store/.*tor-browser";
+        };
+      };
   };
 }
