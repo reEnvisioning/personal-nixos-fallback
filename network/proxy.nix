@@ -148,7 +148,7 @@ in {
       commands = [
         {
           command = "${systemd}/bin/systemd-run --slice=bypass-wg *";
-          options = [ "NOPASSWD" "SETENV" ];
+          options = [ "NOPASSWD" ];
         }
       ];
     }];

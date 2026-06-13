@@ -72,7 +72,7 @@ in {
           flags = [ "IsolateDestAddr" "IsolateDestPort" "IsolateClientProtocol" ];
         }];
         DNSPort = [{ addr = "127.0.0.1"; port = 5353; }];
-        ControlPort = 9051;
+        ControlPort = "127.0.0.1:9051";
         CookieAuthFileGroupReadable = true;
         VirtualAddrNetworkIPv4 = "10.192.0.0/10";
         AutomapHostsOnResolve = true;
@@ -103,7 +103,7 @@ in {
         commands = [
           {
             command = "${pkgs.iproute2}/bin/ip netns exec tor-net *";
-            options = [ "NOPASSWD" "SETENV" ];
+            options = [ "NOPASSWD" ];
           }
         ];
       }

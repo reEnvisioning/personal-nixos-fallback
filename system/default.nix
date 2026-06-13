@@ -8,7 +8,6 @@ in {
     ../theme/plymouth.nix
     ./boot.nix
     ./greeter.nix
-    ./bluetooth.nix
     ./audio.nix
     ./compositor.nix
     ./virtualisation.nix
@@ -27,6 +26,7 @@ in {
 
     allowed-users = nixUsers;
     trusted-users = nixUsers;
+    require-sigs = true;
   };
 
   nixpkgs.config.allowUnfree = true;
