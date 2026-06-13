@@ -28,8 +28,10 @@ let
     themes = builtins.attrValues theme.all;
   in lib.unique (lib.flatten (map (t: [t.wallpaper] ++ t.wallpapers) themes));
 
-  wallpapers = pkgs.runCommandNoCC "theme-wallpapers" {} (
-    builtins.concatStringsSep "\n" (map (wp: "ln -s '${wp}' $out/") allWallpaperPaths)
+  wallpapers = pkgs.runCommand "theme-wallpapers" {} (
+    builtins.concatStringsSep "\n" (
+      ["mkdir -p $out"] ++ map (wp: "ln -s '${wp}' $out/") allWallpaperPaths
+    )
   );
 
   catppuccin-mocha = pkgs.catppuccin-gtk.override {
