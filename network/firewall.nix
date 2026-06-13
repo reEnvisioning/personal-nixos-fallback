@@ -4,8 +4,7 @@ let
 in {
   networking.firewall = {
     enable = true;
-    allowedTCPPorts = network.firewall.allowedTCPPorts;
-    allowedUDPPorts = network.firewall.allowedUDPPorts;
+    extraInputRules = network.firewall.localSendExtraRules;
   };
 
   boot.kernel.sysctl = {

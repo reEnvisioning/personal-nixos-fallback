@@ -8,8 +8,10 @@
   };
 
   firewall = {
-    allowedTCPPorts = [ 53317 ];
-    allowedUDPPorts = [ 53317 ];
+    localSendExtraRules = ''
+      ip saddr { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 } tcp dport 53317 accept
+      ip saddr { 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16 } udp dport 53317 accept
+    '';
   };
 
   networkmanager = {
