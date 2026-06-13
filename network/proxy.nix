@@ -20,11 +20,13 @@ in {
       }];
 
       postSetup = ''
+        mkdir -p ${stateDir}
         ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
         echo "pending" > ${stateDir}/wg-vpn-status
       '';
 
       postShutdown = ''
+        mkdir -p ${stateDir}
         ${pkgs.nftables}/bin/nft flush chain inet wg-killswitch output 2>/dev/null || true
         ${pkgs.nftables}/bin/nft delete chain inet wg-killswitch output 2>/dev/null || true
         ${pkgs.nftables}/bin/nft delete table inet wg-killswitch 2>/dev/null || true
@@ -42,9 +44,8 @@ in {
 
     systemd.services.wireguard-wg0 = {
       wantedBy = lib.mkForce [ ];
-      after = [ "nftables.service" "systemd-tmpfiles-setup.service" ];
-      wants = [ "nftables.service" "systemd-tmpfiles-setup.service" ];
-      requires = [ "systemd-tmpfiles-setup.service" ];
+      after = [ "nftables.service" ];
+      wants = [ "nftables.service" ];
       serviceConfig = {
         TimeoutStartSec = 5;
         Restart = "no";
@@ -55,11 +56,11 @@ in {
 
     systemd.services.wireguard-monitor = {
       description = "WireGuard connection monitor";
-      after = [ "network.target" "nftables.service" "systemd-tmpfiles-setup.service" ];
-      wants = [ "nftables.service" "systemd-tmpfiles-setup.service" ];
-      requires = [ "systemd-tmpfiles-setup.service" ];
+      after = [ "network.target" "nftables.service" ];
+      wants = [ "nftables.service" ];
       serviceConfig.Type = "oneshot";
       script = ''
+        mkdir -p ${stateDir}
         if [ -f ${stateDir}/wg-offline ]; then
           if ${pkgs.wireguard-tools}/bin/wg show wg0 >/dev/null 2>&1; then
             rm -f ${stateDir}/wg-offline ${stateDir}/wg-retry-count 2>/dev/null || true
@@ -193,11 +194,13 @@ in {
         chmod +x $out/bin/VirtualBox
       '')
       (writeShellScriptBin "proxy-off" ''
+        mkdir -p ${stateDir}
         touch ${stateDir}/wg-disabled
         notify-send -a "Proxy Control" --expire-time=4000 "Proxy disabled"
         systemctl stop wireguard-wg0
       '')
       (writeShellScriptBin "proxy-on" ''
+        mkdir -p ${stateDir}
         rm -f ${stateDir}/wg-disabled
         systemctl start wireguard-wg0
         HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)

@@ -4,17 +4,33 @@ let
 
   theme = import ./theme.nix;
 
-  mkThemeJson = name: t: builtins.toJSON {
-    name = name;
-    mode = t.mode;
-    localsend_color = t.localsend_color;
-    obs_style = t.obs_style;
-    KDEwidgetStyle = t.KDEwidgetStyle;
-    wallpaper = toString t.wallpaper;
-    wallpapers = map (x: toString x) t.wallpapers;
-    gtkThemeName = t.gtk.themeName;
-    colors = t.colors;
-  };
+  mkThemeJson = name: t: let
+    inherit (builtins) toJSON;
+    # Manual JSON construction using ${path} interpolation instead of
+    # builtins.toJSON to preserve Nix string context (store path deps)
+    esc = toJSON;
+  in ''
+    {
+      "name": ${esc name},
+      "mode": ${esc t.mode},
+      "localsend_color": ${esc t.localsend_color},
+      "obs_style": ${esc t.obs_style},
+      "KDEwidgetStyle": ${esc t.KDEwidgetStyle},
+      "wallpaper": "${t.wallpaper}",
+      "wallpapers": [${lib.concatMapStringsSep ", " (wp: ''"${wp}"'') t.wallpapers}],
+      "gtkThemeName": ${esc t.gtk.themeName},
+      "colors": ${toJSON t.colors}
+    }
+  '';
+
+  # Collect all wallpaper paths to ensure they're in the runtime closure
+  allWallpaperPaths = let
+    themes = builtins.attrValues theme.all;
+  in lib.unique (lib.flatten (map (t: [t.wallpaper] ++ t.wallpapers) themes));
+
+  wallpapers = pkgs.runCommandNoCC "theme-wallpapers" {} (
+    builtins.concatStringsSep "\n" (map (wp: "ln -s '${wp}' $out/") allWallpaperPaths)
+  );
 
   catppuccin-mocha = pkgs.catppuccin-gtk.override {
     variant = "mocha";
@@ -54,6 +70,7 @@ in {
     };
 
     environment.systemPackages = with pkgs; [
+      wallpapers
       quickshell
       wl-clipboard
       libnotify
