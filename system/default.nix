@@ -13,7 +13,7 @@ in {
     ./virtualisation.nix
     ./polkit.nix
     ./security.nix
-    ./shell.nix
+    ./maintenance.nix
   ] ++ hw.systemImports;
 
   system.stateVersion = "26.05";
@@ -30,17 +30,6 @@ in {
   };
 
   nixpkgs.config.allowUnfree = true;
-
-  nix.gc = {
-    automatic = true;
-    dates = "weekly";
-    options = "--delete-generations +10";
-  };
-
-  nix.optimise.automatic = true;
-  nix.optimise.dates = ["weekly"];
-  services.udisks2.enable = true;
-  services.power-profiles-daemon.enable = true;
 
   environment.systemPackages = with pkgs; [
     vim
