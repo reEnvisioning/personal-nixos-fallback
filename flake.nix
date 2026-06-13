@@ -34,6 +34,7 @@
         inputs.home-manager.nixosModules.home-manager
         ./theme/appearance.nix
         {
+          networking.hostName = hostname;
           appearance.users = [ "visionary" ];
           networking.home.users = [ "visionary" ];
 
