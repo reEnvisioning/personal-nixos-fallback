@@ -152,7 +152,6 @@ in {
         "Mod+B" hotkey-overlay-title="Browser" { spawn "firefox"; }
         "Mod+Shift+W" hotkey-overlay-title="Neovim" { spawn "kitty" "-e" "nvim"; }
         "Mod+Shift+G" hotkey-overlay-title="GIMP" { spawn "gimp"; }
-        "Mod+Shift+B" hotkey-overlay-title="Bluetooth" { spawn "blueman-manager"; }
         "Mod+Shift+N" hotkey-overlay-title="Audio" { spawn "pavucontrol"; }
 
         // Brightness, volume, mic

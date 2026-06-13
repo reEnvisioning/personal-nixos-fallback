@@ -4,6 +4,7 @@ let
   network = import ./network.nix;
   s = network.secrets;
   inherit (pkgs) systemd;
+  stateDir = "/run/wg-proxy";
 in {
     networking.wireguard.interfaces.wg0 = {
       ips = [ s.tunnelIp ];
@@ -20,7 +21,7 @@ in {
 
       postSetup = ''
         ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
-        echo "pending" > /tmp/wg-vpn-status
+        echo "pending" > ${stateDir}/wg-vpn-status
       '';
 
       postShutdown = ''
@@ -34,8 +35,8 @@ in {
         ${pkgs.iproute2}/bin/ip rule del fwmark 2 table 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del default via ${s.gateway} table 100 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
-        echo "disconnected" > /tmp/wg-vpn-status
-        echo "disconnected" > /tmp/wg-last-state
+        echo "disconnected" > ${stateDir}/wg-vpn-status
+        echo "disconnected" > ${stateDir}/wg-last-state
       '';
     };
 
@@ -57,15 +58,15 @@ in {
       wants = [ "nftables.service" ];
       serviceConfig.Type = "oneshot";
       script = ''
-        if [ -f /tmp/wg-offline ]; then
+        if [ -f ${stateDir}/wg-offline ]; then
           if ${pkgs.wireguard-tools}/bin/wg show wg0 >/dev/null 2>&1; then
-            rm -f /tmp/wg-offline /tmp/wg-retry-count 2>/dev/null || true
+            rm -f ${stateDir}/wg-offline ${stateDir}/wg-retry-count 2>/dev/null || true
           else
             exit 0
           fi
         fi
 
-        if [ -f /tmp/wg-disabled ]; then
+        if [ -f ${stateDir}/wg-disabled ]; then
           exit 0
         fi
 
@@ -86,21 +87,21 @@ in {
         fi
 
         if [ "$CUR" = "connected" ]; then
-          rm -f /tmp/wg-retry-count 2>/dev/null || true
+          rm -f ${stateDir}/wg-retry-count 2>/dev/null || true
         else
-          RETRY=$(cat /tmp/wg-retry-count 2>/dev/null || echo 0)
+          RETRY=$(cat ${stateDir}/wg-retry-count 2>/dev/null || echo 0)
           RETRY=$((RETRY + 1))
-          echo "$RETRY" > /tmp/wg-retry-count
+          echo "$RETRY" > ${stateDir}/wg-retry-count
           if [ "$RETRY" -ge 3 ]; then
-            touch /tmp/wg-offline
+            touch ${stateDir}/wg-offline
             ${pkgs.systemd}/bin/systemctl stop wireguard-wg0 2>/dev/null || true
-            echo "offline" > /tmp/wg-vpn-status
+            echo "offline" > ${stateDir}/wg-vpn-status
             exit 0
           fi
         fi
 
-        LAST=$(cat /tmp/wg-last-state 2>/dev/null || echo "unknown")
-        echo "$CUR" > /tmp/wg-last-state
+        LAST=$(cat ${stateDir}/wg-last-state 2>/dev/null || echo "unknown")
+        echo "$CUR" > ${stateDir}/wg-last-state
 
         case "$CUR" in
           connected)
@@ -126,7 +127,7 @@ in {
             ;;
         esac
 
-        echo "$CUR" > /tmp/wg-vpn-status
+        echo "$CUR" > ${stateDir}/wg-vpn-status
       '';
     };
 
@@ -137,6 +138,13 @@ in {
         OnBootSec = "1s";
         OnUnitActiveSec = "5s";
       };
+    };
+
+    users.groups.proxy = {};
+    users.users.visionary.extraGroups = [ "proxy" ];
+
+    systemd.tmpfiles.settings."proxy"."/run/wg-proxy" = {
+      d = { mode = "0770"; user = "root"; group = "proxy"; };
     };
 
     systemd.slices.bypass-wg = {
@@ -183,12 +191,12 @@ in {
         chmod +x $out/bin/VirtualBox
       '')
       (writeShellScriptBin "proxy-off" ''
-        touch /tmp/wg-disabled
+        touch ${stateDir}/wg-disabled
         notify-send -a "Proxy Control" --expire-time=4000 "Proxy disabled"
         systemctl stop wireguard-wg0
       '')
       (writeShellScriptBin "proxy-on" ''
-        rm -f /tmp/wg-disabled
+        rm -f ${stateDir}/wg-disabled
         systemctl start wireguard-wg0
         HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
         TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
