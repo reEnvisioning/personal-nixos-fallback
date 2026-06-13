@@ -4,6 +4,25 @@ let
   hw = import ../../hardware/hardware.nix;
   mod = "Mod";
 
+  niri-startup = pkgs.writeShellScript "niri-startup" ''
+    echo 0 > "$XDG_RUNTIME_DIR/${hostname}-dnd"
+    echo 0 > "$XDG_RUNTIME_DIR/${hostname}-notif-dismiss"
+    echo 0 > "$XDG_RUNTIME_DIR/${hostname}-clip-toggle"
+    echo 0 > "$XDG_RUNTIME_DIR/${hostname}-launcher-toggle"
+    echo 0 > "$XDG_RUNTIME_DIR/${hostname}-tab-trigger"
+    sleep 0.5
+    switch-theme "$(state get current-theme || echo void)"
+    if [ "$(state get hypridle)" != "disabled" ]; then
+      sway-audio-idle-inhibit &
+      swayidle -w \
+        timeout 300 'swaylock -f' \
+        timeout 600 'niri msg action power-off-monitors' \
+        resume 'niri msg action power-on-monitors' \
+        before-sleep 'swaylock -f' &
+      disown
+    fi
+  '';
+
   wsBinds = builtins.concatLists (builtins.genList (x:
     let wsNum = x + 1; wsKey = if wsNum == 10 then "0" else builtins.toString wsNum; wsStr = builtins.toString wsNum; in [
       ''        "${mod}+${wsKey}" hotkey-overlay-title="Focus workspace ${wsStr}" { focus-workspace ${wsStr}; }''
@@ -252,7 +271,7 @@ in {
 
     spawn-sh-at-startup "opensnitch-ui --background"
 
-    spawn-sh-at-startup "echo 0 > $XDG_RUNTIME_DIR/${hostname}-dnd; echo 0 > $XDG_RUNTIME_DIR/${hostname}-notif-dismiss; echo 0 > $XDG_RUNTIME_DIR/${hostname}-clip-toggle; echo 0 > $XDG_RUNTIME_DIR/${hostname}-launcher-toggle; echo 0 > $XDG_RUNTIME_DIR/${hostname}-tab-trigger; sleep 0.5; switch-theme $(state get current-theme || echo void); if [ \"$(state get hypridle)\" != \"disabled\" ]; then sway-audio-idle-inhibit & swayidle -w timeout 300 '${pkgs.swaylock}/bin/swaylock -f' timeout 600 'niri msg action power-off-monitors' resume 'niri msg action power-on-monitors' before-sleep '${pkgs.swaylock}/bin/swaylock -f' & disown; fi"
+    spawn-sh-at-startup "${niri-startup}"
   '';
 
   programs.swaylock = {

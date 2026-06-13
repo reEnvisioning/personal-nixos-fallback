@@ -1,5 +1,4 @@
 let
-  hexHelper = color: builtins.substring 1 (builtins.stringLength color) color;
   default = "void";
 
   mkCatppuccin = variant: accent: {
@@ -264,7 +263,6 @@ in {
     family = "Monospace";
     size = 10;
   };
-  hex = hexHelper;
   colors = allThemes.${default}.colors;
   author = "reEnvisioning";
 }

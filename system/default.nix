@@ -27,7 +27,7 @@ in {
 
     allowed-users = nixUsers;
     trusted-users = nixUsers;
-    auto-optimise-store = false;
+    auto-optimise-store = true;
 
   };
 
