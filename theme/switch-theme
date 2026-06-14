@@ -21,7 +21,7 @@ if [ -f "$SYS_FILE" ]; then
         jq -s '
             .[0] as $sys | .[1] as $user |
             $sys + {
-                wallpapers: (($sys.wallpapers + ($user.wallpapers - $sys.wallpapers)) | unique),
+                wallpapers: (($sys.wallpapers + $user.wallpapers) | unique_by(split("/")[-1])),
                 wallpaper: $sys.wallpapers[0]
             }
         ' "$SYS_FILE" "$USER_FILE" > "$USER_FILE.tmp" && mv "$USER_FILE.tmp" "$USER_FILE"
