@@ -9,11 +9,25 @@ Item {
     property string name: "Calc"
     property string placeholderText: "Calculate..."
 
+    property var _history: []
+
     function query(text) {
-        if (!text || !text.trim()) return []
+        if (!text || !text.trim()) return _history.slice()
+
         var result = evaluate(text)
-        if (result === null) return []
-        return [{ expression: text, result: result }]
+        var lower = text.toLowerCase()
+        var results = []
+
+        if (result !== null)
+            results.push({ expression: text, result: result, isCurrent: true })
+
+        for (var i = 0; i < _history.length; i++) {
+            if (_history[i].expression.toLowerCase().indexOf(lower) !== -1 &&
+                (result === null || _history[i].expression !== text))
+                results.push(_history[i])
+        }
+
+        return results
     }
 
     function evaluate(expr) {
@@ -28,8 +42,30 @@ Item {
     function textFor(entry) { return entry ? entry.result : "" }
 
     function activate(entry) {
-        if (entry && entry.result)
+        if (entry && entry.result) {
+            addToHistory(entry.expression, entry.result)
             Quickshell.execDetached(["wl-copy", entry.result])
+        }
+    }
+
+    function remove(entry) {
+        var idx = _history.indexOf(entry)
+        if (idx >= 0) _history.splice(idx, 1)
+    }
+
+    function removeAll() {
+        _history = []
+    }
+
+    function addToHistory(expr, res) {
+        for (var i = 0; i < _history.length; i++) {
+            if (_history[i].expression === expr) {
+                _history.splice(i, 1)
+                break
+            }
+        }
+        _history.unshift({ expression: expr, result: res })
+        if (_history.length > 100) _history.length = 100
     }
 
     property Component itemComponent: Component {
@@ -51,7 +87,7 @@ Item {
                 anchors.leftMargin: Math.round(10 * uiScale)
                 anchors.verticalCenter: parent.verticalCenter
                 text: modelData ? ("= " + modelData.expression) : ""
-                color: colors.text
+                color: modelData && modelData.isCurrent ? colors.text : colors.subtext0
                 font.pointSize: 10
                 font.family: "monospace"
             }
