@@ -35,7 +35,7 @@ let
 in {
   inherit pc cpu gpu monitors;
 
-  systemImports = pcDir.modules ++ importIf cpu ./intel.nix ++ importIf gpu ./nvidia.nix;
+  systemImports = pcDir.modules ++ importIf cpu (if cpu == "amd" then ./amd-cpu.nix else ./intel.nix) ++ importIf gpu (if gpu == "amd" then ./amd-gpu.nix else ./nvidia.nix);
 
   niriOutputs = builtins.concatStringsSep "\n" (map niriOutputEntry monitors);
 }
