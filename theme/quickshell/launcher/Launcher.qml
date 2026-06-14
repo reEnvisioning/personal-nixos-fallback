@@ -24,6 +24,7 @@ PanelWindow {
     property list<QtObject> providers: [
         AppProvider { id: appProv },
         ShellProvider { id: shellProv },
+        TerminalProvider { id: terminalProv },
         ThemeProvider { id: themeProv },
         WallpaperProvider { id: wallpaperProv },
         SystemProvider { id: systemProv },
