@@ -11,6 +11,7 @@ Item {
     property string placeholderText: "Switch wallpaper..."
 
     property var _wallpapers: []
+    property var _candidates: []
     property int refreshKey: 0
 
     Process {
@@ -77,18 +78,28 @@ Item {
     }
 
     Process {
-        id: filePicker
+        id: fileScanner
         command: ["bash", "-c",
-            "find ~/Pictures ~/Downloads ~/ -maxdepth 3 -type f \\(" +
-            "  -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.bmp' -o -name '*.webp'" +
-            "\\) 2>/dev/null | sort | kitty -T fzf sh -c 'fzf --prompt=\"Wallpaper > \" > /tmp/wallpaper-choice' && " +
-            "cat /tmp/wallpaper-choice"]
+            "cd ~ && find Documents Downloads Pictures Videos Music . " +
+            "-maxdepth 4 -not -path '*/.*' -name '*.png' -type f " +
+            "2>/dev/null | sort"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
-                var path = text.trim()
-                if (path.length > 0)
-                    addWallpaper(path)
+                root._candidates = []
+                var raw = text.trim()
+                if (raw === "") return
+                var lines = raw.split('\n')
+                for (var i = 0; i < lines.length; i++) {
+                    var parts = lines[i].split('/')
+                    var name = parts.pop()
+                    root._candidates.push({
+                        name: name,
+                        fullPath: lines[i],
+                        isCandidate: true
+                    })
+                }
+                root.refreshKey++
             }
         }
     }
@@ -170,8 +181,14 @@ Item {
 
     function activate(entry) {
         if (entry && entry.isAdd) {
-            filePicker.running = false
-            filePicker.running = true
+            fileScanner.running = false
+            fileScanner.running = true
+            return
+        }
+        if (entry && entry.isCandidate) {
+            addWallpaper(entry.fullPath)
+            root._candidates = []
+            root.refreshKey++
             return
         }
         if (entry && entry.index !== undefined) {
@@ -184,10 +201,19 @@ Item {
     }
 
     function query(text) {
+        if (root._candidates.length > 0) {
+            if (!text || !text.trim())
+                return _candidates.slice()
+            var lower = text.toLowerCase()
+            return _candidates.filter(function(c) {
+                return c.name.toLowerCase().indexOf(lower) !== -1
+            })
+        }
+
         if (root._wallpapers.length === 0) return []
 
         if (!text || !text.trim()) {
-            var results = [{ index: -1, name: "+ Add wallpaper...", isAdd: true }]
+            var results = [{ index: -1, name: "Add wallpaper...", isAdd: true }]
             return results.concat(_wallpapers.slice())
         }
 
@@ -251,10 +277,10 @@ Item {
 
                     Image {
                         anchors.fill: parent
-                        source: modelData && modelData.isAdd !== true ? modelData.fullPath : ""
+                        source: modelData && modelData.isAdd !== true && modelData.isCandidate !== true ? modelData.fullPath : ""
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
-                        visible: modelData && modelData.isAdd !== true
+                        visible: modelData && modelData.isAdd !== true && modelData.isCandidate !== true
                     }
                 }
 
