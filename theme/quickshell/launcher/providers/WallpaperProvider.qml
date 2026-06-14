@@ -178,11 +178,19 @@ Item {
             "if [ -f \"$HOME/.config/$H/themes/$THEME.json\" ]; then" +
             "  THEME_FILE=\"$HOME/.config/$H/themes/$THEME.json\";" +
             "else exit 0; fi;" +
+            "CURRENT_IDX=$(state get wallpaper-idx:$THEME 2>/dev/null || echo 0);" +
+            "CURRENT_PATH=$(jq -r \".wallpapers[$CURRENT_IDX] // \\\"\\\"\" \"$THEME_FILE\");" +
             "jq --arg path \"$1\" 'del(.wallpapers[] | select(. == $path))' \"$THEME_FILE\" > \"${THEME_FILE}.tmp\" && " +
             "mv \"${THEME_FILE}.tmp\" \"$THEME_FILE\";" +
             "rm -f \"$1\";" +
-            "if [ \"$(state get wallpaper-idx:$THEME)\" != \"0\" ]; then" +
-            "  switch-wallpaper 0; fi",
+            "NEW_COUNT=$(jq '.wallpapers | length' \"$THEME_FILE\");" +
+            "if [ \"$NEW_COUNT\" -eq 0 ]; then exit 0; fi;" +
+            "NEW_IDX=$(jq -r --arg p \"$CURRENT_PATH\" '.wallpapers | map(. == $p) | index(true)' \"$THEME_FILE\");" +
+            "if [ \"$NEW_IDX\" != \"null\" ] && [ -n \"$NEW_IDX\" ]; then" +
+            "  state set wallpaper-idx:$THEME \"$NEW_IDX\";" +
+            "else" +
+            "  switch-wallpaper 0;" +
+            "fi",
             "removeWallpaper", entry.fullPath]
         deleteProc.running = false
         deleteProc.running = true
