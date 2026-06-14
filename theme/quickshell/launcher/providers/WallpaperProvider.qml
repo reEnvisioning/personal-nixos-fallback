@@ -1,6 +1,7 @@
 import QtQuick
 import Quickshell
 import Quickshell.Io
+import "../scripts/fuzzy.js" as Fuzzy
 
 Item {
     id: root
@@ -11,8 +12,11 @@ Item {
     property string placeholderText: "Switch wallpaper..."
 
     property var _wallpapers: []
-    property var _candidates: []
     property int refreshKey: 0
+    property var _wallpaperFiles: []
+    property bool _browsingMode: false
+    property bool closeOnActivate: false
+    signal requestClose()
 
     Process {
         id: wallpaperLoader
@@ -78,29 +82,55 @@ Item {
     }
 
     Process {
+        id: filePicker
+        command: ["bash", "-c",
+            "cd ~ && find Documents Downloads Pictures Videos Music . " +
+            "-maxdepth 4 -not -path '*/.*' -name '*.png' -type f " +
+            "2>/dev/null | sort | kitty -T fzf sh -c 'fzf --prompt=\"Wallpaper > \" > /tmp/wallpaper-choice' && " +
+            "cat /tmp/wallpaper-choice"]
+        running: false
+        stdout: StdioCollector {
+            onStreamFinished: {
+                var path = text.trim()
+                if (path.length > 0)
+                    addWallpaper(path)
+            }
+        }
+    }
+
+    Process {
         id: fileScanner
         command: ["bash", "-c",
             "cd ~ && find Documents Downloads Pictures Videos Music . " +
             "-maxdepth 4 -not -path '*/.*' -name '*.png' -type f " +
-            "2>/dev/null | sort"]
-        running: false
+            "-printf '%T@\\t%p\\n' 2>/dev/null | sort -rn | head -200 | cut -f2-"]
+        running: true
         stdout: StdioCollector {
             onStreamFinished: {
-                root._candidates = []
+                root._wallpaperFiles = []
                 var raw = text.trim()
                 if (raw === "") return
                 var lines = raw.split('\n')
                 for (var i = 0; i < lines.length; i++) {
                     var parts = lines[i].split('/')
                     var name = parts.pop()
-                    root._candidates.push({
-                        name: name,
-                        fullPath: lines[i],
-                        isCandidate: true
+                    root._wallpaperFiles.push({
+                        relPath: lines[i],
+                        name: name
                     })
                 }
                 root.refreshKey++
             }
+        }
+    }
+
+    Timer {
+        interval: 60000
+        running: true
+        repeat: true
+        onTriggered: {
+            fileScanner.running = false
+            fileScanner.running = true
         }
     }
 
@@ -180,34 +210,57 @@ Item {
     }
 
     function activate(entry) {
-        if (entry && entry.isAdd) {
-            fileScanner.running = false
-            fileScanner.running = true
+        if (!entry) return
+        if (entry.isAdd) {
+            root._browsingMode = true
             return
         }
-        if (entry && entry.isCandidate) {
-            addWallpaper(entry.fullPath)
-            root._candidates = []
-            root.refreshKey++
+        if (entry.isFileSearch) {
+            addWallpaper(entry.relPath)
+            root._browsingMode = false
+            root.requestClose()
             return
         }
-        if (entry && entry.index !== undefined) {
+        if (entry.index !== undefined) {
             Quickshell.execDetached(["switch-wallpaper", String(entry.index)])
             for (var i = 0; i < root._wallpapers.length; i++)
                 root._wallpapers[i].current = root._wallpapers[i].index === entry.index
             var tmp = root._wallpapers.slice()
             root._wallpapers = tmp
+            root.requestClose()
         }
     }
 
     function query(text) {
-        if (root._candidates.length > 0) {
-            if (!text || !text.trim())
-                return _candidates.slice()
-            var lower = text.toLowerCase()
-            return _candidates.filter(function(c) {
-                return c.name.toLowerCase().indexOf(lower) !== -1
+        if (root._browsingMode) {
+            if (root._wallpaperFiles.length === 0) return []
+
+            if (!text || !text.trim()) {
+                var count = Math.min(50, root._wallpaperFiles.length)
+                var recent = []
+                for (var i = 0; i < count; i++)
+                    recent.push({ isFileSearch: true, name: root._wallpaperFiles[i].name, relPath: root._wallpaperFiles[i].relPath })
+                return recent
+            }
+
+            var results = Fuzzy.go(text, root._wallpaperFiles, {
+                key: "relPath",
+                limit: 50,
+                threshold: -10000
             })
+            if (results.length > 0) {
+                return results.map(function(r) {
+                    return { isFileSearch: true, name: r.obj.name, relPath: r.obj.relPath }
+                })
+            }
+
+            var lower = text.toLowerCase()
+            var fallback = []
+            for (var i = 0; i < root._wallpaperFiles.length; i++) {
+                if (root._wallpaperFiles[i].name.toLowerCase().indexOf(lower) !== -1)
+                    fallback.push({ isFileSearch: true, name: root._wallpaperFiles[i].name, relPath: root._wallpaperFiles[i].relPath })
+            }
+            return fallback
         }
 
         if (root._wallpapers.length === 0) return []
@@ -223,7 +276,12 @@ Item {
         })
     }
 
-    function textFor(entry) { return entry ? entry.name : "" }
+    function textFor(entry) {
+        if (!entry) return ""
+        if (entry.isFileSearch) return entry.relPath
+        if (entry.isAdd) return ""
+        return entry.name
+    }
 
     property Component itemComponent: Component {
         Item {
@@ -240,6 +298,7 @@ Item {
             }
 
             Row {
+                visible: modelData && modelData.isFileSearch !== true
                 anchors.left: parent.left
                 anchors.leftMargin: Math.round(10 * uiScale)
                 anchors.verticalCenter: parent.verticalCenter
@@ -277,10 +336,10 @@ Item {
 
                     Image {
                         anchors.fill: parent
-                        source: modelData && modelData.isAdd !== true && modelData.isCandidate !== true ? modelData.fullPath : ""
+                        source: modelData && modelData.isAdd !== true ? modelData.fullPath : ""
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
-                        visible: modelData && modelData.isAdd !== true && modelData.isCandidate !== true
+                        visible: modelData && modelData.isAdd !== true
                     }
                 }
 
@@ -298,6 +357,20 @@ Item {
                     visible: text !== ""
                 }
 
+            }
+
+            Text {
+                anchors.left: parent.left
+                anchors.leftMargin: Math.round(10 * uiScale)
+                anchors.right: parent.right
+                anchors.rightMargin: Math.round(10 * uiScale)
+                anchors.verticalCenter: parent.verticalCenter
+                visible: modelData && modelData.isFileSearch === true
+                text: modelData ? ("$ " + modelData.relPath) : ""
+                color: colors.text
+                font.pointSize: 9
+                font.family: "monospace"
+                elide: Text.ElideLeft
             }
         }
     }

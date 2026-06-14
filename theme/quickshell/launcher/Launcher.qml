@@ -40,6 +40,9 @@ PanelWindow {
             if (root.activeProvider === wallpaperProv)
                 root.processInput(inputField.text)
         }
+        function onRequestClose() {
+            root.close()
+        }
     }
 
     Connections {
@@ -144,6 +147,7 @@ PanelWindow {
     }
 
     function processInput(text) {
+        if (!root.isOpen) return
         for (var i = 0; i < root.providers.length; i++) {
             var p = root.providers[i]
             var plen = p.prefix.length
@@ -151,6 +155,7 @@ PanelWindow {
                 if (root.activeProvider !== p) {
                     root.activeProvider = p
                     root.currentIndex = 0
+                    wallpaperProv._browsingMode = false
                 }
                 root.queryText = text.substring(plen)
                 root.results = p.query(root.queryText)
