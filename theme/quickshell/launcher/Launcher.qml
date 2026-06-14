@@ -184,8 +184,8 @@ PanelWindow {
                 root._pendingActivate = { provider: provider, entry: entry }
                 close()
             } else {
-                inputField.text = provider.prefix
                 provider.activate(entry)
+                inputField.text = provider.prefix
             }
         }
     }
