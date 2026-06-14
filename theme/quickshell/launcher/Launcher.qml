@@ -19,6 +19,7 @@ PanelWindow {
     property bool isOpen: false
     property real animHeight: 0
     property bool _pendingCleanup: false
+    property var _pendingActivate: null
 
     property list<QtObject> providers: [
         AppProvider { id: appProv },
@@ -73,6 +74,17 @@ PanelWindow {
         property: "animHeight"
     }
 
+    Connections {
+        target: heightAnim
+        function onFinished() {
+            if (root._pendingActivate) {
+                var pending = root._pendingActivate
+                root._pendingActivate = null
+                pending.provider.activate(pending.entry)
+            }
+        }
+    }
+
     function animateTo(h, dur, curve) {
         if (h === heightAnim.to && heightAnim.running) return
         heightAnim.stop()
@@ -118,7 +130,7 @@ PanelWindow {
     }
 
     function resetState() {
-        heightAnim.onFinished = undefined
+        root._pendingActivate = null
         root._pendingCleanup = false
         root.activeProvider = null
         root.queryText = ""
@@ -163,13 +175,13 @@ PanelWindow {
     }
 
     function selectCurrent() {
-        heightAnim.onFinished = undefined
+        root._pendingActivate = null
         if (root.activeProvider && root.currentIndex >= 0 && root.currentIndex < root.results.length) {
             var provider = root.activeProvider
             var entry = root.results[root.currentIndex]
 
             if (provider.closeOnActivate) {
-                heightAnim.onFinished = function() { provider.activate(entry) }
+                root._pendingActivate = { provider: provider, entry: entry }
                 close()
             } else {
                 inputField.text = provider.prefix
