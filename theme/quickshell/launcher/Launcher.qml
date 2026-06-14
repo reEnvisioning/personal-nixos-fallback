@@ -163,11 +163,15 @@ PanelWindow {
 
     function selectCurrent() {
         if (root.activeProvider && root.currentIndex >= 0 && root.currentIndex < root.results.length) {
-            root.activeProvider.activate(root.results[root.currentIndex])
-            if (root.activeProvider.closeOnActivate)
+            var provider = root.activeProvider
+            var entry = root.results[root.currentIndex]
+
+            if (provider.closeOnActivate)
                 close()
             else
-                inputField.text = root.activeProvider.prefix
+                inputField.text = provider.prefix
+
+            Qt.callLater(function() { provider.activate(entry) })
         }
     }
 
