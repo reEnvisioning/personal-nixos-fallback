@@ -167,7 +167,7 @@ PanelWindow {
             if (root.activeProvider.closeOnActivate)
                 close()
             else
-                root.resetState()
+                inputField.text = root.activeProvider.prefix
         }
     }
 
