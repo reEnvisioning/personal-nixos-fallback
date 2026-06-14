@@ -1,22 +1,17 @@
 { pkgs, hostname, ... }: {
-  # Limit old boot entries
   boot.loader.systemd-boot.configurationLimit = 20;
 
-  # Automatic Nix garbage collection
   nix.gc = {
     automatic = true;
     dates = "weekly";
     options = "--delete-generations +20";
   };
 
-  # Automatic Nix store optimisation
   nix.optimise.automatic = true;
   nix.optimise.dates = ["weekly"];
 
-  # Periodic SSD TRIM
   services.fstrim.enable = true;
 
-  # Limit systemd journal size
   services.journald.extraConfig = ''
     SystemMaxUse=500M
   '';

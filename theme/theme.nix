@@ -46,14 +46,12 @@ let
         surface2          = "#505050";
         overlay1          = "#2C2C2C";
         highlighted       = "#363636";
-        # UI semantic colors (for UI elements, NOT syntax)
         ui_error          = "#5A4A4A";
         ui_warning        = "#5A5A4A";
         ui_success        = "#4A5A4A";
         ui_info           = "#4A4A5A";
         ui_hint           = "#484848";
         ui_match          = "#6A6A4A";
-        # Text/syntax colors (for syntax highlighting only)
         red               = "#666666";
         blue              = "#6A6A6A";
         sapphire          = "#6E6E6E";
@@ -104,14 +102,12 @@ let
         surface2          = "#A0A0A0";
         overlay1          = "#D4D4D4";
         highlighted       = "#C8C8C8";
-        # UI semantic colors (for UI elements, NOT syntax)
         ui_error          = "#6A5A5A";
         ui_warning        = "#6A6A5A";
         ui_success        = "#5A6A5A";
         ui_info           = "#5A5A6A";
         ui_hint           = "#AAAAAA";
         ui_match          = "#5A5A4A";
-        # Text/syntax colors (for syntax highlighting only)
         red               = "#565656";
         blue              = "#5A5A5A";
         sapphire          = "#5E5E5E";
@@ -161,14 +157,12 @@ let
         surface2          = "#DEBCBC";
         overlay1          = "#EDD0D0";
         highlighted       = "#F0CECE";
-        # UI semantic colors (for UI elements, NOT syntax)
         ui_error          = "#D32F2F";
         ui_warning        = "#E65100";
         ui_success        = "#388E3C";
         ui_info           = "#1976D2";
         ui_hint           = "#757575";
         ui_match          = "#F57C00";
-        # Text/syntax colors (for syntax highlighting only)
         red               = "#D64545";
         blue              = "#1976D2";
         sapphire          = "#0277BD";
@@ -219,14 +213,12 @@ let
         surface2          = "#4C3420";
         overlay1          = "#221A12";
         highlighted       = "#3C2816";
-        # UI semantic colors (for UI elements, NOT syntax)
         ui_error          = "#D4553A";
         ui_warning        = "#E8A040";
         ui_success        = "#7ABA5E";
         ui_info           = "#7AAECE";
         ui_hint           = "#B0A090";
         ui_match          = "#F0B040";
-        # Text/syntax colors (for syntax highlighting only)
         text              = "#F0E0CC";
         subtext0          = "#B0A090";
         subtext1          = "#C8B8A8";

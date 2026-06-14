@@ -1,5 +1,4 @@
 let
-  # ─── SELECTORS ────────────────────────────────────────
   # PC profile directory (e.g., "desktop", "laptop") — required
   pc = "desktop";
 
@@ -20,7 +19,6 @@ let
     }
   ];
 
-  # ─── HELPERS ──────────────────────────────────────────
   importIf = name: path: if name != "off" then [ path ] else [];
   pcDir = import ./${pc};
 

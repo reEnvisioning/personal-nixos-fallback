@@ -64,7 +64,6 @@ PanelWindow {
                         return
                     }
                 }
-                // First arrival — create card directly
                 var card = notifCardComponent.createObject(notifColumn, {
                     notif: notification,
                     colors: root.colors,

@@ -118,7 +118,6 @@ pkill localsend 2>/dev/null || true
 
 # 6. GTK theme + dark/light mode — gsettings + overwrite settings.ini + copy GTK4 assets
 
-# Find GTK theme directory
 find_gtk_theme_dir() {
     local theme_name="$1"
     local dir
@@ -134,12 +133,10 @@ find_gtk_theme_dir() {
     return 1
 }
 
-# Set GTK theme via gsettings if available
 if [ -n "$GTK_THEME_NAME" ]; then
     gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME_NAME" 2>/dev/null || true
 fi
 
-# Set color-scheme for dark/light mode
 if [ "$MODE" = "dark" ]; then
     gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
     PREFER_DARK=1
@@ -148,7 +145,6 @@ else
     PREFER_DARK=0
 fi
 
-# Write settings.ini for GTK3 and GTK4
 for ver in 3.0 4.0; do
     ini="$HOME/.config/gtk-$ver/settings.ini"
     mkdir -p "$(dirname "$ini")"
@@ -220,7 +216,6 @@ else
     sed -i '/^widgetStyle=/d' "$KDENLIVE_RC"
 fi
 
-# [UiSettings] section — color scheme
 if grep -q '^\[UiSettings\]' "$KDENLIVE_RC" 2>/dev/null; then
     sed -i '/^\[UiSettings\]/,/^\[/ s|^ColorScheme=.*|ColorScheme='"$SCHEME"'|' "$KDENLIVE_RC"
     sed -i '/^\[UiSettings\]/,/^\[/ s|^ColorSchemePath=.*|ColorSchemePath='"$SCHEME_PATH"'|' "$KDENLIVE_RC"
