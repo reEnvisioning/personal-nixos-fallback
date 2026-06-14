@@ -180,7 +180,7 @@ PanelWindow {
             var provider = root.activeProvider
             var entry = root.results[root.currentIndex]
 
-            if (provider.closeOnActivate) {
+            if (provider.closeOnActivate !== false) {
                 root._pendingActivate = { provider: provider, entry: entry }
                 close()
             } else {
