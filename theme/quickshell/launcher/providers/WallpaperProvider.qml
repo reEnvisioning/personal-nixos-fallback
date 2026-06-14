@@ -221,6 +221,7 @@ Item {
         }
         if (entry.isFileSearch) {
             addWallpaper(entry.relPath)
+            Quickshell.execDetached(["switch-wallpaper", String(root._wallpapers.length)])
             root._browsingMode = false
             root.requestClose()
             return
