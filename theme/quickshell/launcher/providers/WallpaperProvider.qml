@@ -18,6 +18,7 @@ Item {
     on_BrowsingModeChanged: {
         root.name = root._browsingMode ? "Add Wallpaper" : "Wallpaper"
     }
+    property bool _pendingAddClose: false
     property bool closeOnActivate: false
     signal requestClose()
 
@@ -80,6 +81,10 @@ Item {
             onStreamFinished: {
                 wallpaperLoader.running = false
                 wallpaperLoader.running = true
+                if (root._pendingAddClose) {
+                    root._pendingAddClose = false
+                    root.requestClose()
+                }
             }
         }
     }
@@ -221,9 +226,8 @@ Item {
         }
         if (entry.isFileSearch) {
             addWallpaper(entry.relPath)
-            Quickshell.execDetached(["switch-wallpaper", String(root._wallpapers.length)])
             root._browsingMode = false
-            root.requestClose()
+            root._pendingAddClose = true
             return
         }
         if (entry.index !== undefined) {
