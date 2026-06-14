@@ -15,6 +15,9 @@ Item {
     property int refreshKey: 0
     property var _wallpaperFiles: []
     property bool _browsingMode: false
+    on_BrowsingModeChanged: {
+        root.name = root._browsingMode ? "Add Wallpaper" : "Wallpaper"
+    }
     property bool closeOnActivate: false
     signal requestClose()
 
@@ -213,6 +216,7 @@ Item {
         if (!entry) return
         if (entry.isAdd) {
             root._browsingMode = true
+            root.refreshKey++
             return
         }
         if (entry.isFileSearch) {
