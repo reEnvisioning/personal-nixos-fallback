@@ -83,6 +83,21 @@ Item {
                 wallpaperLoader.running = true
                 if (root._pendingAddClose) {
                     root._pendingAddClose = false
+                    Quickshell.execDetached(["bash", "-c",
+                        "H=$(hostname);" +
+                        "THEME=$(state get current-theme 2>/dev/null || true);" +
+                        "if [ -z \"$THEME\" ]; then exit 0; fi;" +
+                        "THEME_FILE=\"$HOME/.config/$H/themes/$THEME.json\";" +
+                        "if [ ! -f \"$THEME_FILE\" ]; then exit 0; fi;" +
+                        "WALLPAPER=$(jq -r '.wallpapers[-1]' \"$THEME_FILE\");" +
+                        "if [ -f \"$WALLPAPER\" ]; then" +
+                        "  pkill swaybg 2>/dev/null || true;" +
+                        "  nohup swaybg -i \"$WALLPAPER\" -m fill >/dev/null 2>&1 & disown;" +
+                        "  COUNT=$(jq '.wallpapers | length' \"$THEME_FILE\");" +
+                        "  NEW_IDX=$((COUNT - 1));" +
+                        "  state set wallpaper-idx:$THEME \"$NEW_IDX\";" +
+                        "fi",
+                        "switchToNew"])
                     root.requestClose()
                 }
             }
@@ -208,10 +223,7 @@ Item {
             "  THEME_FILE=\"$HOME/.config/$H/themes/$THEME.json\";" +
             "fi;" +
             "jq --arg new \"$NEW_PATH\" '.wallpapers += [$new]' \"$THEME_FILE\" > \"${THEME_FILE}.tmp\" && " +
-            "mv \"${THEME_FILE}.tmp\" \"$THEME_FILE\";" +
-            "COUNT=$(jq '.wallpapers | length' \"$THEME_FILE\");" +
-            "NEW_IDX=$((COUNT - 1));" +
-            "switch-wallpaper \"$NEW_IDX\"",
+            "mv \"${THEME_FILE}.tmp\" \"$THEME_FILE\"",
             "addWallpaper", filePath]
         addProc.running = false
         addProc.running = true
