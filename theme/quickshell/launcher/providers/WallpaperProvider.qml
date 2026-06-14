@@ -243,7 +243,22 @@ Item {
             return
         }
         if (entry.index !== undefined) {
-            Quickshell.execDetached(["switch-wallpaper", String(entry.index)])
+            Quickshell.execDetached(["bash", "-c",
+                "H=$(hostname);" +
+                "THEME=$(state get current-theme 2>/dev/null || true);" +
+                "if [ -z \"$THEME\" ]; then exit 0; fi;" +
+                "pkill swaybg 2>/dev/null || true;" +
+                "nohup swaybg -i \"$1\" -m fill >/dev/null 2>&1 & disown;" +
+                "THEME_FILE=\"$HOME/.config/$H/themes/$THEME.json\";" +
+                "if [ ! -f \"$THEME_FILE\" ]; then" +
+                "  THEME_FILE=\"/etc/$H/themes/$THEME.json\";" +
+                "  if [ ! -f \"$THEME_FILE\" ]; then exit 0; fi;" +
+                "fi;" +
+                "IDX=$(jq -r --arg p \"$1\" '.wallpapers | map(. == $p) | index(true)' \"$THEME_FILE\");" +
+                "if [ \"$IDX\" != \"null\" ] && [ -n \"$IDX\" ]; then" +
+                "  state set wallpaper-idx:$THEME \"$IDX\";" +
+                "fi",
+                "setWallpaper", entry.fullPath])
             for (var i = 0; i < root._wallpapers.length; i++)
                 root._wallpapers[i].current = root._wallpapers[i].index === entry.index
             var tmp = root._wallpapers.slice()
