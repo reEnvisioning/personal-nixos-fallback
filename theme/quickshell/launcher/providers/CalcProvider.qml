@@ -8,6 +8,7 @@ Item {
     property string prefix: "= "
     property string name: "Calc"
     property string placeholderText: "Calculate..."
+    property bool closeOnActivate: false
 
     property var _history: []
 

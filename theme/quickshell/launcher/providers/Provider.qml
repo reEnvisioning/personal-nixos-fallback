@@ -12,6 +12,8 @@ Item {
 
     function activate(entry) {}
 
+    property bool closeOnActivate: true
+
     property Component itemComponent: Component {
         Item {
             required property var modelData

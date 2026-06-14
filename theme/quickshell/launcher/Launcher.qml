@@ -164,7 +164,10 @@ PanelWindow {
     function selectCurrent() {
         if (root.activeProvider && root.currentIndex >= 0 && root.currentIndex < root.results.length) {
             root.activeProvider.activate(root.results[root.currentIndex])
-            close()
+            if (root.activeProvider.closeOnActivate)
+                close()
+            else
+                root.resetState()
         }
     }
 
