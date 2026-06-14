@@ -6,15 +6,15 @@ Item {
     id: root
     visible: false
 
-    property string prefix: "> "
-    property string name: "Command"
-    property string placeholderText: "Run a shell command..."
+    property string prefix: "ssh "
+    property string name: "SSH"
+    property string placeholderText: "user@host"
 
     property var _history: []
 
     Process {
         id: historyLoader
-        command: ["sh", "-c", "cat $HOME/.local/share/$(hostname)/shell-history.json 2>/dev/null || echo '[]'"]
+        command: ["sh", "-c", "cat $HOME/.local/share/$(hostname)/ssh-history.json 2>/dev/null || echo '[]'"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -29,10 +29,10 @@ Item {
 
     function save() {
         var json = JSON.stringify(root._history)
-        var delim = "HS" + Math.random().toString(36).substring(2, 10) + "EOF"
+        var delim = "SSH" + Math.random().toString(36).substring(2, 10) + "EOF"
         historySaver.command = ["sh", "-c",
             "mkdir -p $HOME/.local/share/$(hostname) && " +
-            "cat > $HOME/.local/share/$(hostname)/shell-history.json << '" + delim + "'\n" +
+            "cat > $HOME/.local/share/$(hostname)/ssh-history.json << '" + delim + "'\n" +
             json + "\n" +
             delim]
         historySaver.running = false
@@ -45,20 +45,37 @@ Item {
         running: false
     }
 
-    function textFor(entry) { return entry ? entry.command : "" }
+    function textFor(entry) { return entry ? entry.input : "" }
 
     function query(text) {
         if (!text || !text.trim())
             return _history.slice()
 
         var lower = text.toLowerCase()
-        var results = [{ command: text }]
+        var results = [{ input: text }]
         for (var i = 0; i < _history.length; i++) {
-            var cmd = _history[i].command
-            if (cmd.toLowerCase().indexOf(lower) !== -1 && cmd !== text)
+            var entry = _history[i].input
+            if (entry.toLowerCase().indexOf(lower) !== -1 && entry !== text)
                 results.push(_history[i])
         }
         return results
+    }
+
+    function activate(entry) {
+        if (entry && entry.input) {
+            addToHistory(entry.input)
+            Quickshell.execDetached({ command: ["kitty", "-e", "sh", "-c", "ssh -F /dev/null -v " + entry.input] })
+        }
+    }
+
+    function altActivate(entry) {
+        if (entry && entry.input) {
+            addToHistory(entry.input)
+            var host = entry.input
+            var atIdx = host.indexOf("@")
+            if (atIdx >= 0) host = host.substring(atIdx + 1)
+            Quickshell.execDetached({ command: ["kitty", "-e", "sh", "-c", "ping " + host] })
+        }
     }
 
     function remove(entry) {
@@ -70,19 +87,15 @@ Item {
         _history = []; save()
     }
 
-    function activate(entry) {
-        if (entry && entry.command) {
-            var idx = -1
-            for (var i = 0; i < _history.length; i++) {
-                if (_history[i].command === entry.command) { idx = i; break }
+    function addToHistory(input) {
+        for (var i = 0; i < _history.length; i++) {
+            if (_history[i].input === input) {
+                _history.splice(i, 1)
+                break
             }
-            if (idx >= 0) _history.splice(idx, 1)
-            _history.unshift({ command: entry.command })
-            if (_history.length > 10) _history.length = 10
-            save()
-
-            Quickshell.execDetached({ command: ["sh", "-c", entry.command] })
         }
+        _history.unshift({ input: input })
+        save()
     }
 
     property Component itemComponent: Component {
@@ -103,7 +116,7 @@ Item {
                 anchors.left: parent.left
                 anchors.leftMargin: Math.round(10 * uiScale)
                 anchors.verticalCenter: parent.verticalCenter
-                text: modelData ? ("> " + (modelData.command || "")) : ""
+                text: modelData ? ("ssh " + (modelData.input || "")) : ""
                 color: colors.text
                 font.pointSize: 10
                 font.family: "monospace"

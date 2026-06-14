@@ -61,6 +61,15 @@ Item {
         return results
     }
 
+    function remove(entry) {
+        var idx = _history.indexOf(entry)
+        if (idx >= 0) { _history.splice(idx, 1); save() }
+    }
+
+    function removeAll() {
+        _history = []; save()
+    }
+
     function activate(entry) {
         if (entry && entry.command) {
             var idx = -1
