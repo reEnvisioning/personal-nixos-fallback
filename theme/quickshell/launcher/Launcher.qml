@@ -118,6 +118,7 @@ PanelWindow {
     }
 
     function resetState() {
+        heightAnim.onFinished = undefined
         root._pendingCleanup = false
         root.activeProvider = null
         root.queryText = ""
@@ -162,16 +163,18 @@ PanelWindow {
     }
 
     function selectCurrent() {
+        heightAnim.onFinished = undefined
         if (root.activeProvider && root.currentIndex >= 0 && root.currentIndex < root.results.length) {
             var provider = root.activeProvider
             var entry = root.results[root.currentIndex]
 
-            if (provider.closeOnActivate)
+            if (provider.closeOnActivate) {
+                heightAnim.onFinished = function() { provider.activate(entry) }
                 close()
-            else
+            } else {
                 inputField.text = provider.prefix
-
-            Qt.callLater(function() { provider.activate(entry) })
+                provider.activate(entry)
+            }
         }
     }
 
