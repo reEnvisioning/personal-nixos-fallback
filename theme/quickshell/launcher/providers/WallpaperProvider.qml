@@ -42,13 +42,17 @@ Item {
                 var raw = text.trim()
                 if (raw === "") return
                 var lines = raw.split('\n')
+                var seen = {}
                 for (var i = 0; i < lines.length; i++) {
                     var parts = lines[i].split('\t')
                     if (parts.length >= 6) {
+                        var path = parts[2]
+                        if (seen[path]) continue
+                        seen[path] = true
                         root._wallpapers.push({
                             index: parseInt(parts[0]),
                             name: parts[1],
-                            fullPath: parts[2],
+                            fullPath: path,
                             current: parts[3] === "true",
                             total: parseInt(parts[4]),
                             userAdded: parts[5] === "true"
