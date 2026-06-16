@@ -210,9 +210,9 @@ let
         borderFocused     = "#3A2818";
         backgroundAccent  = "#1A120C";
         overlay2          = "#281C12";
-        surface2          = "#4C3420";
+        surface2          = "#332314";
         overlay1          = "#221A12";
-        highlighted       = "#3C2816";
+        highlighted       = "#2B1C0F";
         ui_error          = "#D4553A";
         ui_warning        = "#E8A040";
         ui_success        = "#7ABA5E";
@@ -225,7 +225,7 @@ let
         red               = "#E86A4A";
         green             = "#9ABA5E";
         yellow            = "#F0C040";
-        blue              = "#7AAECE";
+        blue              = "#6599BA";
         magenta           = "#E07A9A";
         cyan              = "#6ABAAA";
         mauve             = "#B07AAA";
