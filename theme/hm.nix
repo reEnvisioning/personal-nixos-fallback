@@ -25,15 +25,24 @@ let
   themeJsonConfigs = builtins.listToAttrs (lib.flatten (map (name: [
     {
       name = "reEnvisioning/themes/${name}/theme.json";
-      value.text = mkThemeJson name theme.all.${name};
+      value = {
+        text = mkThemeJson name theme.all.${name};
+        force = true;
+      };
     }
     {
       name = "reEnvisioning/themes/${name}/meta.json";
-      value.text = mkMetaJson name theme.all.${name};
+      value = {
+        text = mkMetaJson name theme.all.${name};
+        force = true;
+      };
     }
     {
       name = "reEnvisioning/yazi-themes/${name}.toml";
-      value.source = theme.all.${name}.yazi;
+      value = {
+        source = theme.all.${name}.yazi;
+        force = true;
+      };
     }
   ]) (builtins.attrNames theme.all)));
 in {
