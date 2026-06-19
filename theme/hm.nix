@@ -2,6 +2,12 @@
 let
   theme = import ./theme.nix;
 
+  quickshellDir = pkgs.runCommandLocal "quickshell-config" {} ''
+    mkdir -p $out
+    cp -r ${./quickshell}/* $out/
+    cp -r ${./resources/user} $out/user
+  '';
+
   mkThemeJson = name: t: builtins.toJSON ({
     name = name;
     mode = t.mode;
@@ -97,13 +103,8 @@ in {
       };
     };
     "quickshell" = {
-      source = pkgs.runCommandLocal "quickshell-config" {} ''
-  mkdir -p $out
-  cp -r ${./quickshell}/* $out/
-'';
-      recursive = true;
+      source = quickshellDir;
       force = true;
     };
-    "quickshell/user".source = ./resources/user;
   } // themeJsonConfigs;
 }
