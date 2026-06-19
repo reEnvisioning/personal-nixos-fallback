@@ -14,7 +14,7 @@ Item {
 
     Process {
         id: historyLoader
-        command: ["sh", "-c", "cat $HOME/.local/share/reEnvisioning/ssh-history.json 2>/dev/null || echo '[]'"]
+        command: ["sh", "-c", "cat $HOME/.config/reEnvisioning/appdata/quickshell/ssh-history.json 2>/dev/null || echo '[]'"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -31,8 +31,8 @@ Item {
         var json = JSON.stringify(root._history)
         var delim = "SSH" + Math.random().toString(36).substring(2, 10) + "EOF"
         historySaver.command = ["sh", "-c",
-            "mkdir -p $HOME/.local/share/reEnvisioning && " +
-            "cat > $HOME/.local/share/reEnvisioning/ssh-history.json << '" + delim + "'\n" +
+            "mkdir -p $HOME/.config/reEnvisioning/appdata/quickshell && " +
+            "cat > $HOME/.config/reEnvisioning/appdata/quickshell/ssh-history.json << '" + delim + "'\n" +
             json + "\n" +
             delim]
         historySaver.running = false
