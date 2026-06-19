@@ -1,4 +1,4 @@
-{ config, ... }: {
+{ config, lib, ... }: {
   hardware.graphics = {
     enable = true;
     enable32Bit = true;
@@ -18,4 +18,10 @@
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";
   };
+
+  nixpkgs.config.allowUnfreePredicate = pkg:
+    builtins.elem (lib.getName pkg) [
+      "nvidia-x11"
+      "nvidia-settings"
+    ];
 }
