@@ -105,23 +105,6 @@ Item {
     }
 
     Process {
-        id: filePicker
-        command: ["bash", "-c",
-            "cd ~ && find Documents Downloads Pictures Videos Music . " +
-            "-maxdepth 4 -not -path '*/.*' -name '*.png' -type f " +
-            "2>/dev/null | sort | kitty -T fzf sh -c 'fzf --prompt=\"Wallpaper > \" > /tmp/wallpaper-choice' && " +
-            "cat /tmp/wallpaper-choice"]
-        running: false
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var path = text.trim()
-                if (path.length > 0)
-                    addWallpaper(path)
-            }
-        }
-    }
-
-    Process {
         id: fileScanner
         command: ["bash", "-c",
             "cd ~ && find Documents Downloads Pictures Videos Music . " +

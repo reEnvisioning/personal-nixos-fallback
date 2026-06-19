@@ -88,14 +88,6 @@ in {
         clip-to-geometry true
     }
 
-    window-rule {
-        match app-id="kitty" title="fzf"
-        open-floating true
-        default-column-width { proportion 0.4; }
-        min-height 300
-        max-height 300
-    }
-
     layout {
         gaps 2
         focus-ring {
