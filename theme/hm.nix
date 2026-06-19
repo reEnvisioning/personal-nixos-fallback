@@ -85,7 +85,6 @@ in {
     "kitty/kitty.conf".force = true;
     "gtk-3.0/settings.ini".force = true;
     "gtk-4.0/settings.ini".force = true;
-    "quickshell/shell.qml".source = ./quickshell/shell.qml;
     "reEnvisioning/config.json" = {
       force = true;
       text = builtins.toJSON { uiScale = 1; };
@@ -97,11 +96,10 @@ in {
         uiScale = 1;
       };
     };
-    "quickshell/lib".source = ./quickshell/lib;
-    "quickshell/bar".source = ./quickshell/bar;
-    "quickshell/notif".source = ./quickshell/notif;
-    "quickshell/clip".source = ./quickshell/clip;
-    "quickshell/launcher".source = ./quickshell/launcher;
+    "quickshell" = {
+      source = ./quickshell;
+      recursive = true;
+    };
     "quickshell/user".source = ./resources/user;
   } // themeJsonConfigs;
 }

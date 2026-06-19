@@ -104,7 +104,7 @@ ShellRoot {
         }
         onClipPanelVisibleChanged: clipPanel.showPanel = clipPanelVisible
 
-        function toggleDnd(force) {
+        function toggleDnd(force: string) {
             if (force === "1" || force === true || force === 1)
                 dndActive = true
             else if (force === "0" || force === false || force === 0)
@@ -121,10 +121,10 @@ ShellRoot {
         function toggleClipboard() {
             clipPanelVisible = !clipPanelVisible
         }
-        function setTab(index) {
+        function setTab(index: string) {
             activeTab = parseInt(index)
         }
-        function showStartupNotif(app, summary, body) {
+        function showStartupNotif(app: string, summary: string, body: string) {
             Quickshell.execDetached(["notify-send",
                 "--app-name=" + app, "--expire-time=4000", summary, body])
         }
@@ -134,7 +134,7 @@ ShellRoot {
         function pushTextClip() {
             clipMon.readTextClip()
         }
-        function pushImageClip(name) {
+        function pushImageClip(name: string) {
             clipMon.addImageClip(name)
         }
     }
