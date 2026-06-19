@@ -97,7 +97,10 @@ in {
       };
     };
     "quickshell" = {
-      source = ./quickshell;
+      source = pkgs.runCommandLocal "quickshell-config" {} ''
+  mkdir -p $out
+  cp -r ${./quickshell}/* $out/
+'';
       recursive = true;
     };
     "quickshell/user".source = ./resources/user;

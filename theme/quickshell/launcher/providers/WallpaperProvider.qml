@@ -203,6 +203,11 @@ Item {
         deleteProc.running = true
     }
 
+    function refreshWallpapers() {
+        wallpaperLoader.running = false
+        wallpaperLoader.running = true
+    }
+
     function addWallpaper(filePath) {
         addProc.command = ["bash", "-c",
             "THEME=$(state get current-theme 2>/dev/null || true);" +

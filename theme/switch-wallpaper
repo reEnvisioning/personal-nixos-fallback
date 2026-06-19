@@ -56,7 +56,7 @@ if [ -f "$WALLPAPER" ]; then
     pkill swaybg 2>/dev/null || true
     nohup swaybg -i "$WALLPAPER" -m fill >/dev/null 2>&1 & disown
     state set wallpaper-idx:$THEME_NAME "$NEW_IDX"
-    indicator "Wallpaper Indicator" "Wallpaper" "$((NEW_IDX + 1))/$WALLPAPER_COUNT"
+    shell startup "Wallpaper Indicator" "Wallpaper" "$((NEW_IDX + 1))/$WALLPAPER_COUNT"
     echo "Switched to wallpaper $NEW_IDX for theme '$THEME_NAME'"
 else
     echo "Wallpaper not found: $WALLPAPER"

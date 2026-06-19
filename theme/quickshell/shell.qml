@@ -116,7 +116,13 @@ ShellRoot {
             notifPanel.dismissAll()
         }
         function toggleLauncher() {
-            launcherOpen = !launcherOpen
+            if (launcher.isOpen) {
+                launcher.close()
+                launcherOpen = false
+            } else {
+                launcher.open()
+                launcherOpen = true
+            }
         }
         function toggleClipboard() {
             clipPanelVisible = !clipPanelVisible
@@ -130,6 +136,7 @@ ShellRoot {
         }
         function configReloaded() {
             configFile.reload()
+            launcher.refreshWallpapers()
         }
         function pushTextClip() {
             clipMon.readTextClip()

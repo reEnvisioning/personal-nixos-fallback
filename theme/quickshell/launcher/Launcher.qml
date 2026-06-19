@@ -365,6 +365,10 @@ PanelWindow {
         }
     }
 
+    function refreshWallpapers() {
+        wallpaperProv.refreshWallpapers()
+    }
+
     function rebuildItems() {
         resultFlick.contentY = 0
         var children = resultCol.children
