@@ -102,6 +102,7 @@ in {
   cp -r ${./quickshell}/* $out/
 '';
       recursive = true;
+      force = true;
     };
     "quickshell/user".source = ./resources/user;
   } // themeJsonConfigs;
