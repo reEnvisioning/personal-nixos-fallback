@@ -50,9 +50,9 @@ in {
       qt5.qtwayland
       qt6.qtwayland
       jq
-      inotify-tools
       catppuccin-mocha
       catppuccin-latte
+      (writeShellScriptBin "shell" (builtins.readFile ./quickshell/scripts/shell))
       (writeShellScriptBin "switch-theme" (builtins.readFile ./switch-theme))
       (writeShellScriptBin "switch-wallpaper" (builtins.readFile ./switch-wallpaper))
       (writeShellScriptBin "indicator" (builtins.readFile ./quickshell/scripts/indicator))

@@ -8,6 +8,7 @@ Item {
     property var entries: []
     property int maxEntries: 50
     property bool _skipNextImage: false
+    property string clipDir: ""
 
     Component.onCompleted: {
         load()
@@ -19,75 +20,42 @@ Item {
         })
     }
 
+    // wl-paste --watch triggers on clipboard changes.
+    // Instead of trigger files + inotifywait, the command calls
+    // qs msg to notify Quickshell's IpcHandler directly.
     Process {
         id: pasteWatch
         command: ["wl-paste", "--watch", "sh", "-c",
-            "if wl-paste -t text/plain > \"$XDG_RUNTIME_DIR/hs-clip-t-data\" 2>/dev/null; then " +
-            "  echo ok > \"$XDG_RUNTIME_DIR/hs-clip-t-trigger\"; " +
-            "elif wl-paste -t image/png > \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" 2>/dev/null; then " +
-            "  hash=$(sha256sum \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" | cut -d' ' -f1) && " +
+            "TMPD=\"$HOME/.config/reEnvisioning/tmp\" && " +
+            "mkdir -p \"$TMPD\" && " +
+            "if wl-paste -t text/plain > \"$TMPD/clip-text\" 2>/dev/null; then " +
+            "  qs msg reEnvisioning pushTextClip; " +
+            "elif wl-paste -t image/png > \"$TMPD/clip-raw.png\" 2>/dev/null; then " +
+            "  hash=$(sha256sum \"$TMPD/clip-raw.png\" | cut -d' ' -f1) && " +
             "  mkdir -p \"$HOME/.config/reEnvisioning/appdata/quickshell/clips\" && " +
-            "  cp \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" \"$HOME/.config/reEnvisioning/appdata/quickshell/clips/$hash.png\" && " +
-            "  echo \"$hash.png\" > \"$XDG_RUNTIME_DIR/hs-clip-i-data\" && " +
-            "  echo ok > \"$XDG_RUNTIME_DIR/hs-clip-i-trigger\"; " +
+            "  cp \"$TMPD/clip-raw.png\" \"$HOME/.config/reEnvisioning/appdata/quickshell/clips/$hash.png\" && " +
+            "  qs msg reEnvisioning pushImageClip \"$hash.png\"; " +
             "fi"]
         running: true
     }
 
-    Process {
-        id: textWatcher
-        command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/hs-clip-t-trigger\" ]; do sleep 0.1; done && " +
-            "inotifywait -qq -e close_write \"$XDG_RUNTIME_DIR/hs-clip-t-trigger\" 2>/dev/null"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                textReader.running = false
-                textReader.running = true
-                textWatcher.running = false
-                textWatcher.running = true
-            }
-        }
+    // Read text clipboard from temp file (called by IpcHandler.pushTextClip)
+    function readTextClip() {
+        readerProcess.command = ["sh", "-c",
+            "cat \"$HOME/.config/reEnvisioning/tmp/clip-text\" 2>/dev/null || echo ''"]
+        readerProcess.running = false
+        readerProcess.running = true
     }
 
     Process {
-        id: textReader
-        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/hs-clip-t-data\""]
+        id: readerProcess
+        command: ["true"]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {
                 var txt = text.trim()
                 if (txt.length > 0)
                     root.addClip(txt)
-            }
-        }
-    }
-
-    Process {
-        id: imgWatcher
-        command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/hs-clip-i-trigger\" ]; do sleep 0.1; done && " +
-            "inotifywait -qq -e close_write \"$XDG_RUNTIME_DIR/hs-clip-i-trigger\" 2>/dev/null"]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                imgReader.running = false
-                imgReader.running = true
-                imgWatcher.running = false
-                imgWatcher.running = true
-            }
-        }
-    }
-
-    Process {
-        id: imgReader
-        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/hs-clip-i-data\""]
-        running: false
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var fname = text.trim()
-                if (fname.length > 0)
-                    root.addImageClip(fname)
             }
         }
     }
@@ -108,12 +76,13 @@ Item {
     Process {
         id: seedImgProcess
         command: ["sh", "-c",
-            "wl-paste -t image/png > \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" 2>/dev/null && " +
-            "hash=$(sha256sum \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" | cut -d' ' -f1) && " +
+            "TMPD=\"$HOME/.config/reEnvisioning/tmp\" && " +
+            "mkdir -p \"$TMPD\" && " +
+            "wl-paste -t image/png > \"$TMPD/clip-raw.png\" 2>/dev/null && " +
+            "hash=$(sha256sum \"$TMPD/clip-raw.png\" | cut -d' ' -f1) && " +
             "mkdir -p \"$HOME/.config/reEnvisioning/appdata/quickshell/clips\" && " +
-            "cp \"$XDG_RUNTIME_DIR/hs-clip-i-raw.png\" \"$HOME/.config/reEnvisioning/appdata/quickshell/clips/$hash.png\" && " +
-            "echo \"$hash.png\" > \"$XDG_RUNTIME_DIR/hs-clip-i-data\" && " +
-            "echo ok > \"$XDG_RUNTIME_DIR/hs-clip-i-trigger\""]
+            "cp \"$TMPD/clip-raw.png\" \"$HOME/.config/reEnvisioning/appdata/quickshell/clips/$hash.png\" && " +
+            "qs msg reEnvisioning pushImageClip \"$hash.png\""]
         running: false
     }
 

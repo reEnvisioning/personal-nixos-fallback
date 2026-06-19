@@ -12,44 +12,41 @@ import "launcher"
 
 ShellRoot {
     id: root
-    settings.watchFiles: true
 
     property real uiScale: 1
 
+    // ── Unified config file (shell.json) ──────────────────────────────────
+    readonly property string configDir: {
+        var d = Quickshell.shellDir
+        return d.substring(0, d.lastIndexOf("/"))
+    }
+    readonly property string configPath: configDir + "/reEnvisioning/shell.json"
+
+    FileView {
+        id: configFile
+        path: root.configPath
+        watchChanges: true
+        onFileChanged: reload()
+        onLoaded: applyConfig()
+        onAdapterUpdated: applyConfig()
+
+        JsonAdapter {
+            id: config
+            property real uiScale: 1
+            property var colors: ({})
+            property string themeName: ""
+            property string mode: "dark"
+        }
+    }
+
+    function applyConfig() {
+        if (config.uiScale !== undefined) root.uiScale = config.uiScale
+        colors.parse(config.colors)
+    }
+
+    // ── Components ────────────────────────────────────────────────────────
     Colors {
         id: colors
-    }
-
-    Process {
-        id: configReader
-        command: ["sh", "-c", "cat \"$HOME/.config/reEnvisioning/config.json\""]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                try {
-                    const cfg = JSON.parse(text.trim())
-                    if (cfg.uiScale !== undefined) root.uiScale = cfg.uiScale
-                } catch (e) {
-                    console.log("shell: config parse error: " + e)
-                }
-            }
-        }
-    }
-
-    Process {
-        id: configWatcher
-        command: ["sh", "-c",
-            "while [ ! -f \"$HOME/.config/reEnvisioning/config.json\" ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify \"$HOME/.config/reEnvisioning/config.json\""]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                configReader.running = false
-                configReader.running = true
-                configWatcher.running = false
-                configWatcher.running = true
-            }
-        }
     }
 
     BatteryMonitor {}
@@ -66,11 +63,13 @@ ShellRoot {
     }
 
     Bar {
+        id: bar
         colors: colors
         uiScale: root.uiScale
     }
 
     NotifPanel {
+        id: notifPanel
         colors: colors
         uiScale: root.uiScale
     }
@@ -81,6 +80,66 @@ ShellRoot {
         uiScale: root.uiScale
     }
 
+    // ── IPC handler (replaces all $XDG_RUNTIME_DIR file watchers) ────────
+    IpcHandler {
+        id: ipc
+        target: "reEnvisioning"
+
+        property bool dndActive: false
+        property int activeTab: -1
+        property bool launcherOpen: false
+        property bool clipPanelVisible: false
+
+        onDndActiveChanged: notifPanel.dndActive = dndActive
+        onActiveTabChanged: {
+            if (activeTab >= 0 && activeTab <= 2)
+                bar.activateTab(activeTab)
+        }
+        onLauncherOpenChanged: {
+            if (launcherOpen) {
+                if (!launcher.isOpen) launcher.open()
+            } else {
+                if (launcher.isOpen) launcher.close()
+            }
+        }
+        onClipPanelVisibleChanged: clipPanel.showPanel = clipPanelVisible
+
+        function toggleDnd(force) {
+            if (force === "1" || force === true || force === 1)
+                dndActive = true
+            else if (force === "0" || force === false || force === 0)
+                dndActive = false
+            else
+                dndActive = !dndActive
+        }
+        function dismissNotifications() {
+            notifPanel.dismissAll()
+        }
+        function toggleLauncher() {
+            launcherOpen = !launcherOpen
+        }
+        function toggleClipboard() {
+            clipPanelVisible = !clipPanelVisible
+        }
+        function setTab(index) {
+            activeTab = parseInt(index)
+        }
+        function showStartupNotif(app, summary, body) {
+            Quickshell.execDetached(["notify-send",
+                "--app-name=" + app, "--expire-time=4000", summary, body])
+        }
+        function configReloaded() {
+            configFile.reload()
+        }
+        function pushTextClip() {
+            clipMon.readTextClip()
+        }
+        function pushImageClip(name) {
+            clipMon.addImageClip(name)
+        }
+    }
+
+    // ── Mutual exclusion: launcher vs clipboard ───────────────────────────
     Connections {
         target: clipPanel
         function onShowPanelChanged() {

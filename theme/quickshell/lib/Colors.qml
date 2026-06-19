@@ -1,6 +1,4 @@
 import QtQuick
-import Quickshell
-import Quickshell.Io
 
 Item {
     id: root
@@ -38,10 +36,11 @@ Item {
     property string themeName: ""
     property string mode: "dark"
 
-    function parse(data: string): void {
+    function parse(data: var): void {
         try {
-            const j = JSON.parse(data.trim())
-            for (const key in j) {
+            var j = (typeof data === "string") ? JSON.parse(data.trim()) : data
+            if (!j) return
+            for (var key in j) {
                 if (key === "name")
                     root.themeName = j.name
                 else if (key === "mode")
@@ -51,31 +50,6 @@ Item {
             }
         } catch (e) {
             console.log("Colors: parse error: " + e)
-        }
-    }
-
-    Process {
-        id: colorReader
-        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/reEnvisioning-theme.json\""]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: root.parse(text)
-        }
-    }
-
-    Process {
-        id: colorWatcher
-        command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/reEnvisioning-theme.json\" ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/reEnvisioning-theme.json\""]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                colorReader.running = false
-                colorReader.running = true
-                colorWatcher.running = false
-                colorWatcher.running = true
-            }
         }
     }
 }

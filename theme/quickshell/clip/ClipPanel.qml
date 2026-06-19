@@ -298,30 +298,4 @@ PanelWindow {
         root.desiredHeight = root.computeDesiredHeight()
     }
 
-    Process {
-        id: toggleWatcher
-        command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/reEnvisioning-clip-toggle\" ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/reEnvisioning-clip-toggle\""]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                toggleReader.running = false
-                toggleReader.running = true
-                toggleWatcher.running = false
-                toggleWatcher.running = true
-            }
-        }
-    }
-
-    Process {
-        id: toggleReader
-        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/reEnvisioning-clip-toggle\""]
-        running: false
-        stdout: StdioCollector {
-            onStreamFinished: {
-                root.showPanel = !root.showPanel
-            }
-        }
-    }
 }

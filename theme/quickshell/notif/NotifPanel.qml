@@ -112,48 +112,7 @@ PanelWindow {
         "Proxy Control"
     ]
 
-    Process {
-        id: startupReader
-        command: ["sh", "-c",
-            "f=\"$XDG_RUNTIME_DIR/reEnvisioning-startup-notif\";" +
-            "if [ -f \"$f\" ]; then" +
-            "  app=$(sed -n '1p' \"$f\");" +
-            "  sum=$(sed -n '2p' \"$f\");" +
-            "  body=$(sed -n '3p' \"$f\");" +
-            "  notify-send --app-name=\"$app\" --expire-time=4000 \"$sum\" \"$body\";" +
-            "  rm -f \"$f\";" +
-            "fi"]
-        running: true
-    }
-
     property bool dndActive: false
-
-    Process {
-        id: dndWatcher
-        command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/reEnvisioning-dnd\" ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/reEnvisioning-dnd\""]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                dndReader.running = false
-                dndReader.running = true
-                dndWatcher.running = false
-                dndWatcher.running = true
-            }
-        }
-    }
-
-    Process {
-        id: dndReader
-        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/reEnvisioning-dnd\""]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                root.dndActive = text.trim() === "1"
-            }
-        }
-    }
 
     onDndActiveChanged: {
         if (root.dndActive) root.dismissAll()
@@ -163,33 +122,5 @@ PanelWindow {
         var children = notifColumn.children
         for (var i = children.length - 1; i >= 0; i--)
             children[i].startExit()
-    }
-
-    Process {
-        id: dismissWatcher
-        command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/reEnvisioning-notif-dismiss\" ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/reEnvisioning-notif-dismiss\""]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                dismissReader.running = false
-                dismissReader.running = true
-                dismissWatcher.running = false
-                dismissWatcher.running = true
-            }
-        }
-    }
-
-    Process {
-        id: dismissReader
-        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/reEnvisioning-notif-dismiss\""]
-        running: false
-        stdout: StdioCollector {
-            onStreamFinished: {
-                var v = parseInt(text.trim())
-                if (v === 1) root.dismissAll()
-            }
-        }
     }
 }

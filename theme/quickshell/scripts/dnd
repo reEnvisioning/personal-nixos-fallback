@@ -1,16 +1,9 @@
 #!/bin/sh
 # Usage: dnd on|off|toggle
-
 CMD="${1:-toggle}"
-f="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/reEnvisioning-dnd"
-
 case "$CMD" in
-    on)  echo 1 > "$f" ;;
-    off) echo 0 > "$f" ;;
-    *)   v=$(cat "$f" 2>/dev/null || echo 0); echo $((1 - v)) > "$f" ;;
+    on)  shell dnd-on ;;
+    off) shell dnd-off ;;
+    *)   shell dnd ;;
 esac
-
-state=$(cat "$f" 2>/dev/null || echo 0)
-if [ "$state" = "1" ]; then text="On"; else text="Off"; fi
-
-indicator "DnD Indicator" "Do Not Disturb" "$text"
+indicator "DnD Indicator" "Do Not Disturb" "Toggled"

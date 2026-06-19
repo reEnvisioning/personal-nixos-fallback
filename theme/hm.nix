@@ -81,6 +81,13 @@ in {
       force = true;
       text = builtins.toJSON { uiScale = 1; };
     };
+    "reEnvisioning/shell.json" = {
+      force = true;
+      text = import ./reEnvisioning/config.schema.nix {
+        theme = { name = theme.default; } // theme.all.${theme.default};
+        uiScale = 1;
+      };
+    };
     "quickshell/lib".source = ./quickshell/lib;
     "quickshell/bar".source = ./quickshell/bar;
     "quickshell/notif".source = ./quickshell/notif;

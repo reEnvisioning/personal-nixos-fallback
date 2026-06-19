@@ -1,0 +1,24 @@
+#!/bin/sh
+# shell — IPC CLI for reEnvisioning Quickshell
+# Relays commands to the running quickshell instance via qs msg.
+set -eu
+
+CMD="${1:-}"; [ $# -gt 0 ] && shift
+QS_MSG="${QS_MSG:-qs msg}"
+
+case "$CMD" in
+    launcher) exec $QS_MSG reEnvisioning toggleLauncher ;;
+    clip)     exec $QS_MSG reEnvisioning toggleClipboard ;;
+    dnd)      exec $QS_MSG reEnvisioning toggleDnd ;;
+    dnd-on)   exec $QS_MSG reEnvisioning toggleDnd 1 ;;
+    dnd-off)  exec $QS_MSG reEnvisioning toggleDnd 0 ;;
+    dismiss)  exec $QS_MSG reEnvisioning dismissNotifications ;;
+    tab)      exec $QS_MSG reEnvisioning setTab "${1:-0}" ;;
+    startup)  exec $QS_MSG reEnvisioning showStartupNotif "$@" ;;
+    reload)   exec $QS_MSG reEnvisioning configReloaded ;;
+    *)
+        echo "Usage: shell <command> [args]" >&2
+        echo "Commands: launcher clip dnd dnd-on dnd-off dismiss tab startup reload" >&2
+        exit 1
+        ;;
+esac

@@ -206,35 +206,11 @@ PanelWindow {
         onTriggered: root.isExpanded = false
     }
 
-    Process {
-        id: tabTriggerWatcher
-        command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/reEnvisioning-tab-trigger\" ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/reEnvisioning-tab-trigger\""]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                triggerReader.running = false
-                triggerReader.running = true
-                tabTriggerWatcher.running = false
-                tabTriggerWatcher.running = true
-            }
-        }
-    }
-
-    Process {
-        id: triggerReader
-        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/reEnvisioning-tab-trigger\""]
-        running: false
-        stdout: StdioCollector {
-            onStreamFinished: {
-                const val = parseInt(text.trim())
-                if (val >= 0 && val <= 2) {
-                    root.isExpanded = true
-                    root.activeTab = val
-                    autoCollapseTimer.restart()
-                }
-            }
+    function activateTab(index: int): void {
+        if (index >= 0 && index <= 2) {
+            root.isExpanded = true
+            root.activeTab = index
+            autoCollapseTimer.restart()
         }
     }
 }

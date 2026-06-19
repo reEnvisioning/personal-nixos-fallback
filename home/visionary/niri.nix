@@ -5,12 +5,6 @@ let
   mod = "Mod";
 
   niri-startup = pkgs.writeShellScript "niri-startup" ''
-    echo 0 > "$XDG_RUNTIME_DIR/reEnvisioning-dnd"
-    echo 0 > "$XDG_RUNTIME_DIR/reEnvisioning-notif-dismiss"
-    echo 0 > "$XDG_RUNTIME_DIR/reEnvisioning-clip-toggle"
-    echo 0 > "$XDG_RUNTIME_DIR/reEnvisioning-launcher-toggle"
-    echo 0 > "$XDG_RUNTIME_DIR/reEnvisioning-tab-trigger"
-    sleep 0.5
     switch-theme "$(state get current-theme || echo void)"
     if [ "$(state get hypridle)" != "disabled" ]; then
       sway-audio-idle-inhibit &
@@ -155,17 +149,17 @@ in {
         "Mod+Shift+M" hotkey-overlay-title="Toggle mic" { spawn "mic" "toggle"; }
 
         // Tab trigger
-        "Mod+Alt+1" hotkey-overlay-title="Tab trigger 0" { spawn-sh "echo 0 > $XDG_RUNTIME_DIR/reEnvisioning-tab-trigger"; }
-        "Mod+Alt+2" hotkey-overlay-title="Tab trigger 1" { spawn-sh "echo 1 > $XDG_RUNTIME_DIR/reEnvisioning-tab-trigger"; }
-        "Mod+Alt+3" hotkey-overlay-title="Tab trigger 2" { spawn-sh "echo 2 > $XDG_RUNTIME_DIR/reEnvisioning-tab-trigger"; }
+        "Mod+Alt+1" hotkey-overlay-title="Tab trigger 0" { spawn "shell" "tab" "0"; }
+        "Mod+Alt+2" hotkey-overlay-title="Tab trigger 1" { spawn "shell" "tab" "1"; }
+        "Mod+Alt+3" hotkey-overlay-title="Tab trigger 2" { spawn "shell" "tab" "2"; }
 
         // Notifications
         "Mod+Alt+N" hotkey-overlay-title="Toggle DND" { spawn "dnd" "toggle"; }
-        "Mod+Alt+Backspace" hotkey-overlay-title="Dismiss notification" { spawn-sh "echo 1 > $XDG_RUNTIME_DIR/reEnvisioning-notif-dismiss"; }
+        "Mod+Alt+Backspace" hotkey-overlay-title="Dismiss notification" { spawn "shell" "dismiss"; }
 
         // System
-        "Mod+Space" hotkey-overlay-title="Launcher" { spawn-sh "touch $XDG_RUNTIME_DIR/reEnvisioning-launcher-toggle"; }
-        "Mod+V" hotkey-overlay-title="Toggle clipboard" { spawn-sh "f=$XDG_RUNTIME_DIR/reEnvisioning-clip-toggle; v=$(cat $f 2>/dev/null || echo 0); echo $((1 - v)) > $f"; }
+        "Mod+Space" hotkey-overlay-title="Launcher" { spawn "shell" "launcher"; }
+        "Mod+V" hotkey-overlay-title="Toggle clipboard" { spawn "shell" "clip"; }
         "Mod+Shift+O" hotkey-overlay-title="Lock screen" { spawn "swaylock" "-f"; }
         "Mod+Shift+I" hotkey-overlay-title="Toggle idle" { spawn "idle-toggle" "toggle"; }
         "Mod+Shift+P" hotkey-overlay-title="Quit" { quit; }

@@ -365,24 +365,6 @@ PanelWindow {
         }
     }
 
-    Process {
-        id: toggleWatcher
-        command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/reEnvisioning-launcher-toggle\" ]; do sleep 0.2; done;" +
-            "inotifywait -qq -e close_write,modify,create \"$XDG_RUNTIME_DIR/reEnvisioning-launcher-toggle\""]
-        running: true
-        stdout: StdioCollector {
-            onStreamFinished: {
-                if (root.isOpen)
-                    root.close()
-                else
-                    root.open()
-                toggleWatcher.running = false
-                toggleWatcher.running = true
-            }
-        }
-    }
-
     function rebuildItems() {
         resultFlick.contentY = 0
         var children = resultCol.children

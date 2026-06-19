@@ -7,7 +7,6 @@ if [ -z "$THEME_NAME" ]; then
     exit 1
 fi
 
-RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 THEME_DIR="$HOME/.config/reEnvisioning/themes"
 THEME_FILE="$THEME_DIR/$THEME_NAME/theme.json"
 META_FILE="$THEME_DIR/$THEME_NAME/meta.json"
@@ -222,12 +221,14 @@ BORDER_INACTIVE=$(jq -r '.borderInactive' "$THEME_FILE")
 niri msg config layout.focus-ring.active-color "$BORDER_FOCUSED" 2>/dev/null || true
 niri msg config layout.focus-ring.inactive-color "$BORDER_INACTIVE" 2>/dev/null || true
 
-# 8. Quickshell — write startup notification + colors, then restart
-printf "Theme Indicator\nTheme\nSwitched to %s\n" "$THEME_NAME" > "$RUNTIME_DIR/reEnvisioning-startup-notif"
-jq -c '.' "$THEME_FILE" > "$RUNTIME_DIR/reEnvisioning-theme.json"
-pkill quickshell 2>/dev/null || true
-sleep 0.2
-nohup quickshell >/dev/null 2>&1 & disown
+# 8. Quickshell — update unified config, signal reload (no restart needed)
+shell startup "Theme Indicator" "Theme" "Switched to $THEME_NAME" 2>/dev/null || true
+SHELL_JSON="$HOME/.config/reEnvisioning/shell.json"
+mkdir -p "$(dirname "$SHELL_JSON")"
+jq -c --arg mode "$MODE" --arg name "$THEME_NAME" \
+  '{uiScale: 1, colors: ., themeName: $name, mode: $mode}' \
+  "$THEME_FILE" > "$SHELL_JSON"
+shell reload 2>/dev/null || true
 
 # 9. Save current theme (wallpaper index preserved per-theme)
 state set current-theme "$THEME_NAME"
