@@ -5,6 +5,7 @@ let
   mod = "Mod";
 
   niri-startup = pkgs.writeShellScript "niri-startup" ''
+    pgrep -x quickshell >/dev/null 2>&1 || quickshell &
     switch-theme "$(state get current-theme || echo void)"
     if [ "$(state get hypridle)" != "disabled" ]; then
       sway-audio-idle-inhibit &

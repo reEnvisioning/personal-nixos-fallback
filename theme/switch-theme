@@ -225,6 +225,7 @@ niri msg config layout.focus-ring.inactive-color "$BORDER_INACTIVE" 2>/dev/null 
 shell startup "Theme Indicator" "Theme" "Switched to $THEME_NAME" 2>/dev/null || true
 SHELL_JSON="$HOME/.config/reEnvisioning/shell.json"
 mkdir -p "$(dirname "$SHELL_JSON")"
+rm -f "$SHELL_JSON"
 jq -c --arg mode "$MODE" --arg name "$THEME_NAME" \
   '{uiScale: 1, colors: ., themeName: $name, mode: $mode}' \
   "$THEME_FILE" > "$SHELL_JSON"
