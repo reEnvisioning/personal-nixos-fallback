@@ -11,6 +11,7 @@ Item {
     property string name: "Share"
     property string placeholderText: "Share a file..."
     property int refreshKey: 0
+    property string currentDir: "."
 
     property var _files: []
 
@@ -37,7 +38,8 @@ Item {
                     root._files.push({
                         relPath: lines[i],
                         name: name,
-                        displayPath: displayPath
+                        displayPath: displayPath,
+                        parentDir: dir
                     })
                 }
                 root.refreshKey++
@@ -46,20 +48,15 @@ Item {
     }
 
     Process {
-        id: filePicker
-        command: ["bash", "-c",
-            "cd ~ && find Documents Downloads Pictures Videos Music . " +
-            "-maxdepth 3 -not -path '*/.*' -type f 2>/dev/null | " +
-            "sort | kitty -T fzf sh -c 'fzf --prompt=\"Share > \" > /tmp/share-choice' && " +
-            "cat /tmp/share-choice"]
-        running: false
+        id: dirRestorer
+        command: ["bash", "-c", "cat /tmp/last-share-dir 2>/dev/null || echo \".\""]
+        running: true
         stdout: StdioCollector {
             onStreamFinished: {
-                var path = text.trim()
-                if (path.length > 0)
-                    Quickshell.execDetached(["bash", "-c",
-                        "localsend_app send \"$HOME/$1\"",
-                        "shareFile", path])
+                var dir = text.trim()
+                if (dir.length > 0)
+                    root.currentDir = dir
+                root.refreshKey++
             }
         }
     }
@@ -78,7 +75,7 @@ Item {
         if (root._files.length === 0) return []
 
         if (!text || !text.trim())
-            return [{ isBrowse: true }]
+            return root._files.filter(function(f) { return f.parentDir === root.currentDir })
 
         var results = Fuzzy.go(text, root._files, {
             key: "relPath",
@@ -97,18 +94,18 @@ Item {
         return fallback
     }
 
-    function textFor(entry) { return entry ? (entry.isBrowse ? "" : entry.relPath) : "" }
+    function textFor(entry) { return entry ? entry.relPath : "" }
 
     function activate(entry) {
         if (!entry) return
-        if (entry.isBrowse) {
-            filePicker.running = false
-            filePicker.running = true
-        } else {
-            Quickshell.execDetached(["bash", "-c",
-                "localsend_app send \"$HOME/$1\"",
-                "shareFile", entry.relPath])
-        }
+        Quickshell.execDetached(["bash", "-c",
+            "localsend_app send \"$HOME/$1\"",
+            "shareFile", entry.relPath])
+        root.currentDir = entry.parentDir
+        Quickshell.execDetached(["bash", "-c",
+            "echo \"$1\" > /tmp/last-share-dir",
+            "writeDir", entry.parentDir])
+        root.refreshKey++
     }
 
     property Component itemComponent: Component {
@@ -129,7 +126,7 @@ Item {
                 anchors.left: parent.left
                 anchors.leftMargin: Math.round(10 * uiScale)
                 anchors.verticalCenter: parent.verticalCenter
-                text: modelData && modelData.isBrowse ? "^ Browse via fzf..." : ("^ " + modelData.displayPath)
+                text: "^ " + modelData.displayPath
                 color: colors.text
                 font.pointSize: 9
                 font.family: "monospace"

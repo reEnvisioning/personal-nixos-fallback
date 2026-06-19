@@ -1,5 +1,5 @@
 {
-  description = "NixOS configuration for headspace — by reEnvisioning";
+  description = "NixOS configuration for headspace";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";

@@ -108,12 +108,10 @@ in {
         PING_OK=0
         ${pkgs.iputils}/bin/ping -c 1 -W 1 "$serverIp" >/dev/null 2>&1 || PING_OK=$?
 
-        # User disabled — exit immediately
         if [ -f "$stateDir"/wg-disabled ]; then
           exit 0
         fi
 
-        # Server unreachable — stop wg0 if running, mark offline, done
         if [ "$PING_OK" -ne 0 ]; then
           if [ ! -f "$stateDir"/wg-offline ]; then
             rm -f "$stateDir"/wg-retry-count 2>/dev/null || true
@@ -124,12 +122,10 @@ in {
           exit 0
         fi
 
-        # Server reachable — clear offline flag if set
         if [ -f "$stateDir"/wg-offline ]; then
           rm -f "$stateDir"/wg-offline "$stateDir"/wg-retry-count 2>/dev/null || true
         fi
 
-        # wg0 not up — start it
         if ! ${pkgs.wireguard-tools}/bin/wg show wg0 >/dev/null 2>&1; then
           ${pkgs.systemd}/bin/systemctl start wireguard-wg0 2>/dev/null || true
           echo "pending" > "$stateDir"/wg-vpn-status

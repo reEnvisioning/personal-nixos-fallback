@@ -1,5 +1,3 @@
-# Horror theme — Backrooms × TBHK autumn warm glow
-
 [mgr]
 cwd = { fg = "#C48830", bold = true }
 hovered = { reversed = true, bold = true }

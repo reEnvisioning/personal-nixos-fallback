@@ -33,7 +33,6 @@ Item {
         dismissTimer.restart()
     }
 
-    // Local copies — safe access, avoids crash reading raw Notification props
     property string notifSummary: ""
     property string notifBody: ""
     property string notifAppName: ""

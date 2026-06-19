@@ -98,8 +98,6 @@ PanelWindow {
         }
     }
 
-    // --- Replaceable indicator appNames ---
-
     property var replaceableAppNames: [
         "Volume Indicator",
         "Brightness Indicator",
@@ -114,8 +112,6 @@ PanelWindow {
         "Proxy Control"
     ]
 
-    // --- Startup notification (catches IPC notif from switch-theme etc.) ---
-
     Process {
         id: startupReader
         command: ["sh", "-c",
@@ -129,8 +125,6 @@ PanelWindow {
             "fi"]
         running: true
     }
-
-    // --- DnD ---
 
     property bool dndActive: false
 
@@ -164,8 +158,6 @@ PanelWindow {
     onDndActiveChanged: {
         if (root.dndActive) root.dismissAll()
     }
-
-    // --- Dismiss-all IPC ---
 
     function dismissAll() {
         var children = notifColumn.children

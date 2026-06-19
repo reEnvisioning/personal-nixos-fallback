@@ -19,8 +19,6 @@ Item {
         })
     }
 
-    // --- Clipboard monitoring (single watcher for text & images) ---
-
     Process {
         id: pasteWatch
         command: ["wl-paste", "--watch", "sh", "-c",
@@ -65,8 +63,6 @@ Item {
         }
     }
 
-    // --- IMAGE clipboard monitoring (triggered by pasteWatch above) ---
-
     Process {
         id: imgWatcher
         command: ["sh", "-c",
@@ -96,7 +92,6 @@ Item {
         }
     }
 
-    // Seed: captures current text clipboard on startup
     Process {
         id: seedProcess
         command: ["wl-paste", "-t", "text/plain"]
@@ -121,8 +116,6 @@ Item {
             "echo ok > \"$XDG_RUNTIME_DIR/hs-clip-i-trigger\""]
         running: false
     }
-
-    // --- Entry management ---
 
     function addClip(txt) {
         for (var i = 0; i < root.entries.length; i++) {

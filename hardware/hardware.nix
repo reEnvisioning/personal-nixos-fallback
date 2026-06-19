@@ -1,11 +1,6 @@
 let
-  # PC profile directory (e.g., "desktop", "laptop") — required
   pc = "desktop";
-
-  # CPU: "intel", "amd", or "off" for no CPU-specific config
   cpu = "intel";
-
-  # GPU: "nvidia", "amd", or "off" for no GPU-specific config
   gpu = "nvidia";
 
   # Monitors: list of {name, mode, scale, position, transform} or [] for auto-detect

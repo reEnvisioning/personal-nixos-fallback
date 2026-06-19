@@ -298,7 +298,6 @@ PanelWindow {
         root.desiredHeight = root.computeDesiredHeight()
     }
 
-    // IPC toggle
     Process {
         id: toggleWatcher
         command: ["sh", "-c",
