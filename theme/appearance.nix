@@ -1,20 +1,8 @@
-{ config, pkgs, lib, hostname, ... }:
+{ config, pkgs, lib, ... }:
 let
   cfg = config.appearance;
 
   theme = import ./theme.nix;
-
-  mkThemeJson = name: t: builtins.toJSON {
-    name = name;
-    mode = t.mode;
-    localsend_color = t.localsend_color;
-    obs_style = t.obs_style;
-    KDEwidgetStyle = t.KDEwidgetStyle;
-    wallpaper = toString t.wallpaper;
-    wallpapers = map (x: toString x) t.wallpapers;
-    gtkThemeName = t.gtk.themeName;
-    colors = t.colors;
-  };
 
   # Collect all wallpaper store paths to prevent garbage collection
   allWallpaperPaths = let
@@ -30,16 +18,6 @@ let
     variant = "latte";
     accents = [ "blue" "pink" ];
   };
-
-  themeJsonConfigs = builtins.listToAttrs (map (name: {
-    name = "${hostname}/themes/${name}.json";
-    value.text = mkThemeJson name theme.all.${name};
-  }) (builtins.attrNames theme.all));
-
-  yaziThemeConfigs = builtins.listToAttrs (map (name: {
-    name = "${hostname}/yazi-themes/${name}.toml";
-    value.source = theme.all.${name}.yazi;
-  }) (builtins.attrNames theme.all));
 in {
   options.appearance.users = lib.mkOption {
     type = lib.types.listOf lib.types.str;
@@ -48,8 +26,6 @@ in {
   };
 
   config = lib.mkIf (cfg.users != []) {
-    environment.etc = themeJsonConfigs // yaziThemeConfigs;
-
     # Pin all wallpaper store paths into the system closure so they
     # cannot be garbage-collected even if string context is lost by toJSON
     system.extraDependencies = allWallpaperPaths;

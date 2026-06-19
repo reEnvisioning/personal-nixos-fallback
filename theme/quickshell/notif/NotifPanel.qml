@@ -30,7 +30,7 @@ PanelWindow {
     focusable: false
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.namespace: "headspace-notifications"
+    WlrLayershell.namespace: "reEnvisioning-notifications"
 
     Column {
         id: notifColumn
@@ -115,7 +115,7 @@ PanelWindow {
     Process {
         id: startupReader
         command: ["sh", "-c",
-            "f=\"$XDG_RUNTIME_DIR/$(hostname)-startup-notif\";" +
+            "f=\"$XDG_RUNTIME_DIR/reEnvisioning-startup-notif\";" +
             "if [ -f \"$f\" ]; then" +
             "  app=$(sed -n '1p' \"$f\");" +
             "  sum=$(sed -n '2p' \"$f\");" +
@@ -131,8 +131,8 @@ PanelWindow {
     Process {
         id: dndWatcher
         command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/$(hostname)-dnd\" ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/$(hostname)-dnd\""]
+            "while [ ! -f \"$XDG_RUNTIME_DIR/reEnvisioning-dnd\" ]; do sleep 1; done;" +
+            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/reEnvisioning-dnd\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -146,7 +146,7 @@ PanelWindow {
 
     Process {
         id: dndReader
-        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/$(hostname)-dnd\""]
+        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/reEnvisioning-dnd\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -168,8 +168,8 @@ PanelWindow {
     Process {
         id: dismissWatcher
         command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/$(hostname)-notif-dismiss\" ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/$(hostname)-notif-dismiss\""]
+            "while [ ! -f \"$XDG_RUNTIME_DIR/reEnvisioning-notif-dismiss\" ]; do sleep 1; done;" +
+            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/reEnvisioning-notif-dismiss\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -183,7 +183,7 @@ PanelWindow {
 
     Process {
         id: dismissReader
-        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/$(hostname)-notif-dismiss\""]
+        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/reEnvisioning-notif-dismiss\""]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {

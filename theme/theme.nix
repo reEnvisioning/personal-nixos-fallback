@@ -256,5 +256,4 @@ in {
     size = 10;
   };
   colors = allThemes.${default}.colors;
-  author = "reEnvisioning";
 }

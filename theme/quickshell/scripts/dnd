@@ -2,8 +2,7 @@
 # Usage: dnd on|off|toggle
 
 CMD="${1:-toggle}"
-H="${HOSTNAME:-$(hostname)}"
-f="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/$H-dnd"
+f="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/reEnvisioning-dnd"
 
 case "$CMD" in
     on)  echo 1 > "$f" ;;

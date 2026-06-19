@@ -1,7 +1,41 @@
-{ config, pkgs, lib, hostname, ... }:
+{ config, pkgs, lib, ... }:
 let
   theme = import ./theme.nix;
 
+  mkThemeJson = name: t: builtins.toJSON ({
+    name = name;
+    mode = t.mode;
+  } // t.colors);
+
+  mkMetaJson = name: t: builtins.toJSON {
+    name = name;
+    wallpaper = toString t.wallpaper;
+    wallpapers = map (x: toString x) t.wallpapers;
+    gtkThemeName = t.gtk.themeName;
+    localsend_color = t.localsend_color;
+    obs_style = t.obs_style;
+    KDEwidgetStyle = t.KDEwidgetStyle;
+    cursor_theme = t.cursor_theme;
+    cursor_size = t.cursor_size;
+    active_opacity = t.active_opacity;
+    inactive_opacity = t.inactive_opacity;
+    font = { family = "Monospace"; size = 10; };
+  };
+
+  themeJsonConfigs = builtins.listToAttrs (lib.flatten (map (name: [
+    {
+      name = "reEnvisioning/themes/${name}/theme.json";
+      value.text = mkThemeJson name theme.all.${name};
+    }
+    {
+      name = "reEnvisioning/themes/${name}/meta.json";
+      value.text = mkMetaJson name theme.all.${name};
+    }
+    {
+      name = "reEnvisioning/yazi-themes/${name}.toml";
+      value.source = theme.all.${name}.yazi;
+    }
+  ]) (builtins.attrNames theme.all)));
 in {
   home.pointerCursor = {
     package = pkgs.vanilla-dmz;
@@ -43,7 +77,7 @@ in {
     "gtk-3.0/settings.ini".force = true;
     "gtk-4.0/settings.ini".force = true;
     "quickshell/shell.qml".source = ./quickshell/shell.qml;
-    "${hostname}/config.json" = {
+    "reEnvisioning/config.json" = {
       force = true;
       text = builtins.toJSON { uiScale = 1; };
     };
@@ -53,5 +87,5 @@ in {
     "quickshell/clip".source = ./quickshell/clip;
     "quickshell/launcher".source = ./quickshell/launcher;
     "quickshell/user".source = ./resources/user;
-  };
+  } // themeJsonConfigs;
 }

@@ -27,7 +27,7 @@ PanelWindow {
     focusable: true
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.namespace: "headspace-clipboard"
+    WlrLayershell.namespace: "reEnvisioning-clipboard"
     WlrLayershell.anchors.bottom: true
     WlrLayershell.anchors.left: true
     WlrLayershell.margins { bottom: Math.round(8 * root.uiScale); left: Math.round(8 * root.uiScale) }
@@ -301,8 +301,8 @@ PanelWindow {
     Process {
         id: toggleWatcher
         command: ["sh", "-c",
-            "while [ ! -f \"$XDG_RUNTIME_DIR/$(hostname)-clip-toggle\" ]; do sleep 1; done;" +
-            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/$(hostname)-clip-toggle\""]
+            "while [ ! -f \"$XDG_RUNTIME_DIR/reEnvisioning-clip-toggle\" ]; do sleep 1; done;" +
+            "inotifywait -qq -e close_write,modify \"$XDG_RUNTIME_DIR/reEnvisioning-clip-toggle\""]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -316,7 +316,7 @@ PanelWindow {
 
     Process {
         id: toggleReader
-        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/$(hostname)-clip-toggle\""]
+        command: ["sh", "-c", "cat \"$XDG_RUNTIME_DIR/reEnvisioning-clip-toggle\""]
         running: false
         stdout: StdioCollector {
             onStreamFinished: {

@@ -2,8 +2,7 @@
 # Usage: volume up|down|toggle|set <value>
 
 CMD="${1:-up}"
-H="${HOSTNAME:-$(hostname)}"
-STATE_FILE="$HOME/.config/$H/state"
+STATE_FILE="$HOME/.config/reEnvisioning/state"
 
 case "$CMD" in
     up)   wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ ;;

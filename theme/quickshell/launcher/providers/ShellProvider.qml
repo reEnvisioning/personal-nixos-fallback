@@ -14,7 +14,7 @@ Item {
 
     Process {
         id: historyLoader
-        command: ["sh", "-c", "cat $HOME/.local/share/$(hostname)/shell-history.json 2>/dev/null || echo '[]'"]
+        command: ["sh", "-c", "cat $HOME/.local/share/reEnvisioning/shell-history.json 2>/dev/null || echo '[]'"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -31,8 +31,8 @@ Item {
         var json = JSON.stringify(root._history)
         var delim = "HS" + Math.random().toString(36).substring(2, 10) + "EOF"
         historySaver.command = ["sh", "-c",
-            "mkdir -p $HOME/.local/share/$(hostname) && " +
-            "cat > $HOME/.local/share/$(hostname)/shell-history.json << '" + delim + "'\n" +
+            "mkdir -p $HOME/.local/share/reEnvisioning && " +
+            "cat > $HOME/.local/share/reEnvisioning/shell-history.json << '" + delim + "'\n" +
             json + "\n" +
             delim]
         historySaver.running = false

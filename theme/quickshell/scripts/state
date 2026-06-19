@@ -2,8 +2,7 @@
 # Usage: state get <key>   -> prints value or empty
 #        state set <key> <value>   -> upserts
 
-H="${HOSTNAME:-$(hostname)}"
-FILE="$HOME/.config/$H/state"
+FILE="$HOME/.config/reEnvisioning/state"
 CMD="$1"; KEY="$2"; VALUE="$3"
 
 case "$CMD" in

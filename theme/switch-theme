@@ -8,49 +8,28 @@ if [ -z "$THEME_NAME" ]; then
 fi
 
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
-H="${HOSTNAME:-$(hostname)}"
-SYS_THEME_DIR="/etc/$H/themes"
-USER_THEME_DIR="$HOME/.config/$H/themes"
-SYS_FILE="$SYS_THEME_DIR/$THEME_NAME.json"
-USER_FILE="$USER_THEME_DIR/$THEME_NAME.json"
-
-# Sync system JSON to user-local, preserving any user-added wallpapers
-if [ -f "$SYS_FILE" ]; then
-    mkdir -p "$USER_THEME_DIR"
-    if [ -f "$USER_FILE" ]; then
-        jq -s '
-            .[0] as $sys | .[1] as $user |
-            $sys + {
-                wallpapers: (($sys.wallpapers + $user.wallpapers) | unique_by(split("/")[-1])),
-                wallpaper: $sys.wallpapers[0]
-            }
-        ' "$SYS_FILE" "$USER_FILE" > "$USER_FILE.tmp" && mv "$USER_FILE.tmp" "$USER_FILE"
-    else
-        cp "$SYS_FILE" "$USER_FILE"
-    fi
-fi
-
-THEME_DIR="$USER_THEME_DIR"
-THEME_FILE="$USER_FILE"
-SYS_YAZI_THEMES="/etc/$H/yazi-themes"
-USER_YAZI_THEMES="$HOME/.config/$H/yazi-themes"
+THEME_DIR="$HOME/.config/reEnvisioning/themes"
+THEME_FILE="$THEME_DIR/$THEME_NAME/theme.json"
+META_FILE="$THEME_DIR/$THEME_NAME/meta.json"
+STATE_FILE="$HOME/.config/reEnvisioning/state"
+YAZI_DIR="$HOME/.config/reEnvisioning/yazi-themes"
 LOCALSEND_PREFS="$HOME/.local/share/org.localsend.localsend_app/shared_preferences.json"
 
 if [ ! -f "$THEME_FILE" ]; then
     echo "Theme '$THEME_NAME' not found at $THEME_FILE"
     echo "Available themes:"
-    ls "$SYS_THEME_DIR"/*.json "$USER_THEME_DIR"/*.json 2>/dev/null | xargs -n1 basename -s .json | sort -u
+    ls -d "$THEME_DIR"/*/ 2>/dev/null | xargs -n1 basename | sort -u
     exit 1
 fi
 
 MODE=$(jq -r '.mode' "$THEME_FILE")
-LS_COLOR=$(jq -r '.localsend_color' "$THEME_FILE")
-OBS_STYLE=$(jq -r '.obs_style' "$THEME_FILE")
-KDE_WIDGET_STYLE=$(jq -r '.KDEwidgetStyle // "Default"' "$THEME_FILE")
-GTK_THEME_NAME=$(jq -r '.gtkThemeName // empty' "$THEME_FILE")
+LS_COLOR=$(jq -r '.localsend_color' "$META_FILE")
+OBS_STYLE=$(jq -r '.obs_style' "$META_FILE")
+KDE_WIDGET_STYLE=$(jq -r '.KDEwidgetStyle // "Default"' "$META_FILE")
+GTK_THEME_NAME=$(jq -r '.gtkThemeName // empty' "$META_FILE")
 
 # 1. Wallpaper — per-theme index with bounds check
-WALLPAPER_COUNT=$(jq '.wallpapers | length' "$THEME_FILE")
+WALLPAPER_COUNT=$(jq '.wallpapers | length' "$META_FILE")
 SAVED_IDX="$(state get wallpaper-idx:$THEME_NAME || echo "")"
 
 if [ -z "$SAVED_IDX" ] || [ "$SAVED_IDX" -ge "$WALLPAPER_COUNT" ] 2>/dev/null; then
@@ -59,7 +38,7 @@ else
     WALLPAPER_IDX=$((SAVED_IDX))
 fi
 
-WALLPAPER=$(jq -r ".wallpapers[$WALLPAPER_IDX]" "$THEME_FILE")
+WALLPAPER=$(jq -r ".wallpapers[$WALLPAPER_IDX]" "$META_FILE")
 
 sleep 1
 if [ -f "$WALLPAPER" ]; then
@@ -70,8 +49,7 @@ fi
 # 2. Yazi theme — break Nix symlink, copy
 mkdir -p "$HOME/.config/yazi"
 rm -f "$HOME/.config/yazi/theme.toml"
-YAZI_SRC="$USER_YAZI_THEMES/$THEME_NAME.toml"
-[ ! -f "$YAZI_SRC" ] && YAZI_SRC="$SYS_YAZI_THEMES/$THEME_NAME.toml"
+YAZI_SRC="$YAZI_DIR/$THEME_NAME.toml"
 if [ -f "$YAZI_SRC" ]; then
     cp "$YAZI_SRC" "$HOME/.config/yazi/theme.toml"
 fi
@@ -81,7 +59,7 @@ KITTY_CONF="$HOME/.config/kitty/kitty.conf"
 mkdir -p "$(dirname "$KITTY_CONF")"
 rm -f "$KITTY_CONF"
 jq -r '
-  .colors as $c |
+  . as $c |
   "background \($c.background)",
   "foreground \($c.text)",
   "cursor \($c.text)",
@@ -239,14 +217,14 @@ if [ -f "$obs_ini" ]; then
 fi
 
 # 7. niri focus ring colors
-BORDER_FOCUSED=$(jq -r '.colors.borderFocused' "$THEME_FILE")
-BORDER_INACTIVE=$(jq -r '.colors.borderInactive' "$THEME_FILE")
+BORDER_FOCUSED=$(jq -r '.borderFocused' "$THEME_FILE")
+BORDER_INACTIVE=$(jq -r '.borderInactive' "$THEME_FILE")
 niri msg config layout.focus-ring.active-color "$BORDER_FOCUSED" 2>/dev/null || true
 niri msg config layout.focus-ring.inactive-color "$BORDER_INACTIVE" 2>/dev/null || true
 
 # 8. Quickshell — write startup notification + colors, then restart
-printf "Theme Indicator\nTheme\nSwitched to %s\n" "$THEME_NAME" > "$RUNTIME_DIR/$H-startup-notif"
-jq -c '{name} + {mode} + .colors' "$THEME_FILE" > "$RUNTIME_DIR/$H-colors.json"
+printf "Theme Indicator\nTheme\nSwitched to %s\n" "$THEME_NAME" > "$RUNTIME_DIR/reEnvisioning-startup-notif"
+jq -c '.' "$THEME_FILE" > "$RUNTIME_DIR/reEnvisioning-theme.json"
 pkill quickshell 2>/dev/null || true
 sleep 0.2
 nohup quickshell >/dev/null 2>&1 & disown

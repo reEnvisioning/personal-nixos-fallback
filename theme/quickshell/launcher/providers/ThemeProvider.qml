@@ -15,15 +15,14 @@ Item {
     Process {
         id: themeLoader
         command: ["bash", "-c",
-            "H=$(hostname);" +
-            "for dir in \"/etc/$H/themes\" \"$HOME/.config/$H/themes\"; do" +
-            "  [ -d \"$dir\" ] || continue;" +
-            "  for f in \"$dir\"/*.json; do" +
-            "    [ -f \"$f\" ] || continue;" +
-            "    name=$(basename \"$f\" .json);" +
-            "    mode=$(jq -r '.mode // \"\"' \"$f\" 2>/dev/null || echo \"\");" +
-            "    printf '%s\\t%s\\n' \"$name\" \"$mode\";" +
-            "  done;" +
+            "dir=\"$HOME/.config/reEnvisioning/themes\";" +
+            "[ -d \"$dir\" ] || exit 0;" +
+            "for d in \"$dir\"/*/; do" +
+            "  [ -d \"$d\" ] || continue;" +
+            "  name=$(basename \"$d\");" +
+            "  theme_file=\"$d/theme.json\";" +
+            "  mode=$(jq -r '.mode // \"\"' \"$theme_file\" 2>/dev/null || echo \"\");" +
+            "  printf '%s\\t%s\\n' \"$name\" \"$mode\";" +
             "done | sort -u"]
         running: true
         stdout: StdioCollector {
