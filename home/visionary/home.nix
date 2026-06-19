@@ -18,8 +18,6 @@
     kdePackages.kdenlive
     libreoffice-qt
     obs-studio
-    davinci-resolve-studio
-    ocl-icd
   ];
 
   services.udiskie = {

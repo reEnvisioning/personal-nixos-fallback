@@ -18,7 +18,6 @@
     inputs = { inherit nixpkgs nixpkgs-unstable home-manager; };
     unstable = import nixpkgs-unstable {
       inherit system;
-      config.allowUnfree = true;
     };
   in {
     nixosConfigurations.${hostname} = inputs.nixpkgs.lib.nixosSystem {

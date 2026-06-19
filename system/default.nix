@@ -29,8 +29,6 @@ in {
     require-sigs = true;
   };
 
-  nixpkgs.config.allowUnfree = true;
-
   environment.systemPackages = with pkgs; [
     vim
     git
