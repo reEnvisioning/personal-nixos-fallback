@@ -205,7 +205,7 @@ Item {
 
     function refreshWallpapers() {
         wallpaperLoader.running = false
-        wallpaperLoader.running = true
+        Qt.callLater(function() { wallpaperLoader.running = true })
     }
 
     function addWallpaper(filePath) {
@@ -255,6 +255,9 @@ Item {
                 root._wallpapers[i].current = root._wallpapers[i].index === entry.index
             var tmp = root._wallpapers.slice()
             root._wallpapers = tmp
+            Quickshell.execDetached(["notify-send",
+                "--app-name=Wallpaper Indicator", "--expire-time=2000",
+                "Wallpaper", (entry.index + 1) + "/" + entry.total])
             root.requestClose()
         }
     }
