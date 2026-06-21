@@ -226,11 +226,9 @@ in {
     environment.systemPackages = with pkgs; [
       wireguard-tools
       (writeShellScriptBin "vbox-bypass" ''
-        exec sudo env "DISPLAY=$DISPLAY" "WAYLAND_DISPLAY=$WAYLAND_DISPLAY" \
+        exec sudo DISPLAY="$DISPLAY" WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
           ${systemd}/bin/systemd-run --slice=bypass-wg --scope \
-          --property=KillMode=process --property=User=visionary \
-          --setenv="DISPLAY=$DISPLAY" \
-          --setenv="WAYLAND_DISPLAY=$WAYLAND_DISPLAY" \
+          --property=KillMode=process \
           ${virtualbox}/bin/VirtualBox "$@"
       '')
       (pkgs.runCommand "virtualbox-bypass-wrapper" {
@@ -239,11 +237,9 @@ in {
         mkdir -p $out/bin
         cat > $out/bin/VirtualBox << 'WRAPPER'
         #!${pkgs.runtimeShell}
-        exec sudo env "DISPLAY=$DISPLAY" "WAYLAND_DISPLAY=$WAYLAND_DISPLAY" \
+        exec sudo DISPLAY="$DISPLAY" WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
           ${systemd}/bin/systemd-run --slice=bypass-wg --scope \
-          --property=KillMode=process --property=User=visionary \
-          --setenv="DISPLAY=$DISPLAY" \
-          --setenv="WAYLAND_DISPLAY=$WAYLAND_DISPLAY" \
+          --property=KillMode=process \
           ${virtualbox}/bin/VirtualBox "$@"
         WRAPPER
         chmod +x $out/bin/VirtualBox
