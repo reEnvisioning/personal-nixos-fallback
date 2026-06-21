@@ -255,18 +255,6 @@ in {
           data = "^/nix/store/.*/bin/wg$";
         };
       };
-      virtualbox-bypass = {
-        name = "virtualbox-bypass";
-        enabled = true;
-        action = "allow";
-        duration = "always";
-        operator = {
-          type = "regexp";
-          sensitive = false;
-          operand = "process.path";
-          data = "^/nix/store/.*[Vv]irtual[Bb]ox";
-        };
-      };
       wireguard-kernel = {
         name = "wireguard-kernel";
         enabled = true;

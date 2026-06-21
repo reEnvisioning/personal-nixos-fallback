@@ -224,23 +224,6 @@ in {
 
     environment.systemPackages = with pkgs; [
       wireguard-tools
-      (writeShellScriptBin "vbox-bypass" ''
-        exec ${systemd}/bin/systemd-run --slice=bypass-wg --scope \
-          --property=KillMode=process \
-          ${virtualbox}/bin/VirtualBox "$@"
-      '')
-      (pkgs.runCommand "virtualbox-bypass-wrapper" {
-        preferLocalBuild = true;
-      } ''
-        mkdir -p $out/bin
-        cat > $out/bin/VirtualBox << 'WRAPPER'
-        #!${pkgs.runtimeShell}
-        exec ${systemd}/bin/systemd-run --slice=bypass-wg --scope \
-          --property=KillMode=process \
-          ${virtualbox}/bin/VirtualBox "$@"
-        WRAPPER
-        chmod +x $out/bin/VirtualBox
-      '')
     proxy-off
       proxy-on
     ];

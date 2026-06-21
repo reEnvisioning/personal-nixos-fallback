@@ -10,7 +10,6 @@ in {
     ./greeter.nix
     ./audio.nix
     ./compositor.nix
-    ./virtualisation.nix
     ./polkit.nix
     ./security.nix
     ./maintenance.nix

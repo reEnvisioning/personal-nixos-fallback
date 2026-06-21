@@ -38,7 +38,7 @@
 
           users.users.visionary = {
             isNormalUser = true;
-            extraGroups = [ "wheel" "networkmanager" "vboxusers" "disk" ];
+            extraGroups = [ "wheel" "networkmanager" "disk" ];
           };
 
           home-manager.useGlobalPkgs = true;
