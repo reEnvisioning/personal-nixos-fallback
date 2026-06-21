@@ -203,21 +203,16 @@ in {
       wantedBy = [ "multi-user.target" ];
     };
 
-    security.sudo.extraRules = [{
-      users = [ "visionary" ];
-      commands = [
-        {
-          command = "${systemd}/bin/systemd-run --slice=bypass-wg *";
-          options = [ "NOPASSWD" ];
-        }
-      ];
-    }];
-
-    security.sudo.extraConfig = ''
-      Defaults:visionary env_keep += "DISPLAY WAYLAND_DISPLAY XDG_RUNTIME_DIR"
-    '';
-
     security.polkit.extraConfig = ''
+      polkit.addRule(function(action, subject) {
+        if (action.id == "org.freedesktop.systemd1.manage-units" &&
+            subject.user == "visionary") {
+          var unit = action.lookup("unit");
+          if (unit && unit.startsWith("run-") && (unit.endsWith(".scope") || unit.endsWith(".service"))) {
+            return polkit.Result.YES;
+          }
+        }
+      });
       polkit.addRule(function(action, subject) {
         if (action.id == "org.freedesktop.systemd1.manage-units" &&
             action.lookup("unit") == "wireguard-wg0.service" &&
@@ -230,7 +225,7 @@ in {
     environment.systemPackages = with pkgs; [
       wireguard-tools
       (writeShellScriptBin "vbox-bypass" ''
-        exec sudo ${systemd}/bin/systemd-run --slice=bypass-wg --scope \
+        exec ${systemd}/bin/systemd-run --slice=bypass-wg --scope \
           --property=KillMode=process \
           ${virtualbox}/bin/VirtualBox "$@"
       '')
@@ -240,7 +235,7 @@ in {
         mkdir -p $out/bin
         cat > $out/bin/VirtualBox << 'WRAPPER'
         #!${pkgs.runtimeShell}
-        exec sudo ${systemd}/bin/systemd-run --slice=bypass-wg --scope \
+        exec ${systemd}/bin/systemd-run --slice=bypass-wg --scope \
           --property=KillMode=process \
           ${virtualbox}/bin/VirtualBox "$@"
         WRAPPER
