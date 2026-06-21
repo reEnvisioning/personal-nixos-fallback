@@ -208,10 +208,14 @@ in {
       commands = [
         {
           command = "${systemd}/bin/systemd-run --slice=bypass-wg *";
-          options = [ "NOPASSWD" "SETENV" ];
+          options = [ "NOPASSWD" ];
         }
       ];
     }];
+
+    security.sudo.extraConfig = ''
+      Defaults:visionary env_keep += "DISPLAY WAYLAND_DISPLAY XDG_RUNTIME_DIR"
+    '';
 
     security.polkit.extraConfig = ''
       polkit.addRule(function(action, subject) {
@@ -226,8 +230,7 @@ in {
     environment.systemPackages = with pkgs; [
       wireguard-tools
       (writeShellScriptBin "vbox-bypass" ''
-        exec sudo DISPLAY="$DISPLAY" WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
-          ${systemd}/bin/systemd-run --slice=bypass-wg --scope \
+        exec sudo ${systemd}/bin/systemd-run --slice=bypass-wg --scope \
           --property=KillMode=process \
           ${virtualbox}/bin/VirtualBox "$@"
       '')
@@ -237,14 +240,13 @@ in {
         mkdir -p $out/bin
         cat > $out/bin/VirtualBox << 'WRAPPER'
         #!${pkgs.runtimeShell}
-        exec sudo DISPLAY="$DISPLAY" WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
-          ${systemd}/bin/systemd-run --slice=bypass-wg --scope \
+        exec sudo ${systemd}/bin/systemd-run --slice=bypass-wg --scope \
           --property=KillMode=process \
           ${virtualbox}/bin/VirtualBox "$@"
         WRAPPER
         chmod +x $out/bin/VirtualBox
       '')
-      proxy-off
+    proxy-off
       proxy-on
     ];
 
