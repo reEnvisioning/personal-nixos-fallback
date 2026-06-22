@@ -101,6 +101,8 @@ in {
     };
   };
 
+  home.sessionVariables.MOZ_LEGACY_PROFILES = "1";
+
   home.file."${config.xdg.configHome}/mozilla/firefox/profiles.ini".force = true;
   home.file."${config.xdg.configHome}/mozilla/firefox/default/user.js".force = true;
   home.file."${config.xdg.configHome}/mozilla/firefox/profile1/user.js".force = true;
