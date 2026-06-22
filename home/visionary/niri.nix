@@ -79,6 +79,11 @@ in {
     }
 
     window-rule {
+        match app-id="firefox"
+        open-maximized true
+    }
+
+    window-rule {
         geometry-corner-radius 8
         clip-to-geometry true
     }
