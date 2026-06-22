@@ -285,3 +285,30 @@ grep '^Path=' "$FF_DIR/profiles.ini" 2>/dev/null | cut -d= -f2 | while read -r p
         fi
     done
 done
+
+# 13. LibreWolf — same treatment as Firefox
+LW_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/librewolf"
+if [ ! -f "$LW_DIR/profiles.ini" ]; then
+    LW_DIR="$HOME/.librewolf"
+fi
+grep '^Path=' "$LW_DIR/profiles.ini" 2>/dev/null | cut -d= -f2 | while read -r profile; do
+    userjs="$LW_DIR/$profile/user.js"
+    if [ -z "$profile" ] || [ ! -d "$LW_DIR/$profile" ]; then
+        continue
+    fi
+    nix_content=$(cat "$userjs" 2>/dev/null || true)
+    rm -f "$userjs"
+    [ -n "$nix_content" ] && printf '%s\n' "$nix_content" > "$userjs"
+    if [ "$MODE" = "dark" ]; then val=1; else val=0; fi
+    for pref in \
+        "ui.systemUsesDarkTheme" \
+        "browser.theme.toolbar-theme" \
+        "browser.theme.content-theme"; do
+        line="user_pref(\"$pref\", $val);"
+        if grep -q "^user_pref(\"$pref\"," "$userjs" 2>/dev/null; then
+            sed -i "s|^user_pref(\"$pref\", .*|$line|" "$userjs"
+        else
+            echo "$line" >> "$userjs"
+        fi
+    done
+done
