@@ -79,8 +79,14 @@ in {
     }
 
     window-rule {
-        match app-id="firefox"
+        match app-id="firefox" is-focused=true
         open-maximized true
+        opacity 0.9
+    }
+
+    window-rule {
+        match app-id="firefox" is-focused=false
+        opacity 0.85
     }
 
     window-rule {
@@ -141,7 +147,7 @@ in {
         // App launchers
         "Mod+W" hotkey-overlay-title="Terminal" { spawn "kitty"; }
         "Mod+E" hotkey-overlay-title="File manager" { spawn "kitty" "-e" "yazi"; }
-        "Mod+B" hotkey-overlay-title="Browser" { spawn "firefox"; }
+        "Mod+B" hotkey-overlay-title="Browser" { spawn "librewolf"; }
         "Mod+Shift+W" hotkey-overlay-title="Neovim" { spawn "kitty" "-e" "nvim"; }
         "Mod+Shift+G" hotkey-overlay-title="GIMP" { spawn "gimp"; }
         "Mod+Shift+N" hotkey-overlay-title="Audio" { spawn "pavucontrol"; }
