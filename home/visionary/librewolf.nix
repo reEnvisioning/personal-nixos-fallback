@@ -16,4 +16,6 @@
       };
     };
   };
+
+  home.file.".librewolf/default/user.js".force = true;
 }
