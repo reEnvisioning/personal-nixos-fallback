@@ -78,7 +78,6 @@ in {
           Status = "locked";
         };
       };
-      StartWithLastProfile = false;
     };
 
     profiles = {
@@ -88,23 +87,7 @@ in {
         search = commonSearch;
         settings = commonSettings;
       };
-      profile1 = {
-        id = 1;
-        search = commonSearch;
-        settings = commonSettings;
-      };
-      profile2 = {
-        id = 2;
-        search = commonSearch;
-        settings = commonSettings;
-      };
     };
   };
 
-  home.sessionVariables.MOZ_LEGACY_PROFILES = "1";
-
-  home.file."${config.xdg.configHome}/mozilla/firefox/profiles.ini".force = true;
-  home.file."${config.xdg.configHome}/mozilla/firefox/default/user.js".force = true;
-  home.file."${config.xdg.configHome}/mozilla/firefox/profile1/user.js".force = true;
-  home.file."${config.xdg.configHome}/mozilla/firefox/profile2/user.js".force = true;
 }
