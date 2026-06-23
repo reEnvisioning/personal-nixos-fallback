@@ -64,7 +64,7 @@ Item {
     function activate(entry) {
         if (entry && entry.input) {
             addToHistory(entry.input)
-            Quickshell.execDetached({ command: ["kitty", "--hold", "-e", "sh", "-c", "ssh -v " + entry.input] })
+            Quickshell.execDetached({ command: ["kitty", "-e", "sh", "-c", "ssh -v " + entry.input + "; echo; read -p 'Press Enter to close...'"] })
         }
     }
 
