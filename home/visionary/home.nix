@@ -6,6 +6,8 @@
     homeDirectory = "/home/${username}";
   };
 
+  home.file.".ssh/control".directory = true;
+
   programs.home-manager.enable = true;
 
   home.packages = with pkgs; [
