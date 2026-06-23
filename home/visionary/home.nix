@@ -1,4 +1,4 @@
-{ pkgs, username, ... }:
+{ pkgs, lib, username, ... }:
 {
   home = {
     stateVersion = "26.05";
@@ -6,7 +6,10 @@
     homeDirectory = "/home/${username}";
   };
 
-  home.file.".ssh/control".directory = true;
+  home.activation.createSshControlDir = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    mkdir -p /home/${username}/.ssh/control
+    chmod 700 /home/${username}/.ssh/control
+  '';
 
   programs.home-manager.enable = true;
 
