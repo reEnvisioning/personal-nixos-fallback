@@ -90,6 +90,10 @@
       sudo rm -rf "$FLAKE_DIR"/*
       sudo cp -rf "$TMPDIR"/* "$FLAKE_DIR"/
       sudo cp /resources/secret.nix "$FLAKE_DIR"/
+      sudo install -d -m 0700 /etc/wireguard
+      for f in private.key psk.key; do
+        [ -f "/resources/wireguard/$f" ] && sudo cp "/resources/wireguard/$f" /etc/wireguard/ && sudo chmod 0600 "/etc/wireguard/$f"
+      done
       rm -rf "$TMPDIR"
       sudo nixos-rebuild switch --flake "$FLAKE_DIR#${hostname}"
       switch-theme "$THEME"

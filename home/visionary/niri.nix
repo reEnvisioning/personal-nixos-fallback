@@ -79,14 +79,8 @@ in {
     }
 
     window-rule {
-        match app-id="firefox" is-focused=true
+        match app-id="firefox"
         open-maximized true
-        opacity 0.9
-    }
-
-    window-rule {
-        match app-id="firefox" is-focused=false
-        opacity 0.85
     }
 
     window-rule {

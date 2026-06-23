@@ -5,6 +5,7 @@ let
   s = network.secrets;
   inherit (pkgs) systemd;
   stateDir = "/run/wireguard-monitor";
+  keyDir = "/etc/wireguard";
 
   proxy-off = pkgs.writeShellScriptBin "proxy-off" ''
     if [ -z "$SUDO_USER" ]; then
@@ -18,7 +19,11 @@ let
     }
     mkdir -p ${stateDir}
     touch ${stateDir}/wg-disabled
+    rm -f ${stateDir}/wg-offline ${stateDir}/wg-retry-count 2>/dev/null || true
     notifyUser notify-send -a "Proxy Control" --expire-time=4000 "Proxy disabled"
+    ${pkgs.nftables}/bin/nft flush chain inet wg-killswitch output 2>/dev/null || true
+    ${pkgs.nftables}/bin/nft delete chain inet wg-killswitch output 2>/dev/null || true
+    ${pkgs.nftables}/bin/nft delete table inet wg-killswitch 2>/dev/null || true
     systemctl stop wireguard-wg0
   '';
 
@@ -46,12 +51,12 @@ let
 in {
     networking.wireguard.interfaces.wg0 = {
       ips = [ s.tunnelIp ];
-      privateKey = s.clientPriv;
+      privateKeyFile = "${keyDir}/private.key";
       allowedIPsAsRoutes = false;
       fwMark = "0xca6c";
       peers = [{
         publicKey = s.serverPub;
-        presharedKey = s.wgPsk;
+        presharedKeyFile = "${keyDir}/psk.key";
         allowedIPs = [ "0.0.0.0/0" "::/0" ];
         endpoint = "${s.serverIp}:${toString s.serverPort}";
         persistentKeepalive = 25;
@@ -63,9 +68,6 @@ in {
       '';
 
       postShutdown = ''
-        ${pkgs.nftables}/bin/nft flush chain inet wg-killswitch output 2>/dev/null || true
-        ${pkgs.nftables}/bin/nft delete chain inet wg-killswitch output 2>/dev/null || true
-        ${pkgs.nftables}/bin/nft delete table inet wg-killswitch 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del 0.0.0.0/1 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip route del 128.0.0.0/1 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip -6 route del ::/1 2>/dev/null || true
@@ -198,6 +200,24 @@ in {
         OnUnitActiveSec = "5s";
       };
     };
+
+    systemd.tmpfiles.rules = [
+      "d ${keyDir} 0700 root root -"
+    ];
+
+    system.activationScripts.wireguard-keys = ''
+      install -d -m 0700 /resources/wireguard
+      install -d -m 0700 /etc/wireguard
+      chmod 0600 /resources/wireguard/private.key /resources/wireguard/psk.key 2>/dev/null || true
+      for f in private.key psk.key; do
+        src="/resources/wireguard/$f"
+        dst="/etc/wireguard/$f"
+        if [ -f "$src" ]; then
+          cp "$src" "$dst"
+          chmod 0600 "$dst"
+        fi
+      done
+    '';
 
     systemd.slices.bypass-wg = {
       wantedBy = [ "multi-user.target" ];
