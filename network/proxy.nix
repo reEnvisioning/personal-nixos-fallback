@@ -39,14 +39,17 @@ let
     }
     rm -f ${stateDir}/wg-disabled
     systemctl start wireguard-wg0
-    HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
-    TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
-    NOW=$(${pkgs.coreutils}/bin/date +%s)
-    if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 10 ]; then
-      notifyUser notify-send -a "Proxy Control" --expire-time=4000 "Proxy enabled"
-    else
-      notifyUser notify-send -a "Proxy" --expire-time=86400000 -u critical "Proxy Offline" "Could not reach WireGuard server"
-    fi
+    for i in $(seq 1 10); do
+      HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
+      TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
+      NOW=$(${pkgs.coreutils}/bin/date +%s)
+      if [ -n "$TS" ] && [ "$TS" != "0" ] && [ $((NOW - TS)) -lt 15 ]; then
+        notifyUser notify-send -a "Proxy Control" --expire-time=4000 "Proxy enabled"
+        exit 0
+      fi
+      sleep 1
+    done
+    notifyUser notify-send -a "Proxy" --expire-time=86400000 -u critical "Proxy Offline" "Could not reach WireGuard server"
   '';
 in {
     networking.wireguard.interfaces.wg0 = {
@@ -200,10 +203,6 @@ in {
         OnUnitActiveSec = "5s";
       };
     };
-
-    systemd.tmpfiles.rules = [
-      "d ${keyDir} 0700 root root -"
-    ];
 
     system.activationScripts.wireguard-keys = ''
       install -d -m 0700 /resources/wireguard
