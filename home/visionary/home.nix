@@ -24,6 +24,7 @@
     kdePackages.kdenlive
     libreoffice-qt
     obs-studio
+    xwayland-satellite
   ];
 
   services.udiskie = {
