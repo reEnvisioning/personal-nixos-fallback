@@ -36,6 +36,8 @@ in {
     pavucontrol
     brightnessctl
     temurin-bin-21
+    tmux
   ];
 
+  virtualisation.virtualbox.host.enable = true;
 }
