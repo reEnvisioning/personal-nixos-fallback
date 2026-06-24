@@ -1,6 +1,14 @@
 { pkgs, nixUsers, ... }:
 let
   hw = import ../hardware/hardware.nix;
+  vbox-wrapped = pkgs.virtualbox.overrideAttrs (old: {
+    nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ pkgs.makeWrapper ];
+    postInstall = (old.postInstall or "") + ''
+      for bin in $out/bin/VirtualBox $out/bin/VirtualBoxVM $out/bin/VBoxSDL; do
+        [[ -f "$bin" ]] && wrapProgram "$bin" --set QT_QPA_PLATFORM "xcb"
+      done
+    '';
+  });
 in {
   imports = [
     ../network/networking.nix
@@ -39,5 +47,8 @@ in {
     tmux
   ];
 
-  virtualisation.virtualbox.host.enable = true;
+  virtualisation.virtualbox.host = {
+    enable = true;
+    package = vbox-wrapped;
+  };
 }
