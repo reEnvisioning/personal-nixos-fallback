@@ -64,7 +64,7 @@ Item {
     function activate(entry) {
         if (entry && entry.input) {
             addToHistory(entry.input)
-            Quickshell.execDetached({ command: ["kitty", "-e", "bash", "-c", "ssh -v " + entry.input] })
+            Quickshell.execDetached({ command: ["kitty", "-e", "bash", "-c", "ssh -v " + entry.input + "; exec bash -i"] })
         }
     }
 
