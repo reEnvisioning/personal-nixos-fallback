@@ -68,9 +68,9 @@ let
     theme[upload_start]=${t.colors.green}
     theme[upload_mid]=${t.colors.cyan}
     theme[upload_end]=${t.colors.sky}
-    theme[process_start]=${t.colors.sapphire}
-    theme[process_mid]=${t.colors.lavender}
-    theme[process_end]=${t.colors.mauve}
+    theme[process_start]=${t.colors.overlay2}
+    theme[process_mid]=${t.colors.overlay2}
+    theme[process_end]=${t.colors.overlay2}
   '';
 
   themeJsonConfigs = builtins.listToAttrs (lib.flatten (map (name: [

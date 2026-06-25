@@ -131,10 +131,33 @@ jq -r '
   "theme[upload_start]=\($c.green)",
   "theme[upload_mid]=\($c.cyan)",
   "theme[upload_end]=\($c.sky)",
-  "theme[process_start]=\($c.sapphire)",
-  "theme[process_mid]=\($c.lavender)",
-  "theme[process_end]=\($c.mauve)"
+  "theme[process_start]=\($c.overlay2)",
+  "theme[process_mid]=\($c.overlay2)",
+  "theme[process_end]=\($c.overlay2)"
 ' "$THEME_FILE" > "$BTOP_THEME_DIR/reEnvisioning.theme"
+
+lighten_hex() {
+  local hex="$1" pct="$2"
+  local r=$((0x${hex:1:2})) g=$((0x${hex:3:2})) b=$((0x${hex:5:2}))
+  r=$(( r + (255 - r) * pct / 100 ))
+  g=$(( g + (255 - g) * pct / 100 ))
+  b=$(( b + (255 - b) * pct / 100 ))
+  printf "#%02X%02X%02X" $r $g $b
+}
+
+darken_hex() {
+  local hex="$1" pct="$2"
+  local r=$((0x${hex:1:2})) g=$((0x${hex:3:2})) b=$((0x${hex:5:2}))
+  r=$(( r * (100 - pct) / 100 ))
+  g=$(( g * (100 - pct) / 100 ))
+  b=$(( b * (100 - pct) / 100 ))
+  printf "#%02X%02X%02X" $r $g $b
+}
+
+BASE=$(jq -r '.overlay2' "$THEME_FILE")
+sed -i "s/^theme\[process_start\]=.*/theme[process_start]=$(lighten_hex "$BASE" 20)/" "$BTOP_THEME_DIR/reEnvisioning.theme"
+sed -i "s/^theme\[process_mid\]=.*/theme[process_mid]=$BASE/" "$BTOP_THEME_DIR/reEnvisioning.theme"
+sed -i "s/^theme\[process_end\]=.*/theme[process_end]=$(darken_hex "$BASE" 30)/" "$BTOP_THEME_DIR/reEnvisioning.theme"
 killall -USR2 btop 2>/dev/null || true
 
 # 5. LocalSend — write prefs, restart
