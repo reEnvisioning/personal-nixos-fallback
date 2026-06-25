@@ -137,7 +137,7 @@ in {
   programs.btop = {
     enable = true;
     settings = {
-      color_theme = "$SRC/themes/reEnvisioning.theme";
+      color_theme = "${config.home.homeDirectory}/.config/btop/themes/reEnvisioning.theme";
       theme_background = false;
       truecolor = true;
       rounded_corners = true;
@@ -169,6 +169,10 @@ in {
     };
     "quickshell" = {
       source = quickshellDir;
+      force = true;
+    };
+    "btop/themes/reEnvisioning.theme" = {
+      text = mkBtopTheme theme.default theme.all.${theme.default};
       force = true;
     };
   } // themeJsonConfigs;
