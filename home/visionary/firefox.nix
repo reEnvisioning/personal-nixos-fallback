@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 let
   commonSettings = {
     "browser.tabs.dragDrop.createGroup.enabled" = false;
@@ -53,6 +53,8 @@ let
     "extensions.ml.enabled" = false;
   };
 
+  profileNames = [ "default" "profile1" "profile2" ];
+
   commonSearch = {
     force = true;
     default = "ddg";
@@ -61,7 +63,6 @@ let
 in {
   programs.firefox = {
     enable = true;
-    configPath = "${config.xdg.configHome}/mozilla/firefox";
 
     policies = {
       Preferences = {
@@ -80,15 +81,14 @@ in {
       };
     };
 
-    profiles = {
-      default = {
-        id = 0;
-        isDefault = true;
+    profiles = builtins.listToAttrs (lib.imap0 (i: name: {
+      name = name;
+      value = {
+        id = i;
+        isDefault = name == "default";
         search = commonSearch;
         settings = commonSettings;
       };
-    };
+    }) profileNames);
   };
-
-  home.file."${config.home.homeDirectory}/.config/mozilla/firefox/default/user.js".force = true;
 }
