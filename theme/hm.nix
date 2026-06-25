@@ -137,7 +137,7 @@ in {
   programs.btop = {
     enable = true;
     settings = {
-      color_theme = "${config.home.homeDirectory}/.config/btop/themes/reEnvisioning.theme";
+      color_theme = "${config.home.homeDirectory}/.config/btop/themes/current.theme";
       theme_background = false;
       truecolor = true;
       rounded_corners = true;
@@ -162,7 +162,7 @@ in {
     };
     "reEnvisioning/shell.json" = {
       force = true;
-      text = import ./reEnvisioning/config.schema.nix {
+      text = import ./common/config.schema.nix {
         theme = { name = theme.default; } // theme.all.${theme.default};
         uiScale = 1;
       };
@@ -171,7 +171,7 @@ in {
       source = quickshellDir;
       force = true;
     };
-    "btop/themes/reEnvisioning.theme" = {
+    "btop/themes/current.theme" = {
       text = mkBtopTheme theme.default theme.all.${theme.default};
       force = true;
     };

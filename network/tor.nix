@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, username, ... }:
 
 let
   cfg = config.services.tor.transparentProxy;
@@ -79,7 +79,7 @@ in {
       };
     };
 
-    users.users.visionary.extraGroups = [ "tor" ];
+    users.users.${username}.extraGroups = [ "tor" ];
     users.groups.tor = {};
 
     boot.kernel.sysctl."net.ipv4.conf.all.route_localnet" = 1;

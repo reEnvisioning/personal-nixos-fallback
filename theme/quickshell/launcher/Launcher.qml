@@ -65,7 +65,7 @@ PanelWindow {
     focusable: true
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.namespace: "reEnvisioning-launcher"
+    WlrLayershell.namespace: "launcher"
     anchors.bottom: true
     margins {
         bottom: Math.round(8 * root.uiScale)

@@ -17,7 +17,7 @@ vim.opt.signcolumn = 'yes'
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
-local _hostname = "reEnvisioning"
+local _hostname = "panel"
 
 local function colors_path()
   return (os.getenv("XDG_RUNTIME_DIR") or "/run/user/1000") .. "/" .. _hostname .. "-theme.json"

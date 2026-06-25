@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, pkgs, lib, username, ... }:
 
 let
   network = import ./network.nix;
@@ -225,7 +225,7 @@ in {
     security.polkit.extraConfig = ''
       polkit.addRule(function(action, subject) {
         if (action.id == "org.freedesktop.systemd1.manage-units" &&
-            subject.user == "visionary") {
+            subject.user == "${username}") {
           var unit = action.lookup("unit");
           if (unit && unit.startsWith("run-") && (unit.endsWith(".scope") || unit.endsWith(".service"))) {
             return polkit.Result.YES;
@@ -235,7 +235,7 @@ in {
       polkit.addRule(function(action, subject) {
         if (action.id == "org.freedesktop.systemd1.manage-units" &&
             action.lookup("unit") == "wireguard-wg0.service" &&
-            subject.user == "visionary") {
+            subject.user == "${username}") {
           return polkit.Result.YES;
         }
       });

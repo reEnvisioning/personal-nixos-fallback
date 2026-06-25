@@ -1,4 +1,4 @@
-{ pkgs, hostname, ... }: {
+{ pkgs, hostname, username, ... }: {
   boot.loader.systemd-boot.configurationLimit = 20;
 
   nix.gc = {
@@ -26,7 +26,7 @@
       set -xeuo pipefail
 
       sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +10
-      sudo -u visionary nix-env --profile /nix/var/nix/profiles/per-user/visionary/profile --delete-generations +10 2>/dev/null || true
+      sudo -u ${username} nix-env --profile /nix/var/nix/profiles/per-user/${username}/profile --delete-generations +10 2>/dev/null || true
       sudo nix-collect-garbage
       sudo nix store optimise
 

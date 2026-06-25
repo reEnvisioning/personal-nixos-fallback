@@ -83,7 +83,7 @@ ShellRoot {
     // ── IPC handler (replaces all $XDG_RUNTIME_DIR file watchers) ────────
     IpcHandler {
         id: ipc
-        target: "reEnvisioning"
+        target: "panel"
 
         property bool dndActive: false
         property int activeTab: -1

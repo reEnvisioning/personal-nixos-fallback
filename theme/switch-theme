@@ -89,7 +89,7 @@ pkill -SIGUSR1 kitty 2>/dev/null || true
 # 4. Btop — break symlink, write theme, reload
 BTOP_THEME_DIR="$HOME/.config/btop/themes"
 mkdir -p "$BTOP_THEME_DIR"
-rm -f "$BTOP_THEME_DIR/reEnvisioning.theme"
+rm -f "$BTOP_THEME_DIR/current.theme"
 jq -r '
   . as $c |
   "theme[main_bg]=\($c.background)",
@@ -134,7 +134,7 @@ jq -r '
   "theme[process_start]=\($c.overlay2)",
   "theme[process_mid]=\($c.overlay2)",
   "theme[process_end]=\($c.overlay2)"
-' "$THEME_FILE" > "$BTOP_THEME_DIR/reEnvisioning.theme"
+' "$THEME_FILE" > "$BTOP_THEME_DIR/current.theme"
 
 lighten_hex() {
   local hex="$1" pct="$2"
@@ -155,9 +155,9 @@ darken_hex() {
 }
 
 BASE=$(jq -r '.overlay2' "$THEME_FILE")
-sed -i "s/^theme\[process_start\]=.*/theme[process_start]=$(lighten_hex "$BASE" 20)/" "$BTOP_THEME_DIR/reEnvisioning.theme"
-sed -i "s/^theme\[process_mid\]=.*/theme[process_mid]=$BASE/" "$BTOP_THEME_DIR/reEnvisioning.theme"
-sed -i "s/^theme\[process_end\]=.*/theme[process_end]=$(darken_hex "$BASE" 30)/" "$BTOP_THEME_DIR/reEnvisioning.theme"
+sed -i "s/^theme\[process_start\]=.*/theme[process_start]=$(lighten_hex "$BASE" 20)/" "$BTOP_THEME_DIR/current.theme"
+sed -i "s/^theme\[process_mid\]=.*/theme[process_mid]=$BASE/" "$BTOP_THEME_DIR/current.theme"
+sed -i "s/^theme\[process_end\]=.*/theme[process_end]=$(darken_hex "$BASE" 30)/" "$BTOP_THEME_DIR/current.theme"
 killall -USR2 btop 2>/dev/null || true
 
 # 5. LocalSend — write prefs, restart

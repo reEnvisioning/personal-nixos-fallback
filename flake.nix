@@ -19,10 +19,13 @@
     unstable = import nixpkgs-unstable {
       inherit system;
     };
+
+    usernames = [ "visionary" ];
+    primaryUser = builtins.head usernames;
   in {
     nixosConfigurations.${hostname} = inputs.nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArgs = { inherit inputs hostname unstable; nixUsers = [ "visionary" ]; };
+      specialArgs = { inherit inputs hostname unstable; nixUsers = usernames; username = primaryUser; };
       modules = [
         ./system/default.nix
         {
@@ -34,31 +37,37 @@
         ./theme/appearance.nix
         {
           networking.hostName = hostname;
-          appearance.users = [ "visionary" ];
+          appearance.users = usernames;
 
-          users.users.visionary = {
-            isNormalUser = true;
-            extraGroups = [ "wheel" "networkmanager" "disk" "vboxusers" ];
-          };
+          users.users = builtins.listToAttrs (map (u: {
+            name = u;
+            value = {
+              isNormalUser = true;
+              extraGroups = [ "wheel" "networkmanager" "disk" "vboxusers" ];
+            };
+          }) usernames);
 
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
 
           home-manager.extraSpecialArgs = { inherit hostname unstable; };
 
-          home-manager.users.visionary = {
-            _module.args = { username = "visionary"; };
-            imports = [
-              ./home/visionary/home.nix
-              ./home/visionary/niri.nix
-              ./home/visionary/yazi.nix
-              ./home/visionary/firefox.nix
-              ./home/visionary/librewolf.nix
-              ./home/visionary/ssh.nix
-              ./home/visionary/neovim.nix
-              ./network/hm.nix
-            ];
-          };
+          home-manager.users = builtins.listToAttrs (map (u: {
+            name = u;
+            value = {
+              _module.args = { username = u; };
+              imports = [
+                ./home/${u}/home.nix
+                ./home/${u}/niri.nix
+                ./home/${u}/yazi.nix
+                ./home/${u}/firefox.nix
+                ./home/${u}/librewolf.nix
+                ./home/${u}/ssh.nix
+                ./home/${u}/neovim.nix
+                ./network/hm.nix
+              ];
+            };
+          }) usernames);
         }
       ];
     };

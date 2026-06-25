@@ -30,7 +30,7 @@ PanelWindow {
     focusable: false
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.namespace: "reEnvisioning-notifications"
+    WlrLayershell.namespace: "notifications"
 
     Column {
         id: notifColumn

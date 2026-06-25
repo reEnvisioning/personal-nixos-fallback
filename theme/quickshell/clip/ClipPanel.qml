@@ -27,7 +27,7 @@ PanelWindow {
     focusable: true
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.namespace: "reEnvisioning-clipboard"
+    WlrLayershell.namespace: "clipboard"
     WlrLayershell.anchors.bottom: true
     WlrLayershell.anchors.left: true
     WlrLayershell.margins { bottom: Math.round(8 * root.uiScale); left: Math.round(8 * root.uiScale) }

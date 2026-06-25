@@ -29,12 +29,12 @@ Item {
             "TMPD=\"$HOME/.config/reEnvisioning/tmp\" && " +
             "mkdir -p \"$TMPD\" && " +
             "if wl-paste -t text/plain > \"$TMPD/clip-text\" 2>/dev/null; then " +
-            "  qs msg reEnvisioning pushTextClip; " +
+            "  qs msg panel pushTextClip; " +
             "elif wl-paste -t image/png > \"$TMPD/clip-raw.png\" 2>/dev/null; then " +
             "  hash=$(sha256sum \"$TMPD/clip-raw.png\" | cut -d' ' -f1) && " +
             "  mkdir -p \"$HOME/.config/reEnvisioning/appdata/quickshell/clips\" && " +
             "  cp \"$TMPD/clip-raw.png\" \"$HOME/.config/reEnvisioning/appdata/quickshell/clips/$hash.png\" && " +
-            "  qs msg reEnvisioning pushImageClip \"$hash.png\"; " +
+            "  qs msg panel pushImageClip \"$hash.png\"; " +
             "fi"]
         running: true
     }
@@ -82,7 +82,7 @@ Item {
             "hash=$(sha256sum \"$TMPD/clip-raw.png\" | cut -d' ' -f1) && " +
             "mkdir -p \"$HOME/.config/reEnvisioning/appdata/quickshell/clips\" && " +
             "cp \"$TMPD/clip-raw.png\" \"$HOME/.config/reEnvisioning/appdata/quickshell/clips/$hash.png\" && " +
-            "qs msg reEnvisioning pushImageClip \"$hash.png\""]
+            "qs msg panel pushImageClip \"$hash.png\""]
         running: false
     }
 
