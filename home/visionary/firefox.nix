@@ -91,4 +91,20 @@ in {
       };
     }) profileNames);
   };
+
+  home.activation = {
+    makeFirefoxProfilesIniWritable = lib.hm.dag.entryAfter ["writeBoundary"] ''
+      profileDir="${config.xdg.configHome}/mozilla/firefox"
+      ini="$profileDir/profiles.ini"
+
+      if [ ! -d "$profileDir" ]; then
+        mkdir -p "$profileDir"
+      fi
+
+      if [ -L "$ini" ]; then
+        cp --remove-destination "$(readlink -f "$ini")" "$ini"
+      fi
+      chmod +w "$ini"
+    '';
+  };
 }
