@@ -90,4 +90,5 @@ in {
     };
   };
 
+  xdg.configFile."mozilla/firefox/default/user.js".force = true;
 }
