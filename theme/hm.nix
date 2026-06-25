@@ -28,6 +28,51 @@ let
     font = { family = "Monospace"; size = 10; };
   };
 
+  mkBtopTheme = name: t: ''
+    theme[main_bg]=${t.colors.background}
+    theme[main_fg]=${t.colors.text}
+    theme[title]=${t.colors.text}
+    theme[hi_fg]=${t.colors.mauve}
+    theme[selected_bg]=${t.colors.highlighted}
+    theme[selected_fg]=${t.colors.text}
+    theme[inactive_fg]=${t.colors.subtext0}
+    theme[graph_text]=${t.colors.mauve}
+    theme[meter_bg]=${t.colors.overlay2}
+    theme[proc_misc]=${t.colors.mauve}
+    theme[cpu_box]=${t.colors.mauve}
+    theme[mem_box]=${t.colors.green}
+    theme[net_box]=${t.colors.maroon}
+    theme[proc_box]=${t.colors.blue}
+    theme[div_line]=${t.colors.overlay1}
+    theme[temp_start]=${t.colors.green}
+    theme[temp_mid]=${t.colors.yellow}
+    theme[temp_end]=${t.colors.red}
+    theme[cpu_start]=${t.colors.cyan}
+    theme[cpu_mid]=${t.colors.sapphire}
+    theme[cpu_end]=${t.colors.lavender}
+    theme[free_start]=${t.colors.mauve}
+    theme[free_mid]=${t.colors.lavender}
+    theme[free_end]=${t.colors.blue}
+    theme[cached_start]=${t.colors.sapphire}
+    theme[cached_mid]=${t.colors.blue}
+    theme[cached_end]=${t.colors.lavender}
+    theme[available_start]=${t.colors.peach}
+    theme[available_mid]=${t.colors.maroon}
+    theme[available_end]=${t.colors.red}
+    theme[used_start]=${t.colors.green}
+    theme[used_mid]=${t.colors.cyan}
+    theme[used_end]=${t.colors.sky}
+    theme[download_start]=${t.colors.peach}
+    theme[download_mid]=${t.colors.maroon}
+    theme[download_end]=${t.colors.red}
+    theme[upload_start]=${t.colors.green}
+    theme[upload_mid]=${t.colors.cyan}
+    theme[upload_end]=${t.colors.sky}
+    theme[process_start]=${t.colors.sapphire}
+    theme[process_mid]=${t.colors.lavender}
+    theme[process_end]=${t.colors.mauve}
+  '';
+
   themeJsonConfigs = builtins.listToAttrs (lib.flatten (map (name: [
     {
       name = "reEnvisioning/themes/${name}/theme.json";
@@ -47,6 +92,13 @@ let
       name = "reEnvisioning/yazi-themes/${name}.toml";
       value = {
         source = theme.all.${name}.yazi;
+        force = true;
+      };
+    }
+    {
+      name = "reEnvisioning/btop-themes/${name}.theme";
+      value = {
+        text = mkBtopTheme name theme.all.${name};
         force = true;
       };
     }
@@ -80,6 +132,19 @@ in {
       color5 ${theme.colors.magenta}
       color6 ${theme.colors.cyan}
     '';
+  };
+
+  programs.btop = {
+    enable = true;
+    settings = {
+      color_theme = "$SRC/themes/reEnvisioning.theme";
+      theme_background = false;
+      truecolor = true;
+      rounded_corners = true;
+      graph_symbol = "braille";
+      shown_boxes = "cpu mem net proc";
+      update_ms = 2000;
+    };
   };
 
   gtk = {

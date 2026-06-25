@@ -12,7 +12,6 @@
   '';
 
   programs.home-manager.enable = true;
-  programs.btop.enable = true;
 
   home.packages = with pkgs; [
     mpv

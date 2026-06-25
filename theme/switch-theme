@@ -86,6 +86,57 @@ jq -r '
 ' "$THEME_FILE" > "$KITTY_CONF"
 pkill -SIGUSR1 kitty 2>/dev/null || true
 
+# 4. Btop — break symlink, write theme, reload
+BTOP_THEME_DIR="$HOME/.config/btop/themes"
+mkdir -p "$BTOP_THEME_DIR"
+rm -f "$BTOP_THEME_DIR/reEnvisioning.theme"
+jq -r '
+  . as $c |
+  "theme[main_bg]=\($c.background)",
+  "theme[main_fg]=\($c.text)",
+  "theme[title]=\($c.text)",
+  "theme[hi_fg]=\($c.mauve)",
+  "theme[selected_bg]=\($c.highlighted)",
+  "theme[selected_fg]=\($c.text)",
+  "theme[inactive_fg]=\($c.subtext0)",
+  "theme[graph_text]=\($c.mauve)",
+  "theme[meter_bg]=\($c.overlay2)",
+  "theme[proc_misc]=\($c.mauve)",
+  "theme[cpu_box]=\($c.mauve)",
+  "theme[mem_box]=\($c.green)",
+  "theme[net_box]=\($c.maroon)",
+  "theme[proc_box]=\($c.blue)",
+  "theme[div_line]=\($c.overlay1)",
+  "theme[temp_start]=\($c.green)",
+  "theme[temp_mid]=\($c.yellow)",
+  "theme[temp_end]=\($c.red)",
+  "theme[cpu_start]=\($c.cyan)",
+  "theme[cpu_mid]=\($c.sapphire)",
+  "theme[cpu_end]=\($c.lavender)",
+  "theme[free_start]=\($c.mauve)",
+  "theme[free_mid]=\($c.lavender)",
+  "theme[free_end]=\($c.blue)",
+  "theme[cached_start]=\($c.sapphire)",
+  "theme[cached_mid]=\($c.blue)",
+  "theme[cached_end]=\($c.lavender)",
+  "theme[available_start]=\($c.peach)",
+  "theme[available_mid]=\($c.maroon)",
+  "theme[available_end]=\($c.red)",
+  "theme[used_start]=\($c.green)",
+  "theme[used_mid]=\($c.cyan)",
+  "theme[used_end]=\($c.sky)",
+  "theme[download_start]=\($c.peach)",
+  "theme[download_mid]=\($c.maroon)",
+  "theme[download_end]=\($c.red)",
+  "theme[upload_start]=\($c.green)",
+  "theme[upload_mid]=\($c.cyan)",
+  "theme[upload_end]=\($c.sky)",
+  "theme[process_start]=\($c.sapphire)",
+  "theme[process_mid]=\($c.lavender)",
+  "theme[process_end]=\($c.mauve)"
+' "$THEME_FILE" > "$BTOP_THEME_DIR/reEnvisioning.theme"
+killall -USR2 btop 2>/dev/null || true
+
 # 5. LocalSend — write prefs, restart
 mkdir -p "$(dirname "$LOCALSEND_PREFS")"
 cat > "$LOCALSEND_PREFS" << EOF
