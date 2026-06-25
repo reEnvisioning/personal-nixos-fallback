@@ -93,6 +93,15 @@ in {
   };
 
   home.activation = {
+    removeOldFirefoxUserJs = lib.hm.dag.entryBefore ["writeBoundary"] ''
+      ${builtins.concatStringsSep "\n" (map (name: ''
+        f="${config.xdg.configHome}/mozilla/firefox/${name}/user.js"
+        if [ -f "$f" ] && [ ! -L "$f" ]; then
+          rm -f "$f"
+        fi
+      '') profileNames)}
+    '';
+
     makeFirefoxProfilesIniWritable = lib.hm.dag.entryAfter ["writeBoundary"] ''
       profileDir="${config.xdg.configHome}/mozilla/firefox"
       ini="$profileDir/profiles.ini"
