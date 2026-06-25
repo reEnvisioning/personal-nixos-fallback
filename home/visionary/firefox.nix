@@ -90,5 +90,5 @@ in {
     };
   };
 
-  xdg.configFile."mozilla/firefox/default/user.js".force = true;
+  home.file."${config.home.homeDirectory}/.config/mozilla/firefox/default/user.js".force = true;
 }
