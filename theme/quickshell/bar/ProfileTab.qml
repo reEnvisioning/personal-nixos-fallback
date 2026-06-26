@@ -21,8 +21,6 @@ Item {
     }
     property string hostName: ""
     property string osName: ""
-    property string kernelVer: ""
-    property string cpuModel: ""
     property string uptimeStr: ""
 
     function refresh(): void {
@@ -39,8 +37,6 @@ Item {
             const val = line.slice(idx + 1)
             if (key === "host") root.hostName = val
             else if (key === "os") root.osName = val
-            else if (key === "kernel") root.kernelVer = val
-            else if (key === "cpu") root.cpuModel = val
             else if (key === "uptime") root.uptimeStr = val
         }
     }
@@ -55,8 +51,6 @@ Item {
         command: ["sh", "-c",
             "echo host=$(hostname)"
             + "; echo os=$(awk -F= '/^PRETTY_NAME/{print $2}' /etc/os-release 2>/dev/null | tr -d '\"' | sed 's/ (.*)//')"
-            + "; echo kernel=$(uname -r)"
-            + "; echo cpu=$(grep -m1 'model name' /proc/cpuinfo | sed 's/.*: //' | sed 's/(R)//g; s/ CPU.*//')"
             + "; echo uptime=$(uptime -p | sed 's/up //')"
         ]
         running: true
@@ -112,11 +106,6 @@ Item {
                 spacing: 4
                 Text { text: "OS"; color: root.colors.subtext0; font.pointSize: 9; font.weight: Font.DemiBold }
                 Text { text: root.osName; color: root.colors.text; font.pointSize: 9; elide: Text.ElideRight }
-            }
-            RowLayout {
-                spacing: 4
-                Text { text: "Kernel"; color: root.colors.subtext0; font.pointSize: 9; font.weight: Font.DemiBold }
-                Text { text: root.kernelVer; color: root.colors.text; font.pointSize: 9; elide: Text.ElideRight }
             }
             RowLayout {
                 spacing: 4

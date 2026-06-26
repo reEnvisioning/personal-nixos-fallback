@@ -17,6 +17,9 @@ PanelWindow {
     property bool isExpanded: false
     property int activeTab: 0
     property real animHeight: root.collapsedHeight
+    property bool dndActive: false
+    property string proxyStatus: "disabled"
+    property string idleStatus: "unknown"
 
     onIsExpandedChanged: {
         expandAnim.stop()
@@ -78,12 +81,12 @@ PanelWindow {
             Rectangle {
                 id: tabIndicator
                 anchors.bottom: parent.bottom
-                width: parent.width / 3 * 0.4
+                width: parent.width / 4 * 0.4
                 height: Math.round(2 * root.uiScale)
                 radius: Math.round(1 * root.uiScale)
                 color: root.colors.accent
 
-                readonly property real tabW: parent.width / 3
+                readonly property real tabW: parent.width / 4
                 x: root.activeTab * tabW + (tabW - width) / 2
 
                 Behavior on x {
@@ -100,13 +103,13 @@ PanelWindow {
                 anchors.fill: parent
 
                 Repeater {
-                    model: ["Profile", "Time", "System"]
+                    model: ["Profile", "Time", "System", "Session"]
 
                     delegate: Item {
                         required property int index
                         required property string modelData
 
-                        width: tabRow.width / 3
+                        width: tabRow.width / 4
                         height: tabRow.height
 
                         Text {
@@ -165,6 +168,17 @@ PanelWindow {
                     colors: root.colors
                     Behavior on opacity { Anim { animType: "effect" } }
                 }
+
+                SessionTab {
+                    anchors.fill: parent
+                    anchors.margins: Math.round(8 * root.uiScale)
+                    opacity: root.activeTab === 3 ? 1 : 0
+                    colors: root.colors
+                    dndActive: root.dndActive
+                    proxyStatus: root.proxyStatus
+                    idleStatus: root.idleStatus
+                    Behavior on opacity { Anim { animType: "effect" } }
+                }
             }
     }
 
@@ -177,13 +191,13 @@ PanelWindow {
             autoCollapseTimer.stop()
             collapseTimer.stop()
             root.isExpanded = true
-            root.activeTab = Math.floor(mouseX / width * 3)
+            root.activeTab = Math.floor(mouseX / width * 4)
         }
 
         onPositionChanged: {
             collapseTimer.stop()
             if (root.isExpanded && mouseY < tabRow.height)
-                root.activeTab = Math.floor(mouseX / width * 3)
+                root.activeTab = Math.floor(mouseX / width * 4)
         }
 
         onExited: {
@@ -207,7 +221,7 @@ PanelWindow {
     }
 
     function activateTab(index: int): void {
-        if (index >= 0 && index <= 2) {
+        if (index >= 0 && index <= 3) {
             root.isExpanded = true
             root.activeTab = index
             autoCollapseTimer.restart()

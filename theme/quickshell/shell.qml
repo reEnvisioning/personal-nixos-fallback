@@ -14,6 +14,8 @@ ShellRoot {
     id: root
 
     property real uiScale: 1
+    property string proxyStatus: "disabled"
+    property string idleStatus: "unknown"
 
     // ── Unified config file (shell.json) ──────────────────────────────────
     readonly property string configDir: {
@@ -66,6 +68,9 @@ ShellRoot {
         id: bar
         colors: colors
         uiScale: root.uiScale
+        dndActive: ipc.dndActive
+        proxyStatus: root.proxyStatus
+        idleStatus: root.idleStatus
     }
 
     NotifPanel {
@@ -80,6 +85,34 @@ ShellRoot {
         uiScale: root.uiScale
     }
 
+    // ── Proxy status reader ──────────────────────────────────────────────
+    Process {
+        id: proxyReader
+        command: ["sh", "-c", "cat /run/wireguard-monitor/wg-vpn-status 2>/dev/null || echo disabled"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: root.proxyStatus = text.trim()
+        }
+    }
+
+    // ── Idle status reader ───────────────────────────────────────────────
+    Process {
+        id: idleReader
+        command: ["sh", "-c", "state get hypridle 2>/dev/null || echo unknown"]
+        running: true
+        stdout: StdioCollector {
+            onStreamFinished: root.idleStatus = text.trim()
+        }
+    }
+
+    Timer {
+        interval: 5000; running: true; repeat: true
+        onTriggered: {
+            proxyReader.running = false; proxyReader.running = true
+            idleReader.running = false; idleReader.running = true
+        }
+    }
+
     // ── IPC handler (replaces all $XDG_RUNTIME_DIR file watchers) ────────
     IpcHandler {
         id: ipc
@@ -92,7 +125,7 @@ ShellRoot {
 
         onDndActiveChanged: notifPanel.dndActive = dndActive
         onActiveTabChanged: {
-            if (activeTab >= 0 && activeTab <= 2)
+            if (activeTab >= 0 && activeTab <= 3)
                 bar.activateTab(activeTab)
         }
         onLauncherOpenChanged: {

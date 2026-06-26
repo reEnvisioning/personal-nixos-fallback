@@ -112,14 +112,21 @@ Item {
                 spacing: 2
                 Text {
                     Layout.alignment: Qt.AlignHCenter
-                    text: "\u{1F50B} " + root.batteryPct + "%"
-                    color: root.colors.text; font.pointSize: 11
+                    text: root.batteryPct + "%"
+                    color: root.colors.text; font.pointSize: 13
+                    font.weight: Font.DemiBold
+                    Behavior on color { CAnim {} }
+                }
+                Text {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: "Battery"
+                    color: root.colors.subtext0; font.pointSize: 9
                     Behavior on color { CAnim {} }
                 }
                 Text {
                     Layout.alignment: Qt.AlignHCenter
                     text: root.batteryStatus
-                    color: root.colors.subtext0; font.pointSize: 9
+                    color: root.colors.subtext0; font.pointSize: 8
                     visible: root.batteryStatus.length > 0
                     Behavior on color { CAnim {} }
                 }
@@ -129,13 +136,14 @@ Item {
                 spacing: 2
                 Text {
                     Layout.alignment: Qt.AlignHCenter
-                    text: "\u26A1 " + root.powerProfile
-                    color: root.colors.text; font.pointSize: 11
+                    text: root.powerProfile
+                    color: root.colors.text; font.pointSize: 13
+                    font.weight: Font.DemiBold
                     Behavior on color { CAnim {} }
                 }
                 Text {
                     Layout.alignment: Qt.AlignHCenter
-                    text: "Power profile"
+                    text: "Profile"
                     color: root.colors.subtext0; font.pointSize: 9
                     Behavior on color { CAnim {} }
                 }
