@@ -303,7 +303,11 @@ rm -f "$SHELL_JSON"
 jq -c --arg mode "$MODE" --arg name "$THEME_NAME" \
   '{uiScale: 1, colors: ., themeName: $name, mode: $mode}' \
   "$THEME_FILE" > "$SHELL_JSON"
-# 9. Save current theme before signalling reload so wallpaperLoader picks it up
+# 9. Write theme data for file-watching consumers (Neovim, etc.)
+RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+cp "$THEME_FILE" "$RUNTIME_DIR/panel-theme.json"
+
+# 10. Save current theme before signalling reload so wallpaperLoader picks it up
 state set current-theme "$THEME_NAME"
 
 shell reload 2>/dev/null || true
