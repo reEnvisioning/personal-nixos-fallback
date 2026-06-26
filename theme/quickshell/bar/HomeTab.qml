@@ -29,8 +29,6 @@ Item {
         id: infoReader
         command: ["sh", "-c",
             "echo host=$(hostname)"
-            + "; echo os=$(awk -F= '/^PRETTY_NAME/{print $2}' /etc/os-release 2>/dev/null | tr -d '\"' | sed 's/ (.*)//')"
-            + "; echo uptime=$(uptime -p | sed 's/up //')"
         ]
         running: true
         stdout: StdioCollector {
@@ -62,9 +60,9 @@ Item {
         const mm = d.getMinutes().toString().padStart(2, "0")
         timeString = hh + ":" + mm
 
-        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-        const months = ["January", "February", "March", "April", "May", "June",
-                        "July", "August", "September", "October", "November", "December"]
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
         dateString = days[d.getDay()] + ", " + d.getDate() + " " + months[d.getMonth()] + " " + d.getFullYear()
     }
 
@@ -96,7 +94,7 @@ Item {
         onTriggered: root.refreshBattery()
     }
 
-    function batteryColor(): color {
+    function batteryBarColor(): color {
         const pct = parseInt(root.batteryPct)
         if (isNaN(pct)) return root.colors.subtext0
         if (pct <= 20) return root.colors.red
@@ -104,21 +102,44 @@ Item {
         return root.colors.green
     }
 
-    ColumnLayout {
+    Rectangle {
         anchors.fill: parent
         anchors.margins: Math.round(4)
-        spacing: Math.round(6)
+        radius: Math.round(8)
+        color: root.colors.surface2
+        Behavior on color { CAnim {} }
 
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: Math.round(56)
-            radius: Math.round(8)
-            color: root.colors.surface2
-            Behavior on color { CAnim {} }
+        RowLayout {
+            anchors.fill: parent
+            anchors.margins: Math.round(8)
+            spacing: Math.round(8)
+
+            ColumnLayout {
+                spacing: Math.round(2)
+
+                Text {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: root.timeString
+                    color: root.colors.text
+                    font.pointSize: 20
+                    font.family: "Monospace"
+                    font.weight: Font.Light
+                    Behavior on color { CAnim {} }
+                }
+
+                Text {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: root.dateString
+                    color: root.colors.subtext0
+                    font.pointSize: 8
+                    Behavior on color { CAnim {} }
+                }
+            }
+
+            Item { Layout.fillWidth: true }
 
             RowLayout {
-                anchors.centerIn: parent
-                spacing: Math.round(12)
+                spacing: Math.round(8)
 
                 Rectangle {
                     width: Math.round(40); height: Math.round(40)
@@ -145,7 +166,7 @@ Item {
                     Text {
                         text: root.userName + "@" + (root.hostName.length > 0 ? root.hostName : "...")
                         color: root.colors.text
-                        font.pointSize: 11
+                        font.pointSize: 10
                         font.weight: Font.DemiBold
                         elide: Text.ElideRight
                         Behavior on color { CAnim {} }
@@ -154,93 +175,59 @@ Item {
                     Text {
                         text: root.colors.themeName
                         color: root.colors.subtext0
-                        font.pointSize: 9
+                        font.pointSize: 8
                         elide: Text.ElideRight
                         Behavior on color { CAnim {} }
                     }
                 }
-            }
-        }
-
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: Math.round(64)
-            radius: Math.round(8)
-            color: root.colors.surface2
-            Behavior on color { CAnim {} }
-
-            ColumnLayout {
-                anchors.centerIn: parent
-                spacing: Math.round(2)
-
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: root.timeString
-                    color: root.colors.text
-                    font.pointSize: 24
-                    font.family: "Monospace"
-                    font.weight: Font.Light
-                    Behavior on color { CAnim {} }
-                }
-
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: root.dateString
-                    color: root.colors.subtext0
-                    font.pointSize: 9
-                    Behavior on color { CAnim {} }
-                }
-            }
-        }
-
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: Math.round(40)
-            radius: Math.round(8)
-            color: root.colors.surface2
-            Behavior on color { CAnim {} }
-
-            ColumnLayout {
-                anchors.centerIn: parent
-                width: parent.width - Math.round(16)
-                spacing: Math.round(3)
 
                 Rectangle {
-                    Layout.fillWidth: true
-                    height: Math.round(10)
-                    radius: Math.round(5)
+                    implicitWidth: Math.round(1)
+                    implicitHeight: parent.height
                     color: root.colors.overlay1
                     Behavior on color { CAnim {} }
-
-                    Rectangle {
-                        width: parent.width * (parseInt(root.batteryPct) || 0) / 100
-                        height: parent.height
-                        radius: Math.round(5)
-                        color: root.batteryColor()
-                        Behavior on width { Anim { animType: "progress" } }
-                        Behavior on color { CAnim {} }
-                    }
                 }
 
-                RowLayout {
-                    Layout.fillWidth: true
+                ColumnLayout {
+                    spacing: Math.round(2)
 
-                    Text {
-                        text: root.batteryPct + "%"
-                        color: root.colors.text
-                        font.pointSize: 9
-                        font.weight: Font.DemiBold
+                    Rectangle {
+                        Layout.alignment: Qt.AlignHCenter
+                        implicitWidth: Math.round(80)
+                        height: Math.round(8)
+                        radius: Math.round(4)
+                        color: root.colors.overlay1
                         Behavior on color { CAnim {} }
+
+                        Rectangle {
+                            width: parent.width * (parseInt(root.batteryPct) || 0) / 100
+                            height: parent.height
+                            radius: Math.round(4)
+                            color: root.batteryBarColor()
+                            Behavior on width { Anim { animType: "progress" } }
+                            Behavior on color { CAnim {} }
+                        }
                     }
 
-                    Item { Layout.fillWidth: true }
+                    RowLayout {
+                        Layout.alignment: Qt.AlignHCenter
+                        spacing: Math.round(4)
 
-                    Text {
-                        text: root.batteryStatus
-                        color: root.colors.subtext0
-                        font.pointSize: 8
-                        visible: root.batteryStatus.length > 0
-                        Behavior on color { CAnim {} }
+                        Text {
+                            text: root.batteryPct + "%"
+                            color: root.colors.text
+                            font.pointSize: 9
+                            font.weight: Font.DemiBold
+                            Behavior on color { CAnim {} }
+                        }
+
+                        Text {
+                            text: root.batteryStatus
+                            color: root.colors.subtext0
+                            font.pointSize: 8
+                            visible: root.batteryStatus.length > 0
+                            Behavior on color { CAnim {} }
+                        }
                     }
                 }
             }

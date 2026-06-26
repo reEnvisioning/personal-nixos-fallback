@@ -14,24 +14,36 @@ Item {
     property string idleStatus: "unknown"
     property string powerProfile: "--"
 
+    function dndText(): string {
+        return root.dndActive ? "Active" : "Off"
+    }
+
+    function dndColor(): color {
+        return root.dndActive ? root.colors.green : root.colors.red
+    }
+
     function idleText(): string {
-        if (root.idleStatus === "enabled") return "Enabled"
-        if (root.idleStatus === "disabled") return "Disabled"
+        if (root.idleStatus === "enabled") return "Active"
+        if (root.idleStatus === "disabled") return "Off"
         return "Unknown"
     }
 
-    function idleTextColor(): color {
+    function idleColor(): color {
         if (root.idleStatus === "enabled") return root.colors.green
-        if (root.idleStatus === "disabled") return root.colors.text
+        if (root.idleStatus === "disabled") return root.colors.red
         return root.colors.subtext0
     }
 
     function proxyText(): string {
         if (root.proxyStatus === "connected") return "Connected"
         if (root.proxyStatus === "pending") return "Pending"
-        if (root.proxyStatus === "offline") return "Offline"
-        if (root.proxyStatus === "disconnected") return "Disconnected"
-        return "Disabled"
+        return "Off"
+    }
+
+    function proxyColor(): color {
+        if (root.proxyStatus === "connected") return root.colors.green
+        if (root.proxyStatus === "pending") return root.colors.yellow
+        return root.colors.red
     }
 
     function refreshProfile(): void {
@@ -84,8 +96,8 @@ Item {
                         Behavior on color { CAnim {} }
                     }
                     Text {
-                        text: root.dndActive ? "Active" : "Inactive"
-                        color: root.dndActive ? root.colors.peach : root.colors.text
+                        text: root.dndText()
+                        color: root.dndColor()
                         font.pointSize: 9
                         Behavior on color { CAnim {} }
                     }
@@ -117,7 +129,7 @@ Item {
                     }
                     Text {
                         text: root.idleText()
-                        color: root.idleTextColor()
+                        color: root.idleColor()
                         font.pointSize: 9
                         Behavior on color { CAnim {} }
                     }
@@ -149,7 +161,7 @@ Item {
                     }
                     Text {
                         text: root.proxyText()
-                        color: root.proxyStatus === "connected" ? root.colors.green : root.colors.subtext0
+                        color: root.proxyColor()
                         font.pointSize: 9
                         Behavior on color { CAnim {} }
                     }
