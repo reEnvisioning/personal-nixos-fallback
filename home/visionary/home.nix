@@ -13,9 +13,9 @@
 
   programs.git = {
     enable = true;
-    userName = "reEnvisioning";
-    extraConfig = {
-      user.useConfigOnly = true;
+    settings = {
+      "user.name" = "reEnvisioning";
+      "user.useConfigOnly" = true;
     };
   };
 

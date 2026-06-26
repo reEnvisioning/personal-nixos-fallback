@@ -93,7 +93,7 @@ in {
   };
 
   home.activation = {
-    removeOldFirefoxFiles = lib.hm.dag.entryBefore ["writeBoundary"] ''
+    removeOldFirefoxFiles = lib.hm.dag.entryBefore ["checkLinkTargets"] ''
       ${builtins.concatStringsSep "\n" (map (name: ''
         f="${config.xdg.configHome}/mozilla/firefox/${name}/user.js"
         if [ -f "$f" ] && [ ! -L "$f" ]; then
