@@ -117,6 +117,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 Layout.rowSpan: 2
+                Layout.preferredWidth: Math.round(300)
                 radius: Math.round(8)
                 color: root.colors.borderInactive
                 Behavior on color { CAnim {} }
@@ -147,6 +148,8 @@ Item {
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                Layout.preferredWidth: Math.round(200)
+                Layout.preferredHeight: Math.round(60)
                 radius: Math.round(8)
                 color: root.colors.borderInactive
                 Behavior on color { CAnim {} }
@@ -178,6 +181,8 @@ Item {
             Rectangle {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
+                Layout.preferredWidth: Math.round(200)
+                Layout.preferredHeight: Math.round(30)
                 radius: Math.round(8)
                 color: root.colors.borderInactive
                 Behavior on color { CAnim {} }
