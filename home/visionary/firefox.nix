@@ -51,6 +51,7 @@ let
     "browser.ai.control.default" = "blocked";
     "browser.ml.enable" = false;
     "extensions.ml.enabled" = false;
+    "toolkit.legacyUserProfileCustomizations.stylesheets" = true;
   };
 
   profileNames = [ "default" "profile1" "profile2" ];
@@ -116,4 +117,12 @@ in {
       chmod +w "$ini"
     '';
   };
+
+  home.file = builtins.listToAttrs (map (name: {
+    name = "${config.xdg.configHome}/mozilla/firefox/${name}/chrome/userChrome.css";
+    value.text = ''
+      #TabsToolbar { visibility: collapse !important; }
+      #titlebar { visibility: collapse !important; }
+    '';
+  }) profileNames);
 }
