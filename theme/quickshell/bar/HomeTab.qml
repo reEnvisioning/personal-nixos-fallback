@@ -107,11 +107,11 @@ Item {
     ColumnLayout {
         anchors.fill: parent
         anchors.margins: Math.round(4)
-        spacing: Math.round(8)
+        spacing: Math.round(6)
 
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: Math.round(64)
+            Layout.preferredHeight: Math.round(56)
             radius: Math.round(8)
             color: root.colors.surface2
             Behavior on color { CAnim {} }
@@ -121,8 +121,8 @@ Item {
                 spacing: Math.round(12)
 
                 Rectangle {
-                    width: Math.round(48); height: Math.round(48)
-                    radius: Math.round(24)
+                    width: Math.round(40); height: Math.round(40)
+                    radius: Math.round(20)
                     clip: true
                     color: "transparent"
                     border.width: 2
@@ -131,8 +131,8 @@ Item {
 
                     Image {
                         anchors.centerIn: parent
-                        width: Math.round(44); height: Math.round(44)
-                        sourceSize { width: 44; height: 44 }
+                        width: Math.round(36); height: Math.round(36)
+                        sourceSize { width: 36; height: 36 }
                         source: root.userName ? "../user/" + root.userName + ".png" : ""
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
@@ -164,20 +164,20 @@ Item {
 
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: Math.round(80)
+            Layout.preferredHeight: Math.round(64)
             radius: Math.round(8)
             color: root.colors.surface2
             Behavior on color { CAnim {} }
 
             ColumnLayout {
                 anchors.centerIn: parent
-                spacing: Math.round(4)
+                spacing: Math.round(2)
 
                 Text {
                     Layout.alignment: Qt.AlignHCenter
                     text: root.timeString
                     color: root.colors.text
-                    font.pointSize: 28
+                    font.pointSize: 24
                     font.family: "Monospace"
                     font.weight: Font.Light
                     Behavior on color { CAnim {} }
@@ -187,7 +187,7 @@ Item {
                     Layout.alignment: Qt.AlignHCenter
                     text: root.dateString
                     color: root.colors.subtext0
-                    font.pointSize: 10
+                    font.pointSize: 9
                     Behavior on color { CAnim {} }
                 }
             }
@@ -195,7 +195,7 @@ Item {
 
         Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: Math.round(48)
+            Layout.preferredHeight: Math.round(40)
             radius: Math.round(8)
             color: root.colors.surface2
             Behavior on color { CAnim {} }
@@ -203,19 +203,19 @@ Item {
             ColumnLayout {
                 anchors.centerIn: parent
                 width: parent.width - Math.round(16)
-                spacing: Math.round(4)
+                spacing: Math.round(3)
 
                 Rectangle {
                     Layout.fillWidth: true
-                    height: Math.round(12)
-                    radius: Math.round(6)
+                    height: Math.round(10)
+                    radius: Math.round(5)
                     color: root.colors.overlay1
                     Behavior on color { CAnim {} }
 
                     Rectangle {
                         width: parent.width * (parseInt(root.batteryPct) || 0) / 100
                         height: parent.height
-                        radius: Math.round(6)
+                        radius: Math.round(5)
                         color: root.batteryColor()
                         Behavior on width { Anim { animType: "progress" } }
                         Behavior on color { CAnim {} }
@@ -228,7 +228,7 @@ Item {
                     Text {
                         text: root.batteryPct + "%"
                         color: root.colors.text
-                        font.pointSize: 10
+                        font.pointSize: 9
                         font.weight: Font.DemiBold
                         Behavior on color { CAnim {} }
                     }
@@ -238,7 +238,7 @@ Item {
                     Text {
                         text: root.batteryStatus
                         color: root.colors.subtext0
-                        font.pointSize: 9
+                        font.pointSize: 8
                         visible: root.batteryStatus.length > 0
                         Behavior on color { CAnim {} }
                     }

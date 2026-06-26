@@ -12,7 +12,7 @@ PanelWindow {
     required property real uiScale
 
     property real collapsedHeight: Math.round(2 * root.uiScale)
-    property real expandedHeight: Math.round([260, 180, 180][root.activeTab] * root.uiScale)
+    property real expandedHeight: Math.round((root.activeTab === 0 ? 240 : 180) * root.uiScale)
     property real panelWidth: Math.round(520 * root.uiScale)
     property bool isExpanded: false
     property int activeTab: 0
@@ -190,8 +190,8 @@ PanelWindow {
         onEntered: {
             autoCollapseTimer.stop()
             collapseTimer.stop()
-            root.isExpanded = true
             root.activeTab = Math.floor(mouseX / width * 3)
+            root.isExpanded = true
         }
 
         onPositionChanged: {
@@ -222,8 +222,8 @@ PanelWindow {
 
     function activateTab(index: int): void {
         if (index >= 0 && index <= 2) {
-            root.isExpanded = true
             root.activeTab = index
+            root.isExpanded = true
             autoCollapseTimer.restart()
         }
     }
