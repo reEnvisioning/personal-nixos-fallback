@@ -275,7 +275,7 @@ PanelWindow {
                 anchors.fill: parent
                 anchors.margins: Math.round(4 * root.uiScale)
                 radius: Math.round(8 * root.uiScale)
-                color: root.colors.surface2
+                color: root.colors.borderInactive
             }
 
             TextInput {
