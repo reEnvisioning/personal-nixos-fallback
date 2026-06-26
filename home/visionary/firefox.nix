@@ -93,13 +93,18 @@ in {
   };
 
   home.activation = {
-    removeOldFirefoxUserJs = lib.hm.dag.entryBefore ["writeBoundary"] ''
+    removeOldFirefoxFiles = lib.hm.dag.entryBefore ["writeBoundary"] ''
       ${builtins.concatStringsSep "\n" (map (name: ''
         f="${config.xdg.configHome}/mozilla/firefox/${name}/user.js"
         if [ -f "$f" ] && [ ! -L "$f" ]; then
           rm -f "$f"
         fi
       '') profileNames)}
+
+      ini="${config.xdg.configHome}/mozilla/firefox/profiles.ini"
+      if [ -f "$ini" ] && [ ! -L "$ini" ]; then
+        rm -f "$ini"
+      fi
     '';
 
     makeFirefoxProfilesIniWritable = lib.hm.dag.entryAfter ["writeBoundary"] ''
@@ -115,12 +120,5 @@ in {
       fi
       chmod +w "$ini"
     '';
-  };
-
-  home.file = builtins.listToAttrs (map (name: {
-    name = "${config.xdg.configHome}/mozilla/firefox/${name}/user.js";
-    value.force = true;
-  }) profileNames) // {
-    "${config.xdg.configHome}/mozilla/firefox/profiles.ini".force = true;
   };
 }
