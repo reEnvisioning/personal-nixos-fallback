@@ -27,9 +27,7 @@ Item {
 
     Process {
         id: infoReader
-        command: ["sh", "-c",
-            "echo host=$(hostname)"
-        ]
+        command: ["sh", "-c", "echo host=$(hostname)"]
         running: true
         stdout: StdioCollector {
             onStreamFinished: {
@@ -94,143 +92,102 @@ Item {
         onTriggered: root.refreshBattery()
     }
 
-    function batteryBarColor(): color {
-        const pct = parseInt(root.batteryPct)
-        if (isNaN(pct)) return root.colors.subtext0
-        if (pct <= 20) return root.colors.red
-        if (pct <= 50) return root.colors.yellow
-        return root.colors.green
-    }
-
-    Rectangle {
+    ColumnLayout {
         anchors.fill: parent
         anchors.margins: Math.round(4)
-        radius: Math.round(8)
-        color: root.colors.surface2
-        Behavior on color { CAnim {} }
+        spacing: Math.round(6)
 
         RowLayout {
-            anchors.fill: parent
-            anchors.margins: Math.round(8)
-            spacing: Math.round(8)
+            Layout.fillWidth: true
+            Layout.preferredHeight: Math.round(52)
+            spacing: Math.round(10)
+
+            Rectangle {
+                width: Math.round(40); height: Math.round(40)
+                radius: Math.round(20)
+                clip: true
+                color: "transparent"
+                border.width: 2
+                border.color: root.colors.accent
+                Behavior on border.color { CAnim {} }
+
+                Image {
+                    anchors.centerIn: parent
+                    width: Math.round(36); height: Math.round(36)
+                    sourceSize { width: 36; height: 36 }
+                    source: root.userName ? "../user/" + root.userName + ".png" : ""
+                    fillMode: Image.PreserveAspectCrop
+                    asynchronous: true
+                }
+            }
 
             ColumnLayout {
                 spacing: Math.round(2)
 
                 Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: root.timeString
+                    text: root.userName + "@" + (root.hostName.length > 0 ? root.hostName : "...")
                     color: root.colors.text
-                    font.pointSize: 20
-                    font.family: "Monospace"
-                    font.weight: Font.Light
+                    font.pointSize: 11
+                    font.weight: Font.DemiBold
+                    elide: Text.ElideRight
                     Behavior on color { CAnim {} }
                 }
 
                 Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: root.dateString
+                    text: root.colors.themeName
                     color: root.colors.subtext0
-                    font.pointSize: 8
+                    font.pointSize: 9
+                    elide: Text.ElideRight
                     Behavior on color { CAnim {} }
                 }
             }
 
             Item { Layout.fillWidth: true }
 
-            RowLayout {
-                spacing: Math.round(8)
+            Text {
+                text: root.batteryPct + "%"
+                color: root.colors.text
+                font.pointSize: 11
+                font.weight: Font.DemiBold
+                anchors.verticalCenter: parent.verticalCenter
+                Behavior on color { CAnim {} }
+            }
 
-                Rectangle {
-                    width: Math.round(40); height: Math.round(40)
-                    radius: Math.round(20)
-                    clip: true
-                    color: "transparent"
-                    border.width: 2
-                    border.color: root.colors.accent
-                    Behavior on border.color { CAnim {} }
-
-                    Image {
-                        anchors.centerIn: parent
-                        width: Math.round(36); height: Math.round(36)
-                        sourceSize { width: 36; height: 36 }
-                        source: root.userName ? "../user/" + root.userName + ".png" : ""
-                        fillMode: Image.PreserveAspectCrop
-                        asynchronous: true
-                    }
-                }
-
-                ColumnLayout {
-                    spacing: Math.round(2)
-
-                    Text {
-                        text: root.userName + "@" + (root.hostName.length > 0 ? root.hostName : "...")
-                        color: root.colors.text
-                        font.pointSize: 10
-                        font.weight: Font.DemiBold
-                        elide: Text.ElideRight
-                        Behavior on color { CAnim {} }
-                    }
-
-                    Text {
-                        text: root.colors.themeName
-                        color: root.colors.subtext0
-                        font.pointSize: 8
-                        elide: Text.ElideRight
-                        Behavior on color { CAnim {} }
-                    }
-                }
-
-                Rectangle {
-                    implicitWidth: Math.round(1)
-                    implicitHeight: parent.height
-                    color: root.colors.overlay1
-                    Behavior on color { CAnim {} }
-                }
-
-                ColumnLayout {
-                    spacing: Math.round(2)
-
-                    Rectangle {
-                        Layout.alignment: Qt.AlignHCenter
-                        implicitWidth: Math.round(80)
-                        height: Math.round(8)
-                        radius: Math.round(4)
-                        color: root.colors.overlay1
-                        Behavior on color { CAnim {} }
-
-                        Rectangle {
-                            width: parent.width * (parseInt(root.batteryPct) || 0) / 100
-                            height: parent.height
-                            radius: Math.round(4)
-                            color: root.batteryBarColor()
-                            Behavior on width { Anim { animType: "progress" } }
-                            Behavior on color { CAnim {} }
-                        }
-                    }
-
-                    RowLayout {
-                        Layout.alignment: Qt.AlignHCenter
-                        spacing: Math.round(4)
-
-                        Text {
-                            text: root.batteryPct + "%"
-                            color: root.colors.text
-                            font.pointSize: 9
-                            font.weight: Font.DemiBold
-                            Behavior on color { CAnim {} }
-                        }
-
-                        Text {
-                            text: root.batteryStatus
-                            color: root.colors.subtext0
-                            font.pointSize: 8
-                            visible: root.batteryStatus.length > 0
-                            Behavior on color { CAnim {} }
-                        }
-                    }
-                }
+            Text {
+                text: root.batteryStatus
+                color: root.colors.subtext0
+                font.pointSize: 9
+                visible: root.batteryStatus.length > 0
+                anchors.verticalCenter: parent.verticalCenter
+                Behavior on color { CAnim {} }
             }
         }
+
+        Item { Layout.fillWidth: true }
+
+        ColumnLayout {
+            Layout.alignment: Qt.AlignHCenter
+            spacing: Math.round(4)
+
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                text: root.timeString
+                color: root.colors.text
+                font.pointSize: 30
+                font.family: "Monospace"
+                font.weight: Font.Light
+                Behavior on color { CAnim {} }
+            }
+
+            Text {
+                Layout.alignment: Qt.AlignHCenter
+                text: root.dateString
+                color: root.colors.subtext0
+                font.pointSize: 10
+                Behavior on color { CAnim {} }
+            }
+        }
+
+        Item { Layout.fillWidth: true }
     }
 }

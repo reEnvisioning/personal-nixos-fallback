@@ -103,7 +103,7 @@ PanelWindow {
                 anchors.fill: parent
 
                 Repeater {
-                    model: ["Home", "States", "Monitor"]
+                    model: ["States", "Home", "Monitor"]
 
                     delegate: Item {
                         required property int index
