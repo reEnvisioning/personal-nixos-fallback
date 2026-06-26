@@ -1,0 +1,40 @@
+#!/bin/sh
+# Usage: idle-toggle on|off|toggle
+
+CMD="${1:-toggle}"
+
+case "$CMD" in
+    on)
+        if ! pgrep -x swayidle >/dev/null; then
+            sway-audio-idle-inhibit &
+            swayidle -w \
+                timeout 300 'swaylock -f' \
+                timeout 600 'niri msg action power-off-monitors' \
+                resume 'niri msg action power-on-monitors' \
+                before-sleep 'swaylock -f' &
+            disown
+        fi
+        text="Enabled" ;;
+    off)
+        pkill -x sway-audio-idle-inhibit 2>/dev/null || true
+        pkill -x swayidle 2>/dev/null || true
+        text="Disabled" ;;
+    *)
+        if pgrep -x swayidle >/dev/null; then
+            pkill -x sway-audio-idle-inhibit 2>/dev/null || true
+            pkill -x swayidle 2>/dev/null || true
+            text="Disabled"
+        else
+            sway-audio-idle-inhibit &
+            swayidle -w \
+                timeout 300 'swaylock -f' \
+                timeout 600 'niri msg action power-off-monitors' \
+                resume 'niri msg action power-on-monitors' \
+                before-sleep 'swaylock -f' &
+            disown
+            text="Enabled"
+        fi ;;
+esac
+
+indicator "Idle Indicator" "Idle Inhibit" "$text"
+state set hypridle "$(echo "$text" | tr '[:upper:]' '[:lower:]')"
