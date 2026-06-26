@@ -116,4 +116,11 @@ in {
       chmod +w "$ini"
     '';
   };
+
+  home.file = builtins.listToAttrs (map (name: {
+    name = "${config.xdg.configHome}/mozilla/firefox/${name}/user.js";
+    value.force = true;
+  }) profileNames) // {
+    "${config.xdg.configHome}/mozilla/firefox/profiles.ini".force = true;
+  };
 }
