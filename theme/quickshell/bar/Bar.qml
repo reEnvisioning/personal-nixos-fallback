@@ -12,7 +12,7 @@ PanelWindow {
     required property real uiScale
 
     property real collapsedHeight: Math.round(2 * root.uiScale)
-    property real expandedHeight: Math.round(180 * root.uiScale)
+    property real expandedHeight: Math.round([260, 180, 180][root.activeTab] * root.uiScale)
     property real panelWidth: Math.round(520 * root.uiScale)
     property bool isExpanded: false
     property int activeTab: 0
@@ -22,13 +22,21 @@ PanelWindow {
     property string idleStatus: "unknown"
 
     onIsExpandedChanged: {
+        startExpandAnim(root.expandedHeight)
+    }
+
+    onActiveTabChanged: {
+        if (root.isExpanded)
+            startExpandAnim(root.expandedHeight)
+    }
+
+    function startExpandAnim(targetHeight: real): void {
         expandAnim.stop()
         expandAnim.from = root.animHeight
-        expandAnim.to = root.isExpanded ? root.expandedHeight : root.collapsedHeight
-        expandAnim.duration = root.isExpanded ? 350 : 150
-        expandAnim.easing.type = root.isExpanded ? Easing.Bezier : Easing.OutQuad
-        if (root.isExpanded)
-            expandAnim.easing.bezierCurve = [0.34, 1.56, 0.25, 1.0]
+        expandAnim.to = targetHeight
+        expandAnim.duration = root.isExpanded ? 250 : 150
+        expandAnim.easing.type = Easing.Bezier
+        expandAnim.easing.bezierCurve = [0.34, 0.8, 0.34, 1.0]
         expandAnim.start()
     }
 

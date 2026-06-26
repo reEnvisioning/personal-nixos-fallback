@@ -14,17 +14,6 @@ Item {
     property string idleStatus: "unknown"
     property string powerProfile: "--"
 
-    function statusColor(status: string): color {
-        if (status === "connected" || status === "enabled") return root.colors.green
-        if (status === "pending") return root.colors.yellow
-        if (status === "offline" || status === "active") return root.colors.peach
-        return root.colors.subtext0
-    }
-
-    function indicatorColor(value: bool): color {
-        return value ? root.colors.peach : root.colors.subtext0
-    }
-
     function idleText(): string {
         if (root.idleStatus === "enabled") return "Enabled"
         if (root.idleStatus === "disabled") return "Disabled"
@@ -85,12 +74,6 @@ Item {
                 anchors.centerIn: parent
                 spacing: Math.round(8)
 
-                Rectangle {
-                    width: 8; height: 8; radius: 4
-                    color: root.indicatorColor(root.dndActive)
-                    Behavior on color { CAnim {} }
-                }
-
                 ColumnLayout {
                     spacing: 2
                     Text {
@@ -122,12 +105,6 @@ Item {
             RowLayout {
                 anchors.centerIn: parent
                 spacing: Math.round(8)
-
-                Rectangle {
-                    width: 8; height: 8; radius: 4
-                    color: root.statusColor(root.idleStatus)
-                    Behavior on color { CAnim {} }
-                }
 
                 ColumnLayout {
                     spacing: 2
@@ -161,12 +138,6 @@ Item {
                 anchors.centerIn: parent
                 spacing: Math.round(8)
 
-                Rectangle {
-                    width: 8; height: 8; radius: 4
-                    color: root.statusColor(root.proxyStatus)
-                    Behavior on color { CAnim {} }
-                }
-
                 ColumnLayout {
                     spacing: 2
                     Text {
@@ -178,7 +149,7 @@ Item {
                     }
                     Text {
                         text: root.proxyText()
-                        color: root.statusColor(root.proxyStatus)
+                        color: root.proxyStatus === "connected" ? root.colors.green : root.colors.subtext0
                         font.pointSize: 9
                         Behavior on color { CAnim {} }
                     }
