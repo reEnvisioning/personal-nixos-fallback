@@ -43,6 +43,7 @@
             name = u;
             value = {
               isNormalUser = true;
+              initialPassword = "changeme";
               extraGroups = [ "wheel" "networkmanager" "disk" "vboxusers" ];
             };
           }) usernames);
