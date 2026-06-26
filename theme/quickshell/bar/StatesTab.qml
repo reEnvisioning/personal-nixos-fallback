@@ -79,7 +79,7 @@ Item {
             Layout.fillWidth: true
             Layout.preferredHeight: Math.round(56)
             radius: Math.round(8)
-            color: root.colors.surface2
+            color: root.colors.borderInactive
             Behavior on color { CAnim {} }
 
             RowLayout {
@@ -111,7 +111,7 @@ Item {
             Layout.fillWidth: true
             Layout.preferredHeight: Math.round(56)
             radius: Math.round(8)
-            color: root.colors.surface2
+            color: root.colors.borderInactive
             Behavior on color { CAnim {} }
 
             RowLayout {
@@ -143,7 +143,7 @@ Item {
             Layout.fillWidth: true
             Layout.preferredHeight: Math.round(56)
             radius: Math.round(8)
-            color: root.colors.surface2
+            color: root.colors.borderInactive
             Behavior on color { CAnim {} }
 
             RowLayout {
@@ -175,7 +175,7 @@ Item {
             Layout.fillWidth: true
             Layout.preferredHeight: Math.round(56)
             radius: Math.round(8)
-            color: root.colors.surface2
+            color: root.colors.borderInactive
             Behavior on color { CAnim {} }
 
             RowLayout {

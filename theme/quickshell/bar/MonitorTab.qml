@@ -86,53 +86,119 @@ Item {
         }
     }
 
-    ColumnLayout {
-        anchors.centerIn: parent
-        spacing: 10
-        width: 200
+    GridLayout {
+        anchors.fill: parent
+        anchors.margins: Math.round(4)
+        columns: 2
+        rowSpacing: Math.round(6)
+        columnSpacing: Math.round(6)
 
-        RowLayout {
-            Layout.fillWidth: true; spacing: 4
-            Text { text: "Disk"; color: root.colors.subtext0; font.pointSize: 10 }
-            Item { Layout.fillWidth: true }
-            Text { text: root.diskUsed + " / " + root.diskTotal; color: root.colors.text; font.pointSize: 10 }
-        }
         Rectangle {
-            Layout.fillWidth: true; height: 8; radius: 4; color: root.colors.surface2
-            Rectangle {
-                width: parent.width * root.diskPct / 100; height: parent.height; radius: 4
-                color: root.colors.blue
-                Behavior on width { Anim { animType: "progress" } }
+            Layout.fillWidth: true
+            Layout.preferredHeight: Math.round(56)
+            radius: Math.round(8)
+            color: root.colors.borderInactive
+            Behavior on color { CAnim {} }
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: Math.round(8)
+                spacing: Math.round(4)
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 4
+                    Text { text: "Disk"; color: root.colors.subtext0; font.pointSize: 10; font.weight: Font.DemiBold }
+                    Item { Layout.fillWidth: true }
+                    Text { text: root.diskUsed + " / " + root.diskTotal; color: root.colors.text; font.pointSize: 10 }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 6
+                    radius: 3
+                    color: root.colors.surface2
+                    Rectangle {
+                        width: parent.width * root.diskPct / 100
+                        height: parent.height
+                        radius: 3
+                        color: root.colors.blue
+                        Behavior on width { Anim { animType: "progress" } }
+                    }
+                }
             }
         }
 
-        RowLayout {
-            Layout.fillWidth: true; spacing: 4
-            Text { text: "RAM"; color: root.colors.subtext0; font.pointSize: 10 }
-            Item { Layout.fillWidth: true }
-            Text { text: root.memUsed + " / " + root.memTotal; color: root.colors.text; font.pointSize: 10 }
-        }
         Rectangle {
-            Layout.fillWidth: true; height: 8; radius: 4; color: root.colors.surface2
-            Rectangle {
-                width: parent.width * root.memPct / 100; height: parent.height; radius: 4
-                color: root.colors.green
-                Behavior on width { Anim { animType: "progress" } }
+            Layout.fillWidth: true
+            Layout.preferredHeight: Math.round(56)
+            radius: Math.round(8)
+            color: root.colors.borderInactive
+            Behavior on color { CAnim {} }
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: Math.round(8)
+                spacing: Math.round(4)
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 4
+                    Text { text: "RAM"; color: root.colors.subtext0; font.pointSize: 10; font.weight: Font.DemiBold }
+                    Item { Layout.fillWidth: true }
+                    Text { text: root.memUsed + " / " + root.memTotal; color: root.colors.text; font.pointSize: 10 }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 6
+                    radius: 3
+                    color: root.colors.surface2
+                    Rectangle {
+                        width: parent.width * root.memPct / 100
+                        height: parent.height
+                        radius: 3
+                        color: root.colors.green
+                        Behavior on width { Anim { animType: "progress" } }
+                    }
+                }
             }
         }
 
-        RowLayout {
-            Layout.fillWidth: true; spacing: 4
-            Text { text: "CPU"; color: root.colors.subtext0; font.pointSize: 10 }
-            Item { Layout.fillWidth: true }
-            Text { text: root.cpuPct + "%"; color: root.colors.text; font.pointSize: 10 }
-        }
         Rectangle {
-            Layout.fillWidth: true; height: 8; radius: 4; color: root.colors.surface2
-            Rectangle {
-                width: parent.width * root.cpuPct / 100; height: parent.height; radius: 4
-                color: root.colors.magenta
-                Behavior on width { Anim { animType: "progress" } }
+            Layout.fillWidth: true
+            Layout.preferredHeight: Math.round(56)
+            Layout.columnSpan: 2
+            radius: Math.round(8)
+            color: root.colors.borderInactive
+            Behavior on color { CAnim {} }
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: Math.round(8)
+                spacing: Math.round(4)
+
+                RowLayout {
+                    Layout.fillWidth: true
+                    spacing: 4
+                    Text { text: "CPU"; color: root.colors.subtext0; font.pointSize: 10; font.weight: Font.DemiBold }
+                    Item { Layout.fillWidth: true }
+                    Text { text: root.cpuPct + "%"; color: root.colors.text; font.pointSize: 10 }
+                }
+
+                Rectangle {
+                    Layout.fillWidth: true
+                    height: 6
+                    radius: 3
+                    color: root.colors.surface2
+                    Rectangle {
+                        width: parent.width * root.cpuPct / 100
+                        height: parent.height
+                        radius: 3
+                        color: root.colors.magenta
+                        Behavior on width { Anim { animType: "progress" } }
+                    }
+                }
             }
         }
     }

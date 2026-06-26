@@ -145,22 +145,22 @@ PanelWindow {
                 anchors.bottom: parent.bottom
                 anchors.topMargin: Math.round(1 * root.uiScale)
 
-                HomeTab {
+                StatesTab {
                     anchors.fill: parent
                     anchors.margins: Math.round(8 * root.uiScale)
                     opacity: root.activeTab === 0 ? 1 : 0
                     colors: root.colors
+                    dndActive: root.dndActive
+                    proxyStatus: root.proxyStatus
+                    idleStatus: root.idleStatus
                     Behavior on opacity { Anim { animType: "effect" } }
                 }
 
-                StatesTab {
+                HomeTab {
                     anchors.fill: parent
                     anchors.margins: Math.round(8 * root.uiScale)
                     opacity: root.activeTab === 1 ? 1 : 0
                     colors: root.colors
-                    dndActive: root.dndActive
-                    proxyStatus: root.proxyStatus
-                    idleStatus: root.idleStatus
                     Behavior on opacity { Anim { animType: "effect" } }
                 }
 
