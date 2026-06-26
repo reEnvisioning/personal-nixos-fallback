@@ -11,6 +11,14 @@
     chmod 700 /home/${username}/.ssh/control
   '';
 
+  programs.git = {
+    enable = true;
+    userName = "reEnvisioning";
+    extraConfig = {
+      user.useConfigOnly = true;
+    };
+  };
+
   programs.home-manager.enable = true;
 
   home.packages = with pkgs; [
