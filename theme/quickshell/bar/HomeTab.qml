@@ -92,28 +92,40 @@ Item {
         onTriggered: root.refreshBattery()
     }
 
-    GridLayout {
+    ColumnLayout {
         anchors.fill: parent
         anchors.margins: Math.round(4)
-        columns: 2
-        rowSpacing: Math.round(6)
-        columnSpacing: Math.round(6)
+        spacing: Math.round(4)
 
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: Math.round(106)
-            Layout.rowSpan: 2
-            radius: Math.round(8)
-            color: root.colors.borderInactive
+        Text {
+            Layout.alignment: Qt.AlignHCenter
+            text: root.userName + "@" + (root.hostName.length > 0 ? root.hostName : "...")
+            color: root.colors.subtext0
+            font.pointSize: 10
+            font.weight: Font.DemiBold
             Behavior on color { CAnim {} }
+        }
 
-            RowLayout {
-                anchors.centerIn: parent
-                spacing: Math.round(10)
+        GridLayout {
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            columns: 2
+            rowSpacing: Math.round(6)
+            columnSpacing: Math.round(6)
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                Layout.rowSpan: 2
+                radius: Math.round(8)
+                color: root.colors.borderInactive
+                Behavior on color { CAnim {} }
 
                 Rectangle {
-                    width: Math.round(40); height: Math.round(40)
-                    radius: Math.round(20)
+                    anchors.centerIn: parent
+                    width: Math.round(80)
+                    height: Math.round(80)
+                    radius: Math.round(40)
                     clip: true
                     color: "transparent"
                     border.width: 2
@@ -122,95 +134,75 @@ Item {
 
                     Image {
                         anchors.centerIn: parent
-                        width: Math.round(36); height: Math.round(36)
-                        sourceSize { width: 36; height: 36 }
+                        width: Math.round(76)
+                        height: Math.round(76)
+                        sourceSize { width: 76; height: 76 }
                         source: root.userName ? "../user/" + root.userName + ".png" : ""
                         fillMode: Image.PreserveAspectCrop
                         asynchronous: true
                     }
                 }
+            }
+
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                radius: Math.round(8)
+                color: root.colors.borderInactive
+                Behavior on color { CAnim {} }
 
                 ColumnLayout {
-                    spacing: 3
+                    anchors.centerIn: parent
+                    spacing: Math.round(3)
+
                     Text {
-                        text: root.userName + "@" + (root.hostName.length > 0 ? root.hostName : "...")
+                        Layout.alignment: Qt.AlignHCenter
+                        text: root.timeString
                         color: root.colors.text
-                        font.pointSize: 12
-                        font.weight: Font.DemiBold
-                        elide: Text.ElideRight
+                        font.pointSize: 22
+                        font.family: "Monospace"
+                        font.weight: Font.Light
                         Behavior on color { CAnim {} }
                     }
+
                     Text {
-                        text: root.colors.themeName
+                        Layout.alignment: Qt.AlignHCenter
+                        text: root.dateString
                         color: root.colors.subtext0
-                        font.pointSize: 9
-                        elide: Text.ElideRight
+                        font.pointSize: 10
                         Behavior on color { CAnim {} }
                     }
                 }
-
-                Item { Layout.fillWidth: true }
             }
-        }
 
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: Math.round(40)
-            radius: Math.round(8)
-            color: root.colors.borderInactive
-            Behavior on color { CAnim {} }
+            Rectangle {
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+                radius: Math.round(8)
+                color: root.colors.borderInactive
+                Behavior on color { CAnim {} }
 
-            RowLayout {
-                anchors.centerIn: parent
-                spacing: Math.round(6)
+                RowLayout {
+                    anchors.centerIn: parent
+                    spacing: Math.round(6)
 
-                Text {
-                    text: root.batteryPct + "%"
-                    color: root.colors.text
-                    font.pointSize: 10
-                    font.weight: Font.DemiBold
-                    Behavior on color { CAnim {} }
-                }
+                    Text {
+                        text: root.batteryPct + "%"
+                        color: root.colors.text
+                        font.pointSize: 10
+                        font.weight: Font.DemiBold
+                        Behavior on color { CAnim {} }
+                    }
 
-                Text {
-                    text: root.batteryStatus
-                    color: root.colors.subtext0
-                    font.pointSize: 8
-                    visible: root.batteryStatus.length > 0
-                    Behavior on color { CAnim {} }
-                }
+                    Text {
+                        text: root.batteryStatus
+                        color: root.colors.subtext0
+                        font.pointSize: 8
+                        visible: root.batteryStatus.length > 0
+                        Behavior on color { CAnim {} }
+                    }
 
-                Item { Layout.fillWidth: true }
-            }
-        }
-
-        Rectangle {
-            Layout.fillWidth: true
-            Layout.preferredHeight: Math.round(60)
-            radius: Math.round(8)
-            color: root.colors.borderInactive
-            Behavior on color { CAnim {} }
-
-            ColumnLayout {
-                anchors.centerIn: parent
-                spacing: Math.round(3)
-
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: root.timeString
-                    color: root.colors.text
-                    font.pointSize: 22
-                    font.family: "Monospace"
-                    font.weight: Font.Light
-                    Behavior on color { CAnim {} }
-                }
-
-                Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: root.dateString
-                    color: root.colors.subtext0
-                    font.pointSize: 10
-                    Behavior on color { CAnim {} }
+                    Item { Layout.fillWidth: true }
                 }
             }
         }
