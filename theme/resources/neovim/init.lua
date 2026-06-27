@@ -20,7 +20,7 @@ vim.g.maplocalleader = ' '
 local _hostname = "panel"
 
 local function colors_path()
-  return (os.getenv("XDG_RUNTIME_DIR") or "/run/user/1000") .. "/" .. _hostname .. "-theme.json"
+  return os.getenv("XDG_RUNTIME_DIR") .. "/" .. _hostname .. "-theme.json"
 end
 
 local function read_colors()

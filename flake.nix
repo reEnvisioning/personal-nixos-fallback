@@ -10,22 +10,29 @@
       url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    disko = {
+      url = "github:nix-community/disko";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, ... }: let
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, ... }: let
     hostname = "headspace";
+    pc = "desktop";
     system = "x86_64-linux";
-    inputs = { inherit nixpkgs nixpkgs-unstable home-manager; };
+    gitUsername = "reEnvisioning";
+    inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko; };
     unstable = import nixpkgs-unstable {
       inherit system;
     };
 
     usernames = [ "visionary" ];
     primaryUser = builtins.head usernames;
-  in {
-    nixosConfigurations.${hostname} = inputs.nixpkgs.lib.nixosSystem {
+
+    mkSystem = { pc }: inputs.nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArgs = { inherit inputs hostname unstable; nixUsers = usernames; username = primaryUser; };
+      specialArgs = { inherit inputs hostname unstable gitUsername pc; nixUsers = usernames; username = primaryUser; };
       modules = [
         ./system/default.nix
         {
@@ -51,7 +58,7 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
 
-          home-manager.extraSpecialArgs = { inherit hostname unstable; };
+          home-manager.extraSpecialArgs = { inherit hostname unstable gitUsername pc; };
 
           home-manager.users = builtins.listToAttrs (map (u: {
             name = u;
@@ -72,18 +79,28 @@
         }
       ];
     };
+  in {
+    nixosConfigurations.headspace = mkSystem { pc = "desktop"; };
+    nixosConfigurations.usb = mkSystem { pc = "usb"; };
+
+    apps.x86_64-linux.disko = {
+      type = "app";
+      program = "${inputs.disko.packages.x86_64-linux.disko}/bin/disko";
+    };
 
     formatter.x86_64-linux = inputs.nixpkgs.legacyPackages.x86_64-linux.nixpkgs-fmt;
 
-    devShells.x86_64-linux = {
-      default = import ./devshells/default.nix { inherit inputs; };
-      python  = import ./devshells/python.nix { inherit inputs; };
-      rust    = import ./devshells/rust.nix { inherit inputs; };
-      web     = import ./devshells/web.nix { inherit inputs; };
+    devShells.x86_64-linux = let
+      pkgs = nixpkgs.legacyPackages.x86_64-linux;
+    in {
+      default = import ./devshells/default.nix { inherit pkgs; };
+      python  = import ./devshells/python.nix { inherit pkgs; };
+      rust    = import ./devshells/rust.nix { inherit pkgs; };
+      web     = import ./devshells/web.nix { inherit pkgs; };
     };
 
     checks.x86_64-linux = {
-      build = self.nixosConfigurations.${hostname}.config.system.build.toplevel;
+      build = self.nixosConfigurations.headspace.config.system.build.toplevel;
     };
   };
 }
