@@ -26,7 +26,7 @@ PanelWindow {
     implicitWidth: Math.round(1200 * root.uiScale)
     implicitHeight: notifColumn.height
 
-    color: "transparent"
+    color: Qt.rgba(0, 0, 0, 0)
     focusable: false
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
