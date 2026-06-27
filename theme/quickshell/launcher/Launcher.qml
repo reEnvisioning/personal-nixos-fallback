@@ -447,7 +447,9 @@ PanelWindow {
                 modelData: root.results[i],
                 selected: i === root.currentIndex,
                 colors: root.colors,
-                uiScale: root.uiScale
+                uiScale: root.uiScale,
+                launcher: root,
+                itemIndex: i
             })
         }
     }
@@ -459,5 +461,11 @@ PanelWindow {
                 child.selected = (i === root.currentIndex)
         }
         ensureVisible()
+    }
+
+    onActiveFocusItemChanged: {
+        if (!activeFocusItem && isOpen) {
+            close()
+        }
     }
 }

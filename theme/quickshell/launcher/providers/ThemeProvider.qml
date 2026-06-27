@@ -65,12 +65,28 @@ Item {
     }
 
     property Component itemComponent: Component {
-        Item {
+        MouseArea {
+            id: rootItem
             required property var modelData
             required property bool selected
             required property var colors
             required property real uiScale
+            property var launcher: null
+            property int itemIndex: -1
+
             height: Math.round(44 * uiScale)
+            hoverEnabled: true
+            onClicked: {
+                if (launcher && itemIndex >= 0) {
+                    launcher.currentIndex = itemIndex
+                    launcher.selectCurrent()
+                }
+            }
+            onEntered: {
+                if (launcher && itemIndex >= 0) {
+                    launcher.currentIndex = itemIndex
+                }
+            }
 
             Rectangle {
                 anchors.fill: parent
