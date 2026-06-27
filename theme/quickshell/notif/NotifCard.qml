@@ -50,15 +50,13 @@ Item {
     x: 0
     opacity: 0
     property real cardScale: 0.5
-    property real slideOffset: 40
 
     transform: [
-        Scale { origin.x: width; origin.y: 0; xScale: root.cardScale; yScale: root.cardScale },
-        Translate { x: root.slideOffset }
+        Scale { origin.x: width; origin.y: 0; xScale: root.cardScale; yScale: root.cardScale }
     ]
 
     Anim { id: cardScaleAnim; target: root; property: "cardScale" }
-    Anim { id: slideAnim; target: root; property: "slideOffset" }
+    Anim { id: slideAnim; target: root; property: "x" }
     Anim { id: opacityAnim; target: root; property: "opacity" }
 
     Component.onCompleted: {
@@ -106,7 +104,7 @@ Item {
         cardScaleAnim.start()
 
         slideAnim.stop()
-        slideAnim.from = root.slideOffset
+        slideAnim.from = root.x
         slideAnim.to = root.width * 1.2 * dir
         slideAnim.type = Anim.StandardAccel
         slideAnim.start()
@@ -169,7 +167,7 @@ Item {
             preventStealing: true
             cursorShape: root.notifActions.length > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
 
-            property real startX: 0
+            property point startScene: Qt.point(0, 0)
 
             onEntered: {
                 if (!root.actionInvoked)
@@ -185,7 +183,7 @@ Item {
                 cardScaleAnim.stop()
                 opacityAnim.stop()
                 dismissTimer.stop()
-                startX = event.x
+                startScene = mouseArea.mapToItem(null, event.x, event.y)
             }
 
             onReleased: event => {
@@ -194,7 +192,8 @@ Item {
                 if (!containsMouse)
                     dismissTimer.restart()
 
-                var dx = event.x - startX
+                var scene = mouseArea.mapToItem(null, event.x, event.y)
+                var dx = scene.x - startScene.x
                 if (Math.abs(dx) > root.width * 0.3) {
                     root.startExit(dx)
                 } else {
@@ -209,7 +208,7 @@ Item {
                     opacityAnim.type = Anim.EffectsDefault
                     opacityAnim.start()
                     slideAnim.stop()
-                    slideAnim.from = root.slideOffset
+                    slideAnim.from = root.x
                     slideAnim.to = 0
                     slideAnim.type = Anim.EmphasizedDecel
                     slideAnim.start()
@@ -219,9 +218,9 @@ Item {
             onPositionChanged: event => {
                 if (pressed && !root.dismissing) {
                     slideAnim.stop()
-                    var dx = event.x - startX
-                    root.slideOffset = dx
-                    var progress = Math.abs(dx) / (root.width * 0.7)
+                    var scene = mouseArea.mapToItem(null, event.x, event.y)
+                    root.x = scene.x - startScene.x
+                    var progress = Math.abs(scene.x - startScene.x) / (root.width * 0.7)
                     root.cardScale = 1 - progress * 0.2
                     root.opacity = Math.max(0.2, 1 - progress * 0.8)
                 }
