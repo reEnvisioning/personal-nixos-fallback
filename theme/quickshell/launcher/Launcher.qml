@@ -463,9 +463,12 @@ PanelWindow {
         ensureVisible()
     }
 
-    onActiveFocusItemChanged: {
-        if (!activeFocusItem && isOpen) {
-            close()
+    Connections {
+        target: Qt.application
+        function onStateChanged(state) {
+            if (state === Qt.ApplicationInactive && root.isOpen) {
+                root.close()
+            }
         }
     }
 }
