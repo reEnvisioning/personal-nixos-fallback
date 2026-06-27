@@ -129,18 +129,6 @@ Item {
         }
     }
 
-    // Stretch glow behind card
-    Rectangle {
-        anchors.right: parent.right
-        anchors.top: parent.top
-        width: parent.width * 1.3
-        height: parent.height * 1.3
-        radius: width * 0.5
-        color: Qt.rgba(1, 1, 1, 0.035)
-        opacity: root.opacity * 0.5
-        visible: opacity > 0.01
-    }
-
     Rectangle {
         id: card
         width: parent.width
