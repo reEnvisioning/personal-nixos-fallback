@@ -23,10 +23,10 @@ PanelWindow {
     anchors.right: true
     margins { top: Math.round(8 * root.uiScale); right: 0 }
 
-    implicitWidth: Math.round(1200 * root.uiScale)
+    implicitWidth: Math.round(880 * root.uiScale)
     implicitHeight: notifColumn.height
 
-    color: Qt.rgba(0, 0, 0, 0)
+    color: "transparent"
     focusable: false
     WlrLayershell.layer: WlrLayer.Overlay
     WlrLayershell.exclusionMode: ExclusionMode.Ignore
