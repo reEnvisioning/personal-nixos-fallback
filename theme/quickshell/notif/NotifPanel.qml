@@ -21,9 +21,9 @@ PanelWindow {
 
     anchors.top: true
     anchors.right: true
-    margins { top: Math.round(8 * root.uiScale); right: Math.round(8 * root.uiScale) }
+    margins { top: Math.round(8 * root.uiScale); right: 0 }
 
-    implicitWidth: Math.round(380 * root.uiScale)
+    implicitWidth: Math.round(1200 * root.uiScale)
     implicitHeight: notifColumn.height
 
     color: "transparent"
@@ -34,7 +34,9 @@ PanelWindow {
 
     Column {
         id: notifColumn
-        width: parent.width
+        width: Math.round(380 * root.uiScale)
+        anchors.right: parent.right
+        anchors.rightMargin: Math.round(8 * root.uiScale)
         spacing: Math.round(6 * root.uiScale)
     }
 
