@@ -15,6 +15,7 @@ Item {
     property bool dismissing: false
     property bool isReusable: false
     property bool reused: false
+    property bool _invokingAction: false
 
     function updateFrom(notification) {
         reused = true
@@ -54,7 +55,6 @@ Item {
         Translate { x: root.slideOffset }
     ]
 
-    Anim { id: animX; target: root; property: "x" }
     Anim { id: cardScaleAnim; target: root; property: "cardScale" }
     Anim { id: slideAnim; target: root; property: "slideOffset" }
     Anim { id: opacityAnim; target: root; property: "opacity" }
@@ -93,7 +93,7 @@ Item {
 
     Connections {
         target: root.notif
-        function onClosed() { if (!root.reused) root.startExit() }
+        function onClosed() { if (!root.reused && !root._invokingAction) root.startExit() }
     }
 
     function startExit() {
@@ -166,7 +166,6 @@ Item {
             id: swipeArea
             anchors.fill: parent
             hoverEnabled: true
-            acceptedButtons: Qt.LeftButton | Qt.MiddleButton
 
             property real startX: 0
 
@@ -179,8 +178,6 @@ Item {
             onPressed: event => {
                 dismissTimer.stop()
                 startX = event.x
-                if (event.button === Qt.MiddleButton)
-                    root.startExit()
             }
 
             onReleased: event => {
@@ -189,33 +186,46 @@ Item {
                 if (!containsMouse)
                     dismissTimer.restart()
 
-                if (Math.abs(root.x) < root.implicitWidth * 0.3) {
-                    root.opacity = 1
-                    animX.stop()
-                    animX.from = root.x
-                    animX.to = 0
-                    animX.type = Anim.EmphasizedDecel
-                    animX.start()
-                } else {
+                var dx = event.x - startX
+                if (Math.abs(dx) > root.implicitWidth * 0.3) {
                     root.startExit()
+                } else {
+                    cardScaleAnim.stop()
+                    cardScaleAnim.from = root.cardScale
+                    cardScaleAnim.to = 1.0
+                    cardScaleAnim.type = Anim.EmphasizedDecel
+                    cardScaleAnim.start()
+                    opacityAnim.stop()
+                    opacityAnim.from = root.opacity
+                    opacityAnim.to = 1
+                    opacityAnim.type = Anim.EffectsDefault
+                    opacityAnim.start()
                 }
             }
 
             onPositionChanged: event => {
                 if (pressed && !root.dismissing) {
                     var dx = event.x - startX
-                    root.x = dx
                     var progress = Math.abs(dx) / (root.implicitWidth * 0.7)
-                    root.opacity = Math.max(0, 1 - progress)
+                    root.cardScale = 1 - progress * 0.2
+                    root.opacity = Math.max(0.2, 1 - progress * 0.8)
                 }
             }
 
-            onClicked: event => {
-                if (event.button !== Qt.LeftButton || root.dismissing) return
+            onClicked: {
+                if (root.dismissing) return
                 if (root.notifActions.length === 1) {
+                    root._invokingAction = true
                     try { root.notifActions[0].invoke() } catch (e) {}
+                    root._invokingAction = false
                 }
             }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            acceptedButtons: Qt.MiddleButton
+            onClicked: root.startExit()
         }
 
         ColumnLayout {
@@ -265,7 +275,7 @@ Item {
             Row {
                 Layout.fillWidth: true
                 spacing: 6
-                visible: false
+                visible: root.notifActions.length > 0
                 layoutDirection: Qt.RightToLeft
 
                 Repeater {
