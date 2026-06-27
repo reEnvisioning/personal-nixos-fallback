@@ -20,6 +20,8 @@ PanelWindow {
     property real desiredHeight: 0
     property real animHeight: 0
     property real slideX: 0
+    property real cornerScaleAnim: 1.0
+    property real glowAlpha: 0
     implicitWidth: Math.round(380 * root.uiScale)
     implicitHeight: root.animHeight
     visible: root.animHeight > 0
@@ -38,30 +40,49 @@ PanelWindow {
             root.searchText = ""
             root.currentIndex = 0
             root.desiredHeight = root.computeDesiredHeight()
+            heightAnim.stop()
             heightAnim.from = 0
             heightAnim.to = root.desiredHeight
-            heightAnim.duration = 300
-            heightAnim.easing.type = Easing.Bezier
-            heightAnim.easing.bezierCurve = [0.34, 1.56, 0.25, 1.0]
+            heightAnim.type = Anim.SpatialDefault
             heightAnim.start()
+            slideAnim.stop()
             slideAnim.from = -Math.round(30 * root.uiScale)
             slideAnim.to = 0
-            slideAnim.duration = 250
-            slideAnim.easing.type = Easing.Bezier
-            slideAnim.easing.bezierCurve = [0.34, 0.8, 0.34, 1.0]
+            slideAnim.type = Anim.EffectsDefault
             slideAnim.start()
+            cornerAnim.stop()
+            cornerAnim.from = 0.92
+            cornerAnim.to = 1.0
+            cornerAnim.type = Anim.SpatialDefault
+            cornerAnim.start()
+            glowAnim.stop()
+            glowAnim.from = 0
+            glowAnim.to = 1
+            glowAnim.type = Anim.EffectsDefault
+            glowAnim.start()
         } else {
             heightAnim.stop()
             heightAnim.from = root.animHeight
             heightAnim.to = 0
-            heightAnim.duration = 150
-            heightAnim.easing.type = Easing.OutQuad
+            heightAnim.type = Anim.StandardAccel
             heightAnim.start()
+            cornerAnim.stop()
+            cornerAnim.from = root.cornerScaleAnim
+            cornerAnim.to = 1.0
+            cornerAnim.type = Anim.StandardAccel
+            cornerAnim.start()
+            glowAnim.stop()
+            glowAnim.from = root.glowAlpha
+            glowAnim.to = 0
+            glowAnim.type = Anim.EffectsFast
+            glowAnim.start()
         }
     }
 
-    NumberAnimation { id: heightAnim; target: root; property: "animHeight" }
-    NumberAnimation { id: slideAnim; target: root; property: "slideX" }
+    Anim { id: heightAnim; target: root; property: "animHeight"; type: Anim.SpatialDefault }
+    Anim { id: slideAnim; target: root; property: "slideX"; type: Anim.EffectsDefault }
+    Anim { id: cornerAnim; target: root; property: "cornerScaleAnim"; type: Anim.SpatialDefault }
+    Anim { id: glowAnim; target: root; property: "glowAlpha"; type: Anim.EffectsDefault }
 
     Timer {
         id: idleTimer
@@ -70,9 +91,27 @@ PanelWindow {
     }
 
     Rectangle {
+        anchors.horizontalCenter: parent.horizontalCenter
+        anchors.bottom: parent.bottom
+        width: parent.width * (1.15 + root.glowAlpha * 0.3)
+        height: parent.height * 1.1
+        radius: width * 0.5
+        color: Qt.rgba(1, 1, 1, 0.03 * root.glowAlpha)
+        visible: root.glowAlpha > 0.01
+    }
+
+    Rectangle {
         anchors.fill: parent
         radius: Math.round(12 * root.uiScale)
         color: root.colors.background
+
+        transform: Scale {
+            origin.x: 0
+            origin.y: parent.height
+            xScale: root.cornerScaleAnim
+            yScale: root.cornerScaleAnim
+        }
+
         Behavior on color { CAnim {} }
     }
 

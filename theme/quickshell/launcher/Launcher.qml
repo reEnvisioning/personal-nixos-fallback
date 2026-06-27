@@ -18,6 +18,9 @@ PanelWindow {
     property real fullHeight: Math.round(500 * root.uiScale)
     property bool isOpen: false
     property real animHeight: 0
+    property real widthScaleAnim: 1.0
+    property real contentOpacity: 0
+    property real glowAlpha: 0
     property bool _pendingCleanup: false
     property var _pendingActivate: null
 
@@ -73,11 +76,10 @@ PanelWindow {
         right: Math.round((root.screen.width - root.panelWidth) / 2)
     }
 
-    NumberAnimation {
-        id: heightAnim
-        target: root
-        property: "animHeight"
-    }
+    Anim { id: heightAnim; target: root; property: "animHeight"; type: Anim.SpatialDefault }
+    Anim { id: widthAnim; target: root; property: "widthScaleAnim"; type: Anim.SpatialDefault }
+    Anim { id: contentFadeAnim; target: root; property: "contentOpacity"; type: Anim.EffectsDefault }
+    Anim { id: glowAnim; target: root; property: "glowAlpha"; type: Anim.EffectsDefault }
 
     Connections {
         target: heightAnim
@@ -90,16 +92,49 @@ PanelWindow {
         }
     }
 
-    function animateTo(h, dur, curve) {
+    function animateTo(h, type) {
         if (h === heightAnim.to && heightAnim.running) return
         heightAnim.stop()
         heightAnim.from = root.animHeight
         heightAnim.to = h
-        heightAnim.duration = dur
-        heightAnim.easing.type = Easing.Bezier
-        heightAnim.easing.bezierCurve = curve || [0.34, 0.8, 0.34, 1.0]
+        heightAnim.type = type
         heightAnim.start()
     }
+
+    function animateWidthTo(from, to, type) {
+        widthAnim.stop()
+        widthAnim.from = from
+        widthAnim.to = to
+        widthAnim.type = type
+        widthAnim.start()
+    }
+
+    function animateGlowTo(to, type) {
+        glowAnim.stop()
+        glowAnim.from = root.glowAlpha
+        glowAnim.to = to
+        glowAnim.type = type
+        glowAnim.start()
+    }
+
+    function animateContentTo(to, type, delay) {
+        contentFadeAnim.stop()
+        contentFadeAnim.from = root.contentOpacity
+        contentFadeAnim.to = to
+        contentFadeAnim.type = type
+        if (delay > 0) {
+            restartTimer.interval = delay
+            restartTimer.triggered.connect(function() {
+                contentFadeAnim.start()
+                restartTimer.triggered.disconnect(arguments.callee)
+            })
+            restartTimer.start()
+        } else {
+            contentFadeAnim.start()
+        }
+    }
+
+    Timer { id: restartTimer }
 
     function computeMaxListHeight() {
         return Math.round(root.screen.height / 3) - root.inputHeight - Math.round(13 * root.uiScale)
@@ -131,7 +166,10 @@ PanelWindow {
         root.currentIndex = 0
         root._pendingCleanup = false
         rebuildItems()
-        animateTo(0, 400, [0.3, 0, 1, 1, 1, 1])
+        animateTo(0, Anim.StandardAccel)
+        animateWidthTo(root.widthScaleAnim, 1.0, Anim.StandardAccel)
+        animateGlowTo(0, Anim.EffectsFast)
+        animateContentTo(0, Anim.EffectsFast, 0)
     }
 
     function resetState() {
@@ -143,7 +181,11 @@ PanelWindow {
         root.currentIndex = 0
         inputField.text = ""
         rebuildItems()
-        animateTo(root.inputHeight + root.computeListHeight(), 500, [0.38, 1.21, 0.22, 1.0])
+        var targetH = root.inputHeight + root.computeListHeight()
+        animateTo(targetH, Anim.SpatialDefault)
+        animateWidthTo(0.92, 1.0, Anim.SpatialDefault)
+        animateGlowTo(1, Anim.EffectsDefault)
+        animateContentTo(1, Anim.EffectsSlow, 300)
     }
 
     function processInput(text) {
@@ -178,7 +220,7 @@ PanelWindow {
     function updateTargetHeight() {
         var h = root.inputHeight + root.computeListHeight()
         if (h === root.animHeight) return
-        animateTo(h, 600, [0.05, 0.7, 0.1, 1, 1, 1])
+        animateTo(h, Anim.EmphasizedDecel)
     }
 
     function selectCurrent() {
@@ -222,9 +264,26 @@ PanelWindow {
         clip: true
 
         Rectangle {
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.bottom: parent.bottom
+            width: parent.width * (1.2 + root.glowAlpha * 0.3)
+            height: parent.height * 1.2
+            radius: width * 0.5
+            color: Qt.rgba(1, 1, 1, 0.03 * root.glowAlpha)
+            visible: root.glowAlpha > 0.01
+        }
+
+        Rectangle {
             anchors.fill: parent
             radius: Math.round(12 * root.uiScale)
             color: root.colors.background
+
+            transform: Scale {
+                origin.y: parent.height
+                origin.x: root.panelWidth / 2
+                xScale: root.widthScaleAnim
+            }
+
             Behavior on color { CAnim {} }
         }
 
@@ -237,6 +296,7 @@ PanelWindow {
             anchors.bottom: inputBar.top
             anchors.bottomMargin: Math.round(1 * root.uiScale)
             clip: true
+            opacity: root.contentOpacity
 
             Text {
                 anchors.centerIn: parent
@@ -270,6 +330,7 @@ PanelWindow {
             anchors.right: parent.right
             anchors.bottom: parent.bottom
             height: root.inputHeight
+            opacity: root.contentOpacity
 
             Rectangle {
                 anchors.fill: parent

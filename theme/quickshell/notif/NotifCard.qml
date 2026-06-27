@@ -44,27 +44,38 @@ Item {
     width: parent ? parent.width : 380
     height: card.height
 
-    x: parent ? parent.width : Math.round(380 * root.uiScale)
+    x: 0
     opacity: 0
+    property real cardScale: 0.5
+    property real slideOffset: 40
 
-    Behavior on x {
-        NumberAnimation {
-            duration: 300
-            easing.type: Easing.Bezier
-            easing.bezierCurve: [0.34, 1.56, 0.25, 1.0]
-        }
-    }
-    Behavior on opacity {
-        NumberAnimation {
-            duration: 200
-            easing.type: Easing.Bezier
-            easing.bezierCurve: [0.34, 0.8, 0.34, 1.0]
-        }
-    }
+    transform: [
+        Scale { origin.x: width; origin.y: 0; xScale: root.cardScale; yScale: root.cardScale },
+        Translate { x: root.slideOffset }
+    ]
+
+    Anim { id: cardScaleAnim; target: root; property: "cardScale" }
+    Anim { id: slideAnim; target: root; property: "slideOffset" }
+    Anim { id: opacityAnim; target: root; property: "opacity" }
 
     Component.onCompleted: {
-        x = 0
-        opacity = 1
+        cardScaleAnim.stop()
+        cardScaleAnim.from = 0.5
+        cardScaleAnim.to = 1.0
+        cardScaleAnim.type = Anim.Emphasized
+        cardScaleAnim.start()
+
+        slideAnim.stop()
+        slideAnim.from = 40
+        slideAnim.to = 0
+        slideAnim.type = Anim.SpatialDefault
+        slideAnim.start()
+
+        opacityAnim.stop()
+        opacityAnim.from = 0
+        opacityAnim.to = 1
+        opacityAnim.type = Anim.EffectsSlow
+        opacityAnim.start()
         try {
             var n = root.notif
             notifSummary = n.summary || ""
@@ -87,18 +98,48 @@ Item {
     function startExit() {
         if (root.dismissing) return
         root.dismissing = true
-        height = 0
-        visible = false
-        x = Math.round(380 * root.uiScale)
-        opacity = 0
-        hideTimer.start()
+
+        cardScaleAnim.stop()
+        cardScaleAnim.from = root.cardScale
+        cardScaleAnim.to = 0.7
+        cardScaleAnim.type = Anim.StandardAccel
+        cardScaleAnim.start()
+
+        slideAnim.stop()
+        slideAnim.from = root.slideOffset
+        slideAnim.to = 80
+        slideAnim.type = Anim.StandardAccel
+        slideAnim.start()
+
+        opacityAnim.stop()
+        opacityAnim.from = 1
+        opacityAnim.to = 0
+        opacityAnim.type = Anim.StandardAccel
+        opacityAnim.start()
+
+        exitTimer.start()
         try { root.notif.dismiss() } catch (e) {}
     }
 
     Timer {
-        id: hideTimer
-        interval: 350
-        onTriggered: root.dismissed()
+        id: exitTimer
+        interval: 500
+        onTriggered: {
+            root.visible = false
+            root.dismissed()
+        }
+    }
+
+    // Stretch glow behind card
+    Rectangle {
+        anchors.right: parent.right
+        anchors.top: parent.top
+        width: parent.width * 1.3
+        height: parent.height * 1.3
+        radius: width * 0.5
+        color: Qt.rgba(1, 1, 1, 0.035)
+        opacity: root.opacity * 0.5
+        visible: opacity > 0.01
     }
 
     Rectangle {
@@ -117,7 +158,7 @@ Item {
             radius: Math.round(12 * root.uiScale)
             color: root.colors.red
             opacity: root.notifUrgency === 2 ? 0.08 : 0
-            Behavior on opacity { NumberAnimation { duration: 200 } }
+            Behavior on opacity { Anim { type: Anim.EffectsDefault } }
         }
 
         ColumnLayout {

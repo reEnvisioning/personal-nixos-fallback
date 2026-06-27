@@ -16,7 +16,13 @@ PanelWindow {
     property real panelWidth: Math.round(520 * root.uiScale)
     property bool isExpanded: false
     property int activeTab: 0
+    property int _prevTab: 0
     property real animHeight: root.collapsedHeight
+    property real widthScaleAnim: 1.0
+    property real glowAlpha: 0
+    property real tab0Slide: 0
+    property real tab1Slide: 0
+    property real tab2Slide: 0
     property bool dndActive: false
     property string proxyStatus: "disabled"
     property string idleStatus: "unknown"
@@ -25,18 +31,59 @@ PanelWindow {
         expandAnim.stop()
         expandAnim.from = root.animHeight
         expandAnim.to = root.isExpanded ? root.expandedHeight : root.collapsedHeight
-        expandAnim.duration = root.isExpanded ? 350 : 150
-        expandAnim.easing.type = root.isExpanded ? Easing.Bezier : Easing.OutQuad
-        if (root.isExpanded)
-            expandAnim.easing.bezierCurve = [0.34, 1.56, 0.25, 1.0]
+        expandAnim.type = root.isExpanded ? Anim.SpatialDefault : Anim.SpatialFast
         expandAnim.start()
+
+        widthTaperAnim.stop()
+        if (root.isExpanded) {
+            widthTaperAnim.from = 0.92
+            widthTaperAnim.to = 1.0
+            widthTaperAnim.type = Anim.SpatialDefault
+        } else {
+            widthTaperAnim.from = root.widthScaleAnim
+            widthTaperAnim.to = 1.0
+            widthTaperAnim.type = Anim.StandardAccel
+        }
+        widthTaperAnim.start()
+
+        glowAnim.stop()
+        glowAnim.from = root.glowAlpha
+        glowAnim.to = root.isExpanded ? 1 : 0
+        glowAnim.type = root.isExpanded ? Anim.EffectsDefault : Anim.EffectsFast
+        glowAnim.start()
     }
 
-    NumberAnimation {
-        id: expandAnim
-        target: root
-        property: "animHeight"
+    onActiveTabChanged: {
+        if (root.activeTab !== root._prevTab) {
+            var dir = root.activeTab > root._prevTab ? 1 : -1
+            var offset = Math.round(20 * root.uiScale)
+
+            var oldTab = root._prevTab
+            var oldAnims = [tab0SlideAnim, tab1SlideAnim, tab2SlideAnim]
+            oldAnims[oldTab].stop()
+            oldAnims[oldTab].from = 0
+            oldAnims[oldTab].to = -dir * offset
+            oldAnims[oldTab].type = Anim.EffectsFast
+            oldAnims[oldTab].start()
+
+            var newTab = root.activeTab
+            var newAnims = [tab0SlideAnim, tab1SlideAnim, tab2SlideAnim]
+            newAnims[newTab].stop()
+            newAnims[newTab].from = dir * offset
+            newAnims[newTab].to = 0
+            newAnims[newTab].type = Anim.EmphasizedDecel
+            newAnims[newTab].start()
+
+            root._prevTab = root.activeTab
+        }
     }
+
+    Anim { id: expandAnim; target: root; property: "animHeight"; type: Anim.SpatialDefault }
+    Anim { id: widthTaperAnim; target: root; property: "widthScaleAnim"; type: Anim.SpatialDefault }
+    Anim { id: glowAnim; target: root; property: "glowAlpha"; type: Anim.EffectsDefault }
+    Anim { id: tab0SlideAnim; target: root; property: "tab0Slide"; type: Anim.EmphasizedDecel }
+    Anim { id: tab1SlideAnim; target: root; property: "tab1Slide"; type: Anim.EmphasizedDecel }
+    Anim { id: tab2SlideAnim; target: root; property: "tab2Slide"; type: Anim.EmphasizedDecel }
 
     anchors.top: true
     anchors.left: true
@@ -53,12 +100,27 @@ PanelWindow {
     implicitHeight: root.animHeight
 
     Rectangle {
+        anchors.horizontalCenter: parent.horizontalCenter
+        y: 0
+        width: parent.width * (1.2 + root.glowAlpha * 0.4)
+        height: parent.height * 1.5 + Math.round(12 * root.uiScale)
+        radius: width * 0.5
+        color: Qt.rgba(1, 1, 1, 0.035 * root.glowAlpha)
+        visible: root.glowAlpha > 0.01
+    }
+
+    Rectangle {
         id: bg
         y: Math.round(-12 * root.uiScale)
         width: parent.width
         height: parent.height + Math.round(12 * root.uiScale)
         radius: Math.round(12 * root.uiScale)
         color: root.colors.background
+
+        transform: Scale {
+            origin.x: root.panelWidth / 2
+            xScale: root.widthScaleAnim
+        }
 
         Behavior on color {
             CAnim {}
@@ -89,13 +151,7 @@ PanelWindow {
                 readonly property real tabW: parent.width / 3
                 x: root.activeTab * tabW + (tabW - width) / 2
 
-                Behavior on x {
-                    NumberAnimation {
-                        duration: 250
-                        easing.type: Easing.Bezier
-                        easing.bezierCurve: [0.38, 1.21, 0.22, 1.0]
-                    }
-                }
+                Behavior on x { Anim { type: Anim.SpatialFast } }
                 Behavior on color { CAnim {} }
             }
 
@@ -130,48 +186,51 @@ PanelWindow {
             }
         }
 
-            Rectangle {
-                anchors.top: tabRow.bottom
-                anchors.left: parent.left
-                anchors.right: parent.right
-                height: Math.round(1 * root.uiScale)
-                color: root.colors.surface2
+        Rectangle {
+            anchors.top: tabRow.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: Math.round(1 * root.uiScale)
+            color: root.colors.surface2
+        }
+
+        Item {
+            anchors.top: tabRow.bottom
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            anchors.topMargin: Math.round(1 * root.uiScale)
+
+            StatesTab {
+                anchors.fill: parent
+                anchors.margins: Math.round(8 * root.uiScale)
+                opacity: root.activeTab === 0 ? 1 : 0
+                colors: root.colors
+                dndActive: root.dndActive
+                proxyStatus: root.proxyStatus
+                idleStatus: root.idleStatus
+                transform: Translate { x: root.tab0Slide }
+                Behavior on opacity { Anim { type: Anim.EffectsDefault } }
             }
 
-            Item {
-                anchors.top: tabRow.bottom
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.bottom: parent.bottom
-                anchors.topMargin: Math.round(1 * root.uiScale)
-
-                StatesTab {
-                    anchors.fill: parent
-                    anchors.margins: Math.round(8 * root.uiScale)
-                    opacity: root.activeTab === 0 ? 1 : 0
-                    colors: root.colors
-                    dndActive: root.dndActive
-                    proxyStatus: root.proxyStatus
-                    idleStatus: root.idleStatus
-                    Behavior on opacity { Anim { animType: "effect" } }
-                }
-
-                HomeTab {
-                    anchors.fill: parent
-                    anchors.margins: Math.round(8 * root.uiScale)
-                    opacity: root.activeTab === 1 ? 1 : 0
-                    colors: root.colors
-                    Behavior on opacity { Anim { animType: "effect" } }
-                }
-
-                MonitorTab {
-                    anchors.fill: parent
-                    anchors.margins: Math.round(8 * root.uiScale)
-                    opacity: root.activeTab === 2 ? 1 : 0
-                    colors: root.colors
-                    Behavior on opacity { Anim { animType: "effect" } }
-                }
+            HomeTab {
+                anchors.fill: parent
+                anchors.margins: Math.round(8 * root.uiScale)
+                opacity: root.activeTab === 1 ? 1 : 0
+                colors: root.colors
+                transform: Translate { x: root.tab1Slide }
+                Behavior on opacity { Anim { type: Anim.EffectsDefault } }
             }
+
+            MonitorTab {
+                anchors.fill: parent
+                anchors.margins: Math.round(8 * root.uiScale)
+                opacity: root.activeTab === 2 ? 1 : 0
+                colors: root.colors
+                transform: Translate { x: root.tab2Slide }
+                Behavior on opacity { Anim { type: Anim.EffectsDefault } }
+            }
+        }
     }
 
     MouseArea {

@@ -123,7 +123,7 @@ Item {
                         height: parent.height
                         radius: 3
                         color: root.colors.blue
-                        Behavior on width { Anim { animType: "progress" } }
+                        Behavior on width { Anim { type: Anim.Progress } }
                     }
                 }
             }
@@ -159,7 +159,7 @@ Item {
                         height: parent.height
                         radius: 3
                         color: root.colors.green
-                        Behavior on width { Anim { animType: "progress" } }
+                        Behavior on width { Anim { type: Anim.Progress } }
                     }
                 }
             }
@@ -196,7 +196,7 @@ Item {
                         height: parent.height
                         radius: 3
                         color: root.colors.magenta
-                        Behavior on width { Anim { animType: "progress" } }
+                        Behavior on width { Anim { type: Anim.Progress } }
                     }
                 }
             }
