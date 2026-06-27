@@ -45,7 +45,6 @@ Item {
     height: card.height
 
     x: 0
-    Behavior on x { Anim { type: Anim.EmphasizedDecel } }
     opacity: 0
     property real cardScale: 0.5
     property real slideOffset: 40
@@ -55,6 +54,7 @@ Item {
         Translate { x: root.slideOffset }
     ]
 
+    Anim { id: animX; target: root; property: "x" }
     Anim { id: cardScaleAnim; target: root; property: "cardScale" }
     Anim { id: slideAnim; target: root; property: "slideOffset" }
     Anim { id: opacityAnim; target: root; property: "opacity" }
@@ -167,8 +167,8 @@ Item {
             anchors.fill: parent
             hoverEnabled: true
             acceptedButtons: Qt.LeftButton | Qt.MiddleButton
-            drag.target: root
-            drag.axis: Drag.XAxis
+
+            property real startX: 0
 
             onEntered: dismissTimer.stop()
             onExited: {
@@ -178,36 +178,41 @@ Item {
 
             onPressed: event => {
                 dismissTimer.stop()
+                startX = event.x
                 if (event.button === Qt.MiddleButton)
                     root.startExit()
             }
 
             onReleased: event => {
+                if (root.dismissing) return
+
                 if (!containsMouse)
                     dismissTimer.restart()
 
                 if (Math.abs(root.x) < root.implicitWidth * 0.3) {
-                    root.x = 0
                     root.opacity = 1
+                    animX.stop()
+                    animX.from = root.x
+                    animX.to = 0
+                    animX.type = Anim.EmphasizedDecel
+                    animX.start()
                 } else {
                     root.startExit()
                 }
             }
 
             onPositionChanged: event => {
-                if (pressed) {
-                    var progress = Math.abs(root.x) / (root.implicitWidth * 0.7)
+                if (pressed && !root.dismissing) {
+                    var dx = event.x - startX
+                    root.x = dx
+                    var progress = Math.abs(dx) / (root.implicitWidth * 0.7)
                     root.opacity = Math.max(0, 1 - progress)
                 }
             }
 
             onClicked: event => {
-                if (event.button !== Qt.LeftButton) return
-
-                var relX = event.x / root.width
-                if (relX < 0.25 || relX > 0.75) {
-                    root.startExit()
-                } else if (root.notifActions.length === 1) {
+                if (event.button !== Qt.LeftButton || root.dismissing) return
+                if (root.notifActions.length === 1) {
                     try { root.notifActions[0].invoke() } catch (e) {}
                 }
             }
@@ -260,7 +265,7 @@ Item {
             Row {
                 Layout.fillWidth: true
                 spacing: 6
-                visible: root.notifActions.length > 0
+                visible: false
                 layoutDirection: Qt.RightToLeft
 
                 Repeater {
