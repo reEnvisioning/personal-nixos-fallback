@@ -101,13 +101,13 @@ Item {
 
         cardScaleAnim.stop()
         cardScaleAnim.from = root.cardScale
-        cardScaleAnim.to = 0.7
+        cardScaleAnim.to = 0.3
         cardScaleAnim.type = Anim.StandardAccel
         cardScaleAnim.start()
 
         slideAnim.stop()
         slideAnim.from = root.slideOffset
-        slideAnim.to = 80 * dir
+        slideAnim.to = root.width * 1.2 * dir
         slideAnim.type = Anim.StandardAccel
         slideAnim.start()
 
