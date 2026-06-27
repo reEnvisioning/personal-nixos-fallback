@@ -15,7 +15,7 @@ Item {
     property bool dismissing: false
     property bool isReusable: false
     property bool reused: false
-    property bool _invokingAction: false
+    property bool showActions: false
 
     function updateFrom(notification) {
         reused = true
@@ -91,11 +91,6 @@ Item {
         }
     }
 
-    Connections {
-        target: root.notif
-        function onClosed() { if (!root.reused && !root._invokingAction) root.startExit() }
-    }
-
     function startExit() {
         if (root.dismissing) return
         root.dismissing = true
@@ -163,9 +158,12 @@ Item {
         }
 
         MouseArea {
-            id: swipeArea
+            id: mouseArea
             anchors.fill: parent
             hoverEnabled: true
+            acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+            preventStealing: true
+            cursorShape: root.notifActions.length > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
 
             property real startX: 0
 
@@ -187,7 +185,7 @@ Item {
                     dismissTimer.restart()
 
                 var dx = event.x - startX
-                if (Math.abs(dx) > root.implicitWidth * 0.3) {
+                if (Math.abs(dx) > root.width * 0.3) {
                     root.startExit()
                 } else {
                     cardScaleAnim.stop()
@@ -206,26 +204,23 @@ Item {
             onPositionChanged: event => {
                 if (pressed && !root.dismissing) {
                     var dx = event.x - startX
-                    var progress = Math.abs(dx) / (root.implicitWidth * 0.7)
+                    var progress = Math.abs(dx) / (root.width * 0.7)
                     root.cardScale = 1 - progress * 0.2
                     root.opacity = Math.max(0.2, 1 - progress * 0.8)
                 }
             }
 
-            onClicked: {
+            onClicked: event => {
                 if (root.dismissing) return
-                if (root.notifActions.length === 1) {
-                    root._invokingAction = true
+
+                if (event.button === Qt.LeftButton && root.notifActions.length > 0) {
                     try { root.notifActions[0].invoke() } catch (e) {}
-                    root._invokingAction = false
+                } else if (event.button === Qt.MiddleButton) {
+                    root.startExit()
+                } else if (event.button === Qt.RightButton) {
+                    root.showActions = !root.showActions
                 }
             }
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            acceptedButtons: Qt.MiddleButton
-            onClicked: root.startExit()
         }
 
         ColumnLayout {
@@ -275,7 +270,7 @@ Item {
             Row {
                 Layout.fillWidth: true
                 spacing: 6
-                visible: root.notifActions.length > 0
+                visible: root.notifActions.length > 0 && root.showActions
                 layoutDirection: Qt.RightToLeft
 
                 Repeater {
