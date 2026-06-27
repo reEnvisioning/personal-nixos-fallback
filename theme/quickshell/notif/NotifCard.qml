@@ -17,6 +17,7 @@ Item {
     property bool reused: false
     property bool showActions: false
     property bool actionInvoked: false
+    property bool actionBtnPressed: false
 
     function updateFrom(notification) {
         reused = true
@@ -229,7 +230,7 @@ Item {
             onClicked: event => {
                 if (root.dismissing) return
 
-                if (event.button === Qt.LeftButton && root.notifActions.length > 0) {
+                if (event.button === Qt.LeftButton && root.notifActions.length > 0 && !root.actionBtnPressed) {
                     root.actionInvoked = true
                     try { root.notifActions[0].invoke() } catch (e) {}
                     dismissTimer.restart()
@@ -238,6 +239,7 @@ Item {
                 } else if (event.button === Qt.RightButton) {
                     root.showActions = !root.showActions
                 }
+                root.actionBtnPressed = false
             }
         }
 
@@ -318,6 +320,7 @@ Item {
                             anchors.fill: parent
                             hoverEnabled: true
                             cursorShape: Qt.PointingHandCursor
+                            onPressed: { root.actionBtnPressed = true }
                             onClicked: {
                                 try { modelData.invoke() } catch (e) {}
                             }
