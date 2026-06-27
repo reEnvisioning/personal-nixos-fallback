@@ -164,7 +164,20 @@ Item {
         MouseArea {
             anchors.fill: parent
             hoverEnabled: true
-            onClicked: root.startExit()
+            onClicked: {
+                var defaultAction = null
+                for (var i = 0; i < root.notifActions.length; i++) {
+                    if (root.notifActions[i].identifier === "default") {
+                        defaultAction = root.notifActions[i]
+                        break
+                    }
+                }
+                if (defaultAction) {
+                    try { defaultAction.invoke() } catch (e) {}
+                } else {
+                    root.startExit()
+                }
+            }
             onEntered: { if (dismissTimer.running) dismissTimer.stop() }
             onExited: { if (!root.dismissing && dismissTimer.interval > 0) dismissTimer.restart() }
         }
