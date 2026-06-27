@@ -1,14 +1,18 @@
 { pc ? "desktop" }:
 let
-  cpuinfo = builtins.readFile "/proc/cpuinfo";
+  tryReadFile = path: let r = builtins.tryEval (builtins.readFile path); in if r.success then r.value else "";
+  tryReadDir = path: let r = builtins.tryEval (builtins.readDir path); in if r.success then r.value else {};
+  tryPathExists = path: let r = builtins.tryEval (builtins.pathExists path); in if r.success then r.value else false;
+
+  cpuinfo = tryReadFile "/proc/cpuinfo";
   cpu = if builtins.match ".*GenuineIntel.*" cpuinfo != null then "intel"
         else if builtins.match ".*AuthenticAMD.*" cpuinfo != null then "amd"
         else "unknown";
   tryReadVendor = card: let
     path = "/sys/class/drm/${card}/device/vendor";
-  in if builtins.pathExists path then builtins.readFile path else "";
+  in if tryPathExists path then tryReadFile path else "";
 
-  drmEntries = builtins.attrNames (builtins.readDir "/sys/class/drm");
+  drmEntries = builtins.attrNames (tryReadDir "/sys/class/drm");
   cardDirs = builtins.filter (n: builtins.match "card[0-9]+" n != null) drmEntries;
   vendors = map tryReadVendor cardDirs;
 
