@@ -113,7 +113,7 @@ Item {
         slideAnim.start()
 
         opacityAnim.stop()
-        opacityAnim.from = 1
+        opacityAnim.from = root.opacity
         opacityAnim.to = 0
         opacityAnim.type = Anim.StandardAccel
         opacityAnim.start()
@@ -166,6 +166,7 @@ Item {
             id: swipeArea
             anchors.fill: parent
             hoverEnabled: true
+            acceptedButtons: Qt.LeftButton | Qt.MiddleButton
             drag.target: root
             drag.axis: Drag.XAxis
 
@@ -185,15 +186,28 @@ Item {
                 if (!containsMouse)
                     dismissTimer.restart()
 
-                if (Math.abs(root.x) < root.implicitWidth * 0.3)
+                if (Math.abs(root.x) < root.implicitWidth * 0.3) {
                     root.x = 0
-                else
+                    root.opacity = 1
+                } else {
                     root.startExit()
+                }
+            }
+
+            onPositionChanged: event => {
+                if (pressed) {
+                    var progress = Math.abs(root.x) / (root.implicitWidth * 0.7)
+                    root.opacity = Math.max(0, 1 - progress)
+                }
             }
 
             onClicked: event => {
                 if (event.button !== Qt.LeftButton) return
-                if (root.notifActions.length === 1) {
+
+                var relX = event.x / root.width
+                if (relX < 0.25 || relX > 0.75) {
+                    root.startExit()
+                } else if (root.notifActions.length === 1) {
                     try { root.notifActions[0].invoke() } catch (e) {}
                 }
             }
@@ -256,10 +270,12 @@ Item {
                         required property var modelData
 
                         id: actionBtn
-                        height: Math.round(24 * root.uiScale)
-                        radius: Math.round(6 * root.uiScale)
-                        color: root.colors.surface2
-                        implicitWidth: actionLabel.width + Math.round(12 * root.uiScale)
+                        height: Math.round(26 * root.uiScale)
+                        radius: Math.round(8 * root.uiScale)
+                        color: actionBtnMouse.containsMouse ? root.colors.highlighted : root.colors.surface2
+                        implicitWidth: actionLabel.width + Math.round(14 * root.uiScale)
+
+                        Behavior on color { CAnim {} }
 
                         Text {
                             id: actionLabel
@@ -270,7 +286,10 @@ Item {
                         }
 
                         MouseArea {
+                            id: actionBtnMouse
                             anchors.fill: parent
+                            hoverEnabled: true
+                            cursorShape: Qt.PointingHandCursor
                             onClicked: {
                                 try { modelData.invoke() } catch (e) {}
                             }
