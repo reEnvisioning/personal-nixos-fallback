@@ -16,9 +16,11 @@ Item {
     property bool isReusable: false
     property bool reused: false
     property bool showActions: false
+    property bool actionInvoked: false
 
     function updateFrom(notification) {
         reused = true
+        actionInvoked = false
         try {
             var n = notification
             notifSummary = n.summary || ""
@@ -91,9 +93,11 @@ Item {
         }
     }
 
-    function startExit() {
+    function startExit(direction) {
         if (root.dismissing) return
         root.dismissing = true
+
+        var dir = direction !== undefined ? (direction > 0 ? 1 : -1) : 1
 
         cardScaleAnim.stop()
         cardScaleAnim.from = root.cardScale
@@ -103,7 +107,7 @@ Item {
 
         slideAnim.stop()
         slideAnim.from = root.slideOffset
-        slideAnim.to = 80
+        slideAnim.to = 80 * dir
         slideAnim.type = Anim.StandardAccel
         slideAnim.start()
 
@@ -167,7 +171,10 @@ Item {
 
             property real startX: 0
 
-            onEntered: dismissTimer.stop()
+            onEntered: {
+                if (!root.actionInvoked)
+                    dismissTimer.stop()
+            }
             onExited: {
                 if (!pressed)
                     dismissTimer.restart()
@@ -186,7 +193,7 @@ Item {
 
                 var dx = event.x - startX
                 if (Math.abs(dx) > root.width * 0.3) {
-                    root.startExit()
+                    root.startExit(dx)
                 } else {
                     cardScaleAnim.stop()
                     cardScaleAnim.from = root.cardScale
@@ -198,12 +205,18 @@ Item {
                     opacityAnim.to = 1
                     opacityAnim.type = Anim.EffectsDefault
                     opacityAnim.start()
+                    slideAnim.stop()
+                    slideAnim.from = root.slideOffset
+                    slideAnim.to = 0
+                    slideAnim.type = Anim.EmphasizedDecel
+                    slideAnim.start()
                 }
             }
 
             onPositionChanged: event => {
                 if (pressed && !root.dismissing) {
                     var dx = event.x - startX
+                    root.slideOffset = dx
                     var progress = Math.abs(dx) / (root.width * 0.7)
                     root.cardScale = 1 - progress * 0.2
                     root.opacity = Math.max(0.2, 1 - progress * 0.8)
@@ -214,7 +227,9 @@ Item {
                 if (root.dismissing) return
 
                 if (event.button === Qt.LeftButton && root.notifActions.length > 0) {
+                    root.actionInvoked = true
                     try { root.notifActions[0].invoke() } catch (e) {}
+                    dismissTimer.restart()
                 } else if (event.button === Qt.MiddleButton) {
                     root.startExit()
                 } else if (event.button === Qt.RightButton) {
@@ -311,13 +326,11 @@ Item {
 
         Timer {
             id: dismissTimer
-            interval: {
-                if (root.notifExpireTimeout > 0)
-                    return root.notifExpireTimeout
-                if (root.notifUrgency === 0) return 5000
-                if (root.notifUrgency === 2) return 0
-                return 7000
-            }
+            interval: root.actionInvoked ? 3000 : root.notifExpireTimeout > 0
+                ? root.notifExpireTimeout
+                : root.notifUrgency === 0 ? 5000
+                : root.notifUrgency === 2 ? 0
+                : 7000
             running: interval > 0 && !root.dismissing
             repeat: false
             onTriggered: root.startExit()
