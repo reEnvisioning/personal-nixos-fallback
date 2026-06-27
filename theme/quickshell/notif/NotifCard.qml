@@ -45,6 +45,7 @@ Item {
     height: card.height
 
     x: 0
+    Behavior on x { Anim { type: Anim.EmphasizedDecel } }
     opacity: 0
     property real cardScale: 0.5
     property real slideOffset: 40
@@ -161,6 +162,43 @@ Item {
             Behavior on opacity { Anim { type: Anim.EffectsDefault } }
         }
 
+        MouseArea {
+            id: swipeArea
+            anchors.fill: parent
+            hoverEnabled: true
+            drag.target: root
+            drag.axis: Drag.XAxis
+
+            onEntered: dismissTimer.stop()
+            onExited: {
+                if (!pressed)
+                    dismissTimer.restart()
+            }
+
+            onPressed: event => {
+                dismissTimer.stop()
+                if (event.button === Qt.MiddleButton)
+                    root.startExit()
+            }
+
+            onReleased: event => {
+                if (!containsMouse)
+                    dismissTimer.restart()
+
+                if (Math.abs(root.x) < root.implicitWidth * 0.3)
+                    root.x = 0
+                else
+                    root.startExit()
+            }
+
+            onClicked: event => {
+                if (event.button !== Qt.LeftButton) return
+                if (root.notifActions.length === 1) {
+                    try { root.notifActions[0].invoke() } catch (e) {}
+                }
+            }
+        }
+
         ColumnLayout {
             id: innerLayout
             x: Math.round(12 * root.uiScale); y: Math.round(8 * root.uiScale)
@@ -231,6 +269,12 @@ Item {
                             font.pointSize: 9
                         }
 
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: {
+                                try { modelData.invoke() } catch (e) {}
+                            }
+                        }
                     }
                 }
             }
