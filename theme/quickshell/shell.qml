@@ -121,7 +121,6 @@ ShellRoot {
         property bool dndActive: false
         property int activeTab: -1
         property bool launcherOpen: false
-        property bool clipPanelVisible: false
 
         onDndActiveChanged: notifPanel.dndActive = dndActive
         onActiveTabChanged: {
@@ -135,7 +134,6 @@ ShellRoot {
                 if (launcher.isOpen) launcher.close()
             }
         }
-        onClipPanelVisibleChanged: clipPanel.showPanel = clipPanelVisible
 
         function toggleDnd(force: string) {
             if (force === "1" || force === true || force === 1)
@@ -158,7 +156,7 @@ ShellRoot {
             }
         }
         function toggleClipboard() {
-            clipPanelVisible = !clipPanelVisible
+            clipPanel.showPanel = !clipPanel.showPanel
         }
         function setTab(index: string) {
             activeTab = parseInt(index)
