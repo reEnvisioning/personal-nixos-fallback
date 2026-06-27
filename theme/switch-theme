@@ -305,6 +305,10 @@ jq -c --arg mode "$MODE" --arg name "$THEME_NAME" \
   "$THEME_FILE" > "$SHELL_JSON"
 # 9. Write theme data for file-watching consumers (Neovim, etc.)
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
+if [ ! -w "$RUNTIME_DIR" ]; then
+    RUNTIME_DIR="/tmp/$(id -un)-runtime"
+    mkdir -p "$RUNTIME_DIR"
+fi
 cp "$THEME_FILE" "$RUNTIME_DIR/panel-theme.json"
 
 # 10. Save current theme before signalling reload so wallpaperLoader picks it up
