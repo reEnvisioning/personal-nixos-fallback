@@ -41,7 +41,7 @@ PanelWindow {
             root.currentIndex = 0
             root.desiredHeight = root.computeDesiredHeight()
             heightAnim.stop()
-            heightAnim.from = 0
+            heightAnim.from = root.animHeight
             heightAnim.to = root.desiredHeight
             heightAnim.type = Anim.SpatialDefault
             heightAnim.start()
@@ -64,12 +64,12 @@ PanelWindow {
             heightAnim.stop()
             heightAnim.from = root.animHeight
             heightAnim.to = 0
-            heightAnim.type = Anim.StandardAccel
+            heightAnim.type = Anim.EffectsFast
             heightAnim.start()
             cornerAnim.stop()
             cornerAnim.from = root.cornerScaleAnim
             cornerAnim.to = 1.0
-            cornerAnim.type = Anim.StandardAccel
+            cornerAnim.type = Anim.EffectsFast
             cornerAnim.start()
             glowAnim.stop()
             glowAnim.from = root.glowAlpha
