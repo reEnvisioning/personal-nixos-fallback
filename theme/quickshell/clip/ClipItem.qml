@@ -56,7 +56,9 @@ Item {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
+        hoverEnabled: true
         z: 2
+        onEntered: root.itemClicked(root.clipIndex)
         onClicked: function(mouse) {
             if (mouse.x > root.width - Math.round(24 * root.uiScale)) {
                 root.clipMon.togglePin(root.clipIndex)

@@ -275,7 +275,16 @@ PanelWindow {
     Connections {
         target: root.clipMon
         function onEntriesChanged() {
-            rebuildClipItems()
+            Qt.callLater(function() { rebuildClipItems() })
+        }
+    }
+
+    Connections {
+        target: Qt.application
+        function onStateChanged(state) {
+            if (state === Qt.ApplicationInactive && root.showPanel) {
+                root.showPanel = false
+            }
         }
     }
 
