@@ -181,6 +181,9 @@ Item {
             }
 
             onPressed: event => {
+                slideAnim.stop()
+                cardScaleAnim.stop()
+                opacityAnim.stop()
                 dismissTimer.stop()
                 startX = event.x
             }
@@ -215,6 +218,7 @@ Item {
 
             onPositionChanged: event => {
                 if (pressed && !root.dismissing) {
+                    slideAnim.stop()
                     var dx = event.x - startX
                     root.slideOffset = dx
                     var progress = Math.abs(dx) / (root.width * 0.7)
