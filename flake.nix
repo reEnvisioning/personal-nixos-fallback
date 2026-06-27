@@ -20,6 +20,8 @@
   outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, ... }: let
     hostname = "headspace";
     pc = "desktop";
+    cpuVendor = "intel";
+    gpuVendor = "nvidia";
     system = "x86_64-linux";
     gitUsername = "reEnvisioning";
     inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko; };
@@ -32,7 +34,7 @@
 
     mkSystem = { pc }: inputs.nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArgs = { inherit inputs hostname unstable gitUsername pc; nixUsers = usernames; username = primaryUser; };
+      specialArgs = { inherit inputs hostname unstable gitUsername pc cpuVendor gpuVendor; nixUsers = usernames; username = primaryUser; };
       modules = [
         ./system/default.nix
         {
@@ -58,7 +60,7 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
 
-          home-manager.extraSpecialArgs = { inherit hostname unstable gitUsername pc; };
+          home-manager.extraSpecialArgs = { inherit hostname unstable gitUsername pc cpuVendor gpuVendor; };
 
           home-manager.users = builtins.listToAttrs (map (u: {
             name = u;

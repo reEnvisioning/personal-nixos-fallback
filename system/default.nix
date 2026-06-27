@@ -1,6 +1,6 @@
-{ pkgs, nixUsers, pc ? "desktop", ... }:
+{ pkgs, nixUsers, cpuVendor, gpuVendor, pc ? "desktop", ... }:
 let
-  hw = import ../hardware/hardware.nix { inherit pc; };
+  hw = import ../hardware/hardware.nix { inherit pc cpuVendor gpuVendor; };
   vbox-wrapped = pkgs.virtualbox.overrideAttrs (old: {
     nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ pkgs.makeWrapper ];
     postInstall = (old.postInstall or "") + ''

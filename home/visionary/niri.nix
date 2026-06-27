@@ -1,7 +1,7 @@
-{ pkgs, pc ? "desktop", ... }:
+{ pkgs, cpuVendor, gpuVendor, pc ? "desktop", ... }:
 let
   theme = import ../../theme/theme.nix;
-  hw = import ../../hardware/hardware.nix { inherit pc; };
+  hw = import ../../hardware/hardware.nix { inherit pc cpuVendor gpuVendor; };
   mod = "Mod";
 
   niri-startup = pkgs.writeShellScript "niri-startup" ''
