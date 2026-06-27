@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 THEME_DIR="$HOME/.config/reEnvisioning/themes"
 
 THEME_NAME="$(state get current-theme || true)"
@@ -10,14 +9,14 @@ if [ -z "$THEME_NAME" ]; then
     exit 1
 fi
 
-META_FILE="$THEME_DIR/$THEME_NAME/meta.json"
+THEME_FILE="$THEME_DIR/$THEME_NAME/theme.json"
 
-if [ ! -f "$META_FILE" ]; then
-    echo "Theme '$THEME_NAME' not found at $META_FILE"
+if [ ! -f "$THEME_FILE" ]; then
+    echo "Theme '$THEME_NAME' not found at $THEME_FILE"
     exit 1
 fi
 
-WALLPAPER_COUNT=$(jq '.wallpapers | length' "$META_FILE")
+WALLPAPER_COUNT=$(jq '.wallpapers | length' "$THEME_FILE")
 if [ "$WALLPAPER_COUNT" -eq 0 ]; then
     echo "No wallpapers available for theme '$THEME_NAME'"
     exit 1
@@ -49,7 +48,7 @@ case "${1:-next}" in
         ;;
 esac
 
-WALLPAPER=$(jq -r ".wallpapers[$NEW_IDX]" "$META_FILE")
+WALLPAPER=$(jq -r ".wallpapers[$NEW_IDX]" "$THEME_FILE")
 
 sleep 0.2
 if [ -f "$WALLPAPER" ]; then

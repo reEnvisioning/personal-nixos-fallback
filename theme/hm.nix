@@ -8,13 +8,9 @@ let
     cp -r ${./resources/user} $out/user
   '';
 
-  mkThemeJson = name: t: builtins.toJSON ({
+  mkUnifiedThemeJson = name: t: builtins.toJSON ({
     name = name;
     mode = t.mode;
-  } // t.colors);
-
-  mkMetaJson = name: t: builtins.toJSON {
-    name = name;
     wallpaper = toString t.wallpaper;
     wallpapers = map (x: toString x) t.wallpapers;
     gtkThemeName = t.gtk.themeName;
@@ -26,7 +22,7 @@ let
     active_opacity = t.active_opacity;
     inactive_opacity = t.inactive_opacity;
     font = { family = "Monospace"; size = 10; };
-  };
+  } // t.colors);
 
   mkBtopTheme = name: t: ''
     theme[main_bg]=${t.colors.background}
@@ -77,14 +73,7 @@ let
     {
       name = "reEnvisioning/themes/${name}/theme.json";
       value = {
-        text = mkThemeJson name theme.all.${name};
-        force = true;
-      };
-    }
-    {
-      name = "reEnvisioning/themes/${name}/meta.json";
-      value = {
-        text = mkMetaJson name theme.all.${name};
+        text = mkUnifiedThemeJson name theme.all.${name};
         force = true;
       };
     }
@@ -156,17 +145,44 @@ in {
     "kitty/kitty.conf".force = true;
     "gtk-3.0/settings.ini".force = true;
     "gtk-4.0/settings.ini".force = true;
-    "reEnvisioning/config.json" = {
+
+    # Ecosystem root
+    "reEnvisioning/ecosystem.json" = {
       force = true;
-      text = builtins.toJSON { uiScale = 1; };
+      text = builtins.toJSON {
+        version = 1;
+        schema = "reEnvisioning-ecosystem";
+        theme = {
+          current = theme.default;
+          runtimePath = "reEnvisioning/runtime/theme.json";
+          themesDir = "reEnvisioning/themes";
+        };
+        stateDir = "reEnvisioning/state";
+        configDir = "reEnvisioning/config";
+        dataDir = "reEnvisioning/data";
+      };
     };
-    "reEnvisioning/shell.json" = {
+
+    # Runtime canonical theme file — single watched-file contract
+    "reEnvisioning/runtime/theme.json" = {
       force = true;
       text = import ./common/config.schema.nix {
         theme = { name = theme.default; } // theme.all.${theme.default};
         uiScale = 1;
       };
     };
+
+    # Ecosystem-wide settings
+    "reEnvisioning/config/general.json" = {
+      force = true;
+      text = builtins.toJSON { uiScale = 1; };
+    };
+
+    # App config directory scaffold
+    "reEnvisioning/config/apps/.empty" = {
+      text = "";
+    };
+
     "quickshell" = {
       source = quickshellDir;
       force = true;

@@ -17,12 +17,12 @@ ShellRoot {
     property string proxyStatus: "disabled"
     property string idleStatus: "unknown"
 
-    // ── Unified config file (shell.json) ──────────────────────────────────
+    // ── Unified config file (runtime/theme.json) ─────────────────────────
     readonly property string configDir: {
         var d = Quickshell.shellDir
         return d.substring(0, d.lastIndexOf("/"))
     }
-    readonly property string configPath: configDir + "/reEnvisioning/shell.json"
+    readonly property string configPath: configDir + "/reEnvisioning/runtime/theme.json"
 
     FileView {
         id: configFile

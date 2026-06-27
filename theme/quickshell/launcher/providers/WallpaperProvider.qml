@@ -27,8 +27,8 @@ Item {
         command: ["bash", "-c",
             "THEME=$(state get current-theme 2>/dev/null || true);" +
             "if [ -z \"$THEME\" ]; then exit 0; fi;" +
-            "if [ -f \"$HOME/.config/reEnvisioning/themes/$THEME/meta.json\" ]; then" +
-            "  THEME_FILE=\"$HOME/.config/reEnvisioning/themes/$THEME/meta.json\";" +
+            "if [ -f \"$HOME/.config/reEnvisioning/themes/$THEME/theme.json\" ]; then" +
+            "  THEME_FILE=\"$HOME/.config/reEnvisioning/themes/$THEME/theme.json\";" +
             "else exit 0; fi;" +
             "CURRENT_IDX=$(state get wallpaper-idx:$THEME 2>/dev/null || echo 0);" +
             "WALLPAPER_COUNT=$(jq '.wallpapers | length' \"$THEME_FILE\");" +
@@ -83,7 +83,7 @@ Item {
                     Quickshell.execDetached(["bash", "-c",
                                     "THEME=$(state get current-theme 2>/dev/null || true);" +
                         "if [ -z \"$THEME\" ]; then exit 0; fi;" +
-                        "THEME_FILE=\"$HOME/.config/reEnvisioning/themes/$THEME/meta.json\";" +
+                        "THEME_FILE=\"$HOME/.config/reEnvisioning/themes/$THEME/theme.json\";" +
                         "if [ ! -f \"$THEME_FILE\" ]; then exit 0; fi;" +
                         "WALLPAPER=$(jq -r '.wallpapers[-1]' \"$THEME_FILE\");" +
                         "if [ -f \"$WALLPAPER\" ]; then" +
@@ -153,8 +153,8 @@ Item {
         deleteProc.command = ["bash", "-c",
             "THEME=$(state get current-theme 2>/dev/null || true);" +
             "if [ -z \"$THEME\" ]; then exit 0; fi;" +
-            "if [ -f \"$HOME/.config/reEnvisioning/themes/$THEME/meta.json\" ]; then" +
-            "  THEME_FILE=\"$HOME/.config/reEnvisioning/themes/$THEME/meta.json\";" +
+            "if [ -f \"$HOME/.config/reEnvisioning/themes/$THEME/theme.json\" ]; then" +
+            "  THEME_FILE=\"$HOME/.config/reEnvisioning/themes/$THEME/theme.json\";" +
             "else exit 0; fi;" +
             "CURRENT_IDX=$(state get wallpaper-idx:$THEME 2>/dev/null || echo 0);" +
             "CURRENT_PATH=$(jq -r \".wallpapers[$CURRENT_IDX] // \\\"\\\"\" \"$THEME_FILE\");" +
@@ -178,8 +178,8 @@ Item {
         deleteProc.command = ["bash", "-c",
             "THEME=$(state get current-theme 2>/dev/null || true);" +
             "if [ -z \"$THEME\" ]; then exit 0; fi;" +
-            "if [ -f \"$HOME/.config/reEnvisioning/themes/$THEME/meta.json\" ]; then" +
-            "  THEME_FILE=\"$HOME/.config/reEnvisioning/themes/$THEME/meta.json\";" +
+            "if [ -f \"$HOME/.config/reEnvisioning/themes/$THEME/theme.json\" ]; then" +
+            "  THEME_FILE=\"$HOME/.config/reEnvisioning/themes/$THEME/theme.json\";" +
             "else exit 0; fi;" +
             "PREF=\"$HOME/.config/reEnvisioning/resources/wallpapers/\";" +
             "CURRENT_IDX=$(state get wallpaper-idx:$THEME 2>/dev/null || echo 0);" +
@@ -215,8 +215,8 @@ Item {
             "mkdir -p \"$HOME/.config/reEnvisioning/resources/wallpapers\";" +
             "cp \"$1\" \"$HOME/.config/reEnvisioning/resources/wallpapers/\";" +
             "NEW_PATH=\"$HOME/.config/reEnvisioning/resources/wallpapers/$(basename \"$1\")\";" +
-            "if [ -f \"$HOME/.config/reEnvisioning/themes/$THEME/meta.json\" ]; then" +
-            "  THEME_FILE=\"$HOME/.config/reEnvisioning/themes/$THEME/meta.json\";" +
+            "if [ -f \"$HOME/.config/reEnvisioning/themes/$THEME/theme.json\" ]; then" +
+            "  THEME_FILE=\"$HOME/.config/reEnvisioning/themes/$THEME/theme.json\";" +
             "else exit 0; fi;" +
             "jq --arg new \"$NEW_PATH\" '.wallpapers += [$new]' \"$THEME_FILE\" > \"${THEME_FILE}.tmp\" && " +
             "mv \"${THEME_FILE}.tmp\" \"$THEME_FILE\"",
@@ -244,7 +244,7 @@ Item {
                 "if [ -z \"$THEME\" ]; then exit 0; fi;" +
                 "pkill swaybg 2>/dev/null || true;" +
                 "nohup swaybg -i \"$1\" -m fill >/dev/null 2>&1 & disown;" +
-                "THEME_FILE=\"$HOME/.config/reEnvisioning/themes/$THEME/meta.json\";" +
+                "THEME_FILE=\"$HOME/.config/reEnvisioning/themes/$THEME/theme.json\";" +
                 "if [ ! -f \"$THEME_FILE\" ]; then exit 0; fi;" +
                 "IDX=$(jq -r --arg p \"$1\" '.wallpapers | map(. == $p) | index(true)' \"$THEME_FILE\");" +
                 "if [ \"$IDX\" != \"null\" ] && [ -n \"$IDX\" ]; then" +
