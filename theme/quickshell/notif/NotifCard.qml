@@ -161,6 +161,14 @@ Item {
             Behavior on opacity { Anim { type: Anim.EffectsDefault } }
         }
 
+        MouseArea {
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: root.startExit()
+            onEntered: { if (dismissTimer.running) dismissTimer.stop() }
+            onExited: { if (!root.dismissing && dismissTimer.interval > 0) dismissTimer.restart() }
+        }
+
         ColumnLayout {
             id: innerLayout
             x: Math.round(12 * root.uiScale); y: Math.round(8 * root.uiScale)
@@ -239,6 +247,8 @@ Item {
                                 try { modelData.invoke() } catch (e) {}
                                 root.startExit()
                             }
+                            onEntered: { if (dismissTimer.running) dismissTimer.stop() }
+                            onExited: { if (!root.dismissing && dismissTimer.interval > 0) dismissTimer.restart() }
                         }
                     }
                 }
@@ -257,13 +267,6 @@ Item {
             running: interval > 0 && !root.dismissing
             repeat: false
             onTriggered: root.startExit()
-        }
-
-        MouseArea {
-            anchors.fill: parent
-            hoverEnabled: true
-            onEntered: { if (dismissTimer.running) dismissTimer.stop() }
-            onExited: { if (!root.dismissing && dismissTimer.interval > 0) dismissTimer.restart() }
         }
     }
 }

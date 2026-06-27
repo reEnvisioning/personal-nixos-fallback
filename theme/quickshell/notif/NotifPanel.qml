@@ -123,4 +123,13 @@ PanelWindow {
         for (var i = children.length - 1; i >= 0; i--)
             children[i].startExit()
     }
+
+    Connections {
+        target: Qt.application
+        function onStateChanged(state) {
+            if (state === Qt.ApplicationInactive) {
+                root.dismissAll()
+            }
+        }
+    }
 }
