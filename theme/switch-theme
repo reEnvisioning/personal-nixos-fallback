@@ -307,6 +307,7 @@ jq -c --arg mode "$MODE" --arg name "$THEME_NAME" \
 RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)}"
 if ! cp "$THEME_FILE" "$RUNTIME_DIR/panel-theme.json" 2>/dev/null; then
     RUNTIME_DIR="/tmp/$(id -un)-runtime"
+    rm -rf "$RUNTIME_DIR"
     mkdir -p "$RUNTIME_DIR"
     cp "$THEME_FILE" "$RUNTIME_DIR/panel-theme.json"
 fi

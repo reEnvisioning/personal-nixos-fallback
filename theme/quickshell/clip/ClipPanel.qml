@@ -24,7 +24,7 @@ PanelWindow {
     property real glowAlpha: 0
     implicitWidth: Math.round(380 * root.uiScale)
     implicitHeight: root.animHeight
-    visible: root.animHeight > 0
+    visible: root.showPanel
     color: "transparent"
     focusable: true
     WlrLayershell.layer: WlrLayer.Overlay
