@@ -335,6 +335,13 @@ PanelWindow {
             })
         }
         root.desiredHeight = root.computeDesiredHeight()
+        if (root.showPanel && root.animHeight !== root.desiredHeight) {
+            heightAnim.stop()
+            heightAnim.from = root.animHeight
+            heightAnim.to = root.desiredHeight
+            heightAnim.type = Anim.EmphasizedDecel
+            heightAnim.start()
+        }
     }
 
 }
