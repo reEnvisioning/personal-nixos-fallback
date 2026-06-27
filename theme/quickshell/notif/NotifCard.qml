@@ -161,27 +161,6 @@ Item {
             Behavior on opacity { Anim { type: Anim.EffectsDefault } }
         }
 
-        MouseArea {
-            anchors.fill: parent
-            hoverEnabled: true
-            onClicked: {
-                var defaultAction = null
-                for (var i = 0; i < root.notifActions.length; i++) {
-                    if (root.notifActions[i].identifier === "default") {
-                        defaultAction = root.notifActions[i]
-                        break
-                    }
-                }
-                if (defaultAction) {
-                    try { defaultAction.invoke() } catch (e) {}
-                } else {
-                    root.startExit()
-                }
-            }
-            onEntered: { if (dismissTimer.running) dismissTimer.stop() }
-            onExited: { if (!root.dismissing && dismissTimer.interval > 0) dismissTimer.restart() }
-        }
-
         ColumnLayout {
             id: innerLayout
             x: Math.round(12 * root.uiScale); y: Math.round(8 * root.uiScale)
@@ -241,7 +220,7 @@ Item {
                         id: actionBtn
                         height: Math.round(24 * root.uiScale)
                         radius: Math.round(6 * root.uiScale)
-                        color: actionArea.containsMouse ? root.colors.highlighted : root.colors.surface2
+                        color: root.colors.surface2
                         implicitWidth: actionLabel.width + Math.round(12 * root.uiScale)
 
                         Text {
@@ -252,17 +231,6 @@ Item {
                             font.pointSize: 9
                         }
 
-                        MouseArea {
-                            id: actionArea
-                            anchors.fill: parent
-                            hoverEnabled: true
-                            onClicked: {
-                                try { modelData.invoke() } catch (e) {}
-                                root.startExit()
-                            }
-                            onEntered: { if (dismissTimer.running) dismissTimer.stop() }
-                            onExited: { if (!root.dismissing && dismissTimer.interval > 0) dismissTimer.restart() }
-                        }
                     }
                 }
             }
