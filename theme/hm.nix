@@ -163,15 +163,6 @@ in {
       };
     };
 
-    # Runtime canonical theme file — single watched-file contract
-    "reEnvisioning/runtime/theme.json" = {
-      force = true;
-      text = import ./common/config.schema.nix {
-        theme = { name = theme.default; } // theme.all.${theme.default};
-        uiScale = 1;
-      };
-    };
-
     # Ecosystem-wide settings
     "reEnvisioning/config/general.json" = {
       force = true;

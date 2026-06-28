@@ -5,8 +5,12 @@ let
   mod = "Mod";
 
   niri-startup = pkgs.writeShellScript "niri-startup" ''
+    mkdir -p "$HOME/.config/reEnvisioning/runtime"
+    rt="$HOME/.config/reEnvisioning/runtime/theme.json"
+    def_th="$(cat "$HOME/.config/reEnvisioning/state/current-theme" 2>/dev/null || echo void)"
+    [ ! -f "$rt" ] && cp "$HOME/.config/reEnvisioning/themes/$def_th/theme.json" "$rt"
     pgrep -x quickshell >/dev/null 2>&1 || quickshell &
-    switch-theme "$(state get current-theme || echo void)"
+    switch-theme "$def_th"
     if [ "$(state get hypridle)" != "disabled" ]; then
       sway-audio-idle-inhibit &
       swayidle -w \

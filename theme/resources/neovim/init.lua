@@ -33,43 +33,44 @@ end
 
 --- Build a flat color table from theme data
 local function extract_colors(data)
+  local c = data.colors or data
   return {
-    bg         = data.background,
-    bgAccent   = data.backgroundAccent,
-    hl         = data.highlighted,
-    ov1        = data.overlay1,
-    ov2        = data.overlay2,
-    surf2      = data.surface2,
-    borderIna  = data.borderInactive,
-    borderFoc  = data.borderFocused,
-    accent     = data.accent,
-    accentL    = data.accent_light,
-    accentD    = data.accent_dark,
-    crust      = data.crust,
-    fg         = data.text,
-    st0        = data.subtext0,
-    st1        = data.subtext1,
-    red        = data.red,
-    green      = data.green,
-    yellow     = data.yellow,
-    blue       = data.blue,
-    magenta    = data.magenta,
-    cyan       = data.cyan,
-    mauve      = data.mauve,
-    lavender   = data.lavender,
-    pink       = data.pink,
-    rosewater  = data.rosewater,
-    flamingo   = data.flamingo,
-    maroon     = data.maroon,
-    peach      = data.peach,
-    sky        = data.sky,
-    sapphire   = data.sapphire,
-    uiErr      = data.ui_error,
-    uiWarn     = data.ui_warning,
-    uiSucc     = data.ui_success,
-    uiInfo     = data.ui_info,
-    uiHint     = data.ui_hint,
-    uiMatch    = data.ui_match,
+    bg         = c.background,
+    bgAccent   = c.backgroundAccent,
+    hl         = c.highlighted,
+    ov1        = c.overlay1,
+    ov2        = c.overlay2,
+    surf2      = c.surface2,
+    borderIna  = c.borderInactive,
+    borderFoc  = c.borderFocused,
+    accent     = c.accent,
+    accentL    = c.accent_light,
+    accentD    = c.accent_dark,
+    crust      = c.crust,
+    fg         = c.text,
+    st0        = c.subtext0,
+    st1        = c.subtext1,
+    red        = c.red,
+    green      = c.green,
+    yellow     = c.yellow,
+    blue       = c.blue,
+    magenta    = c.magenta,
+    cyan       = c.cyan,
+    mauve      = c.mauve,
+    lavender   = c.lavender,
+    pink       = c.pink,
+    rosewater  = c.rosewater,
+    flamingo   = c.flamingo,
+    maroon     = c.maroon,
+    peach      = c.peach,
+    sky        = c.sky,
+    sapphire   = c.sapphire,
+    uiErr      = c.ui_error,
+    uiWarn     = c.ui_warning,
+    uiSucc     = c.ui_success,
+    uiInfo     = c.ui_info,
+    uiHint     = c.ui_hint,
+    uiMatch    = c.ui_match,
   }
 end
 
@@ -335,8 +336,6 @@ local function apply_theme(data)
   if vim.fn.exists("syntax_on") == 1 then
     vim.cmd("syntax reset")
   end
-  vim.g.colors_name = _hostname .. "-theme"
-
   local c = extract_colors(data)
   define_highlights(c)
 

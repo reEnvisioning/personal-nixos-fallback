@@ -11,6 +11,7 @@ case "$CMD" in
         [ -f "$DIR/$KEY" ] || exit 0
         cat "$DIR/$KEY" ;;
     set)
+        [ -f "$DIR" ] && rm -f "$DIR"
         mkdir -p "$DIR"
         printf '%s' "$VALUE" > "$DIR/$KEY" ;;
 esac
