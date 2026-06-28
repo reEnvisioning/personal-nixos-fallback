@@ -1,7 +1,10 @@
-{ lib, ... }:
+{ modulesPath, lib, ... }:
 let
   diskDevice = "/dev/nvme0n1";
 in {
+  imports = [
+    (modulesPath + "/installer/scan/not-detected.nix")
+  ];
   fileSystems."/boot" = {
     device = "${diskDevice}p1";
     fsType = "vfat";
