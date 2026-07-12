@@ -2,14 +2,6 @@
 let
   theme = import ./theme.nix;
 
-  # The quickshell config lives in its own repository and is provided as a
-  # flake input (github:reEnvisioning/temp) — see NixOS/flake.nix.
-  quickshellDir = pkgs.runCommandLocal "quickshell-config" { src = quickshellSrc; } ''
-    mkdir -p $out
-    cp -r ${quickshellSrc}/* $out/
-    [ -d ${quickshellSrc}/user ] && cp -r ${quickshellSrc}/user $out/user
-  '';
-
   mkUnifiedThemeJson = name: t: builtins.toJSON ({
     name = name;
     mode = t.mode;
@@ -183,7 +175,7 @@ in {
     };
 
     "quickshell" = {
-      source = quickshellDir;
+      source = quickshellSrc;
       force = true;
     };
     "btop/themes/current.theme" = {
