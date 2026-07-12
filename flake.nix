@@ -36,10 +36,11 @@
 
     usernames = [ "visionary" ];
     primaryUser = builtins.head usernames;
+    quickshellSrc = quickshell.packages.${system}.default;
 
     mkSystem = { pc }: inputs.nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArgs = { inherit inputs hostname unstable gitUsername pc cpuVendor gpuVendor; nixUsers = usernames; username = primaryUser; quickshellSrc = quickshell.packages.${system}.default; };
+      specialArgs = { inherit inputs hostname unstable gitUsername pc cpuVendor gpuVendor quickshellSrc; nixUsers = usernames; username = primaryUser; };
       modules = [
         ./system/default.nix
         {
