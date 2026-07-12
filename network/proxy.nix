@@ -2,10 +2,28 @@
 
 let
   network = import ./network.nix;
-  s = network.secrets;
+  srv = network.secrets.default;
   inherit (pkgs) systemd;
   stateDir = "/run/wireguard-monitor";
   keyDir = "/etc/wireguard";
+
+  isDirect = srv.type == "direct";
+  isTailscale = srv.type == "tailscale";
+  isTor = srv.type == "tor";
+  hasServerIp = isDirect || isTailscale;
+  serverIpOrNull = if hasServerIp then srv.serverIp else null;
+  endpoint = if isTor then "127.0.0.1:${toString srv.localBridgePort}" else "${srv.serverIp}:${toString srv.serverPort}";
+
+  socat-bridge = pkgs.writeShellScript "socat-wg-bridge" ''
+    set -euo pipefail
+    ONION="${srv.onionAddress}"
+    ONION_PORT="${toString srv.onionPort}"
+    SOCKS_PORT="${toString srv.torSocksPort}"
+    BRIDGE_PORT="${toString srv.localBridgePort}"
+
+    exec ${pkgs.socat}/bin/socat UDP4-LISTEN:"$BRIDGE_PORT",fork,reuseaddr \
+      "EXEC:${pkgs.socat}/bin/socat STDIO SOCKS4A:127.0.0.1:$ONION:$ONION_PORT,socksport=$SOCKS_PORT",nofork
+  '';
 
   proxy-off = pkgs.writeShellScriptBin "proxy-off" ''
     if [ -z "$SUDO_USER" ]; then
@@ -53,20 +71,23 @@ let
   '';
 in {
     networking.wireguard.interfaces.wg0 = {
-      ips = [ s.tunnelIp ];
+      ips = [ srv.tunnelIp ];
       privateKeyFile = "${keyDir}/private.key";
       allowedIPsAsRoutes = false;
       fwMark = "0xca6c";
       peers = [{
-        publicKey = s.serverPub;
+        publicKey = srv.serverPub;
         presharedKeyFile = "${keyDir}/psk.key";
         allowedIPs = [ "0.0.0.0/0" "::/0" ];
-        endpoint = "${s.serverIp}:${toString s.serverPort}";
+        endpoint = "${endpoint}";
         persistentKeepalive = 25;
       }];
 
-      postSetup = ''
-        ${pkgs.iproute2}/bin/ip route add ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
+      postSetup = (lib.optionalString hasServerIp ''
+        ${pkgs.iproute2}/bin/ip route add ${serverIpOrNull}/32 via ${srv.gateway} 2>/dev/null || true
+      '') + (lib.optionalString isTor ''
+        ${pkgs.systemd}/bin/systemctl start socat-wg-bridge 2>/dev/null || true
+      '') + ''
         echo "pending" > ${stateDir}/wg-vpn-status
       '';
 
@@ -76,8 +97,12 @@ in {
         ${pkgs.iproute2}/bin/ip -6 route del ::/1 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip -6 route del 8000::/1 2>/dev/null || true
         ${pkgs.iproute2}/bin/ip rule del fwmark 2 table 100 2>/dev/null || true
-        ${pkgs.iproute2}/bin/ip route del default via ${s.gateway} table 100 2>/dev/null || true
-        ${pkgs.iproute2}/bin/ip route del ${s.serverIp}/32 via ${s.gateway} 2>/dev/null || true
+        ${pkgs.iproute2}/bin/ip route del default via ${srv.gateway} table 100 2>/dev/null || true
+      '' + (lib.optionalString hasServerIp ''
+        ${pkgs.iproute2}/bin/ip route del ${serverIpOrNull}/32 via ${srv.gateway} 2>/dev/null || true
+      '') + (lib.optionalString isTor ''
+        ${pkgs.systemd}/bin/systemctl stop socat-wg-bridge 2>/dev/null || true
+      '') + ''
         echo "disconnected" > ${stateDir}/wg-vpn-status
         echo "disconnected" > ${stateDir}/wg-last-state
       '';
@@ -95,6 +120,19 @@ in {
 
     systemd.targets.wireguard-wg0.wantedBy = lib.mkForce [ ];
 
+    systemd.services.socat-wg-bridge = lib.mkIf isTor {
+      description = "WireGuard over Tor socat bridge";
+      after = [ "network.target" ];
+      requires = [ "tor.service" ];
+      serviceConfig = {
+        Type = "simple";
+        ExecStart = "${socat-bridge}";
+        Restart = "on-failure";
+        RestartSec = 5;
+      };
+      wantedBy = lib.mkForce [ ];
+    };
+
     systemd.services.wireguard-monitor = {
       description = "WireGuard connection monitor";
       after = [ "network.target" "nftables.service" ];
@@ -102,20 +140,19 @@ in {
       serviceConfig.Type = "oneshot";
       script = ''
         stateDir="${stateDir}"
-        serverIp="${s.serverIp}"
-        serverPort="${toString s.serverPort}"
-        gateway="${s.gateway}"
+        serverIp="${if hasServerIp then serverIpOrNull else ""}"
+        gateway="${srv.gateway}"
 
         mkdir -p "$stateDir"
         chmod 0755 "$stateDir"
 
-        # Check if server endpoint is reachable via ICMP
-        PING_OK=0
-        ${pkgs.iputils}/bin/ping -c 1 -W 1 "$serverIp" >/dev/null 2>&1 || PING_OK=$?
-
         if [ -f "$stateDir"/wg-disabled ]; then
           exit 0
         fi
+
+        ${lib.optionalString hasServerIp ''
+        PING_OK=0
+        ${pkgs.iputils}/bin/ping -c 1 -W 1 "$serverIp" >/dev/null 2>&1 || PING_OK=$?
 
         if [ "$PING_OK" -ne 0 ]; then
           if [ ! -f "$stateDir"/wg-offline ]; then
@@ -130,6 +167,7 @@ in {
         if [ -f "$stateDir"/wg-offline ]; then
           rm -f "$stateDir"/wg-offline "$stateDir"/wg-retry-count 2>/dev/null || true
         fi
+        ''}
 
         if ! ${pkgs.wireguard-tools}/bin/wg show wg0 >/dev/null 2>&1; then
           ${pkgs.systemd}/bin/systemctl start wireguard-wg0 2>/dev/null || true
@@ -137,7 +175,6 @@ in {
           exit 0
         fi
 
-        # wg0 is up — use handshake for tunnel health
         HS=$(${pkgs.wireguard-tools}/bin/wg show wg0 latest-handshakes 2>/dev/null)
         TS=$(echo "$HS" | ${pkgs.gnugrep}/bin/grep -oP '\d+$')
         NOW=$(${pkgs.coreutils}/bin/date +%s)
@@ -152,7 +189,6 @@ in {
         if [ "$CUR" = "connected" ]; then
           rm -f "$stateDir"/wg-retry-count 2>/dev/null || true
         else
-          # No recent handshake — mark offline, server will be rechecked next cycle
           rm -f "$stateDir"/wg-retry-count 2>/dev/null || true
           if [ ! -f "$stateDir"/wg-offline ]; then
             ${pkgs.systemd}/bin/systemctl stop wireguard-wg0 2>/dev/null || true
@@ -180,10 +216,21 @@ in {
               ${pkgs.nftables}/bin/nft add chain inet wg-killswitch output { type filter hook output priority filter + 2\; policy accept\; } 2>/dev/null || true
               ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
                 socket cgroupv2 level 2 "system.slice/bypass-wg.slice" meta mark set 2 2>/dev/null || true
+
+              ${lib.optionalString hasServerIp ''
               ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
-                ip daddr "$serverIp" udp dport "$serverPort" accept
+                ip daddr "$serverIp" udp dport "${toString srv.serverPort}" accept
               ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
                 ip daddr "$serverIp" icmp type echo-request accept
+              ''}
+
+              ${lib.optionalString isTor ''
+              ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+                oifname "lo" ip daddr 127.0.0.1 udp dport "${toString srv.localBridgePort}" accept
+              ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
+                ip daddr 127.0.0.1 tcp dport "${toString srv.torSocksPort}" accept
+              ''}
+
               ${pkgs.nftables}/bin/nft add rule inet wg-killswitch output \
                 oifname != "lo" oifname != "wg0" meta mark != 2 \
                 counter reject with icmpx type admin-prohibited
@@ -243,9 +290,7 @@ in {
 
     environment.systemPackages = with pkgs; [
       wireguard-tools
-    proxy-off
+      proxy-off
       proxy-on
-    ];
-
-
+    ] ++ lib.optionals isTor [ socat ];
 }

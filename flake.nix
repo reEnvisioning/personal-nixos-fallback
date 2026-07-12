@@ -15,16 +15,21 @@
       url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    quickshell = {
+      url = "github:reEnvisioning/temp";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, ... }: let
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, quickshell, ... }: let
     hostname = "headspace";
     pc = "desktop";
     cpuVendor = "intel";
     gpuVendor = "nvidia";
     system = "x86_64-linux";
     gitUsername = "reEnvisioning";
-    inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko; };
+    inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko quickshell; };
     unstable = import nixpkgs-unstable {
       inherit system;
     };
@@ -34,7 +39,7 @@
 
     mkSystem = { pc }: inputs.nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArgs = { inherit inputs hostname unstable gitUsername pc cpuVendor gpuVendor; nixUsers = usernames; username = primaryUser; };
+      specialArgs = { inherit inputs hostname unstable gitUsername pc cpuVendor gpuVendor; nixUsers = usernames; username = primaryUser; quickshellSrc = quickshell.packages.${system}.default; };
       modules = [
         ./system/default.nix
         {

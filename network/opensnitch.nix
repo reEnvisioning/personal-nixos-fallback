@@ -264,7 +264,7 @@ in {
           type = "simple";
           sensitive = false;
           operand = "dest.ip";
-          data = network.secrets.serverIp;
+          data = network.secrets.default.serverIp;
         };
       };
       tor = {
