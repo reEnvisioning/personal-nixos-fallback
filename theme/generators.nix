@@ -1,4 +1,12 @@
 let
+  hexChars = "0123456789abcdef";
+
+  toHexPair = v:
+    let
+      hi = v / 16;
+      lo = v - hi * 16;
+    in "${builtins.substring hi 1 hexChars}${builtins.substring lo 1 hexChars}";
+
   # Color mapping from theme.json to radiance.toml roles
   colorMap = c: {
     bg = c.background;
@@ -19,7 +27,6 @@ let
     ma = c.magenta;
   };
 
-  # Hex color manipulation
   lightenHex = hex: pct:
     let
       r = builtins.fromJSON (builtins.substring 1 2 hex);
@@ -28,8 +35,7 @@ let
       r' = r + (255 - r) * pct / 100;
       g' = g + (255 - g) * pct / 100;
       b' = b + (255 - b) * pct / 100;
-      toHex = v: let h = builtins.toHexString v; in if builtins.stringLength h == 1 then "0${h}" else h;
-    in "#${toHex r'}${toHex g'}${toHex b'}";
+    in "#${toHexPair r'}${toHexPair g'}${toHexPair b'}";
 
   darkenHex = hex: pct:
     let
@@ -39,8 +45,7 @@ let
       r' = r * (100 - pct) / 100;
       g' = g * (100 - pct) / 100;
       b' = b * (100 - pct) / 100;
-      toHex = v: let h = builtins.toHexString v; in if builtins.stringLength h == 1 then "0${h}" else h;
-    in "#${toHex r'}${toHex g'}${toHex b'}";
+    in "#${toHexPair r'}${toHexPair g'}${toHexPair b'}";
 
 in {
   # Generate kitty.conf from theme colors
