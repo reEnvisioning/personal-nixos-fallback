@@ -56,8 +56,8 @@ if [ -f "$WALLPAPER" ]; then
 fi
 
 # 4. Niri focus ring colors
-BORDER_FOCUSED=$(jq -r '.borderFocused' "$THEME_FILE")
-BORDER_INACTIVE=$(jq -r '.borderInactive' "$THEME_FILE")
+BORDER_FOCUSED=$(jq -r '.colors.borderFocused' "$THEME_FILE")
+BORDER_INACTIVE=$(jq -r '.colors.borderInactive' "$THEME_FILE")
 niri msg config layout.focus-ring.active-color "$BORDER_FOCUSED" 2>/dev/null || true
 niri msg config layout.focus-ring.inactive-color "$BORDER_INACTIVE" 2>/dev/null || true
 

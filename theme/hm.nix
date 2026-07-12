@@ -6,7 +6,7 @@ let
 
   # Clean theme.json: only colors, mode, wallpapers, cursor, opacity, font
   mkCleanThemeJson = name: t: builtins.toJSON ({
-    name = name;
+    themeName = name;
     mode = t.mode;
     wallpaper = toString t.wallpaper;
     wallpapers = map (x: toString x) t.wallpapers;
@@ -15,7 +15,8 @@ let
     active_opacity = t.active_opacity;
     inactive_opacity = t.inactive_opacity;
     font = { family = "Monospace"; size = 10; };
-  } // t.colors);
+    colors = t.colors;
+  });
 
   themeJsonConfigs = builtins.listToAttrs (lib.flatten (map (name: let t = theme.all.${name}; in [
     {
