@@ -263,8 +263,6 @@ in {
         ${builtins.concatStringsSep "\n" wsBinds}
     }
 
-    spawn-sh-at-startup "opensnitch-ui --background"
-
     spawn-sh-at-startup "${niri-startup}"
   '';
 
