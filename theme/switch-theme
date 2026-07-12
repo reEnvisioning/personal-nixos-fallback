@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+set -uo pipefail
+
+THEME_NAME="${1:-}"
+if [ -z "$THEME_NAME" ]; then
+    echo "Usage: switch-theme <name>"
+    exit 1
+fi
+
+THEME_DIR="$HOME/.config/reEnvisioning/themes"
+THEME_FILE="$THEME_DIR/$THEME_NAME/theme.json"
+RUNTIME_FILE="$HOME/.config/reEnvisioning/theme.json"
+
+if [ ! -f "$THEME_FILE" ]; then
+    echo "Theme '$THEME_NAME' not found at $THEME_FILE"
+    echo "Available themes:"
+    ls -d "$THEME_DIR"/*/ 2>/dev/null | xargs -n1 basename | sort -u
+    exit 1
+fi
+
+# Read mode
+MODE=$(jq -r '.mode // "dark"' "$THEME_FILE")
+
+# 1. Write runtime theme.json (triggers systemd path → theme-reload → signals kitty/btop)
+mkdir -p "$(dirname "$RUNTIME_FILE")"
+cp "$THEME_FILE" "$RUNTIME_FILE"
+
+# 2. Update symlinks (break Nix symlinks, create new ones)
+for app_conf in \
+    "$HOME/.config/kitty/kitty.conf:$THEME_DIR/$THEME_NAME/kitty.conf" \
+    "$HOME/.config/btop/themes/current.theme:$THEME_DIR/$THEME_NAME/btop.theme" \
+    "$HOME/.config/yazi/theme.toml:$THEME_DIR/$THEME_NAME/yazi.toml"; do
+    target="${app_conf%%:*}"
+    source="${app_conf##*:}"
+    mkdir -p "$(dirname "$target")"
+    rm -f "$target"
+    ln -s "$source" "$target"
+done
+
+# 3. Wallpaper — per-theme index with bounds check
+WALLPAPER_COUNT=$(jq '.wallpapers | length' "$THEME_FILE")
+SAVED_IDX="$(state get wallpaper-idx:$THEME_NAME || echo "")"
+
+if [ -z "$SAVED_IDX" ] || [ "$SAVED_IDX" -ge "$WALLPAPER_COUNT" ] 2>/dev/null; then
+    WALLPAPER_IDX=0
+else
+    WALLPAPER_IDX=$((SAVED_IDX))
+fi
+
+WALLPAPER=$(jq -r ".wallpapers[$WALLPAPER_IDX]" "$THEME_FILE")
+
+sleep 1
+if [ -f "$WALLPAPER" ]; then
+    pkill swaybg 2>/dev/null || true
+    nohup swaybg -i "$WALLPAPER" -m fill >/dev/null 2>&1 & disown
+fi
+
+# 4. Niri focus ring colors
+BORDER_FOCUSED=$(jq -r '.borderFocused' "$THEME_FILE")
+BORDER_INACTIVE=$(jq -r '.borderInactive' "$THEME_FILE")
+niri msg config layout.focus-ring.active-color "$BORDER_FOCUSED" 2>/dev/null || true
+niri msg config layout.focus-ring.inactive-color "$BORDER_INACTIVE" 2>/dev/null || true
+
+# 5. Save current theme
+state set current-theme "$THEME_NAME"
+
+# 6. Third-party apps (GTK, Firefox, OBS, etc.)
+command -v external-theme >/dev/null 2>&1 && external-theme "$MODE"
