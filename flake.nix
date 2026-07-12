@@ -65,7 +65,7 @@
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
 
-          home-manager.extraSpecialArgs = { inherit hostname unstable gitUsername pc cpuVendor gpuVendor; };
+          home-manager.extraSpecialArgs = { inherit hostname unstable gitUsername pc cpuVendor gpuVendor quickshellSrc; };
 
           home-manager.users = builtins.listToAttrs (map (u: {
             name = u;
