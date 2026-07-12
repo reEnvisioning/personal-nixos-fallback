@@ -1,6 +1,17 @@
 let
   hexChars = "0123456789abcdef";
 
+  hexDigitToInt = c: {
+    "0" = 0; "1" = 1; "2" = 2; "3" = 3; "4" = 4;
+    "5" = 5; "6" = 6; "7" = 7; "8" = 8; "9" = 9;
+    "a" = 10; "b" = 11; "c" = 12; "d" = 13; "e" = 14; "f" = 15;
+    "A" = 10; "B" = 11; "C" = 12; "D" = 13; "E" = 14; "F" = 15;
+  }.${c};
+
+  hexByteToInt = s:
+    hexDigitToInt (builtins.substring 0 1 s) * 16 +
+    hexDigitToInt (builtins.substring 1 1 s);
+
   toHexPair = v:
     let
       hi = v / 16;
@@ -29,9 +40,9 @@ let
 
   lightenHex = hex: pct:
     let
-      r = builtins.fromJSON (builtins.substring 1 2 hex);
-      g = builtins.fromJSON (builtins.substring 3 2 hex);
-      b = builtins.fromJSON (builtins.substring 5 2 hex);
+      r = hexByteToInt (builtins.substring 1 2 hex);
+      g = hexByteToInt (builtins.substring 3 2 hex);
+      b = hexByteToInt (builtins.substring 5 2 hex);
       r' = r + (255 - r) * pct / 100;
       g' = g + (255 - g) * pct / 100;
       b' = b + (255 - b) * pct / 100;
@@ -39,9 +50,9 @@ let
 
   darkenHex = hex: pct:
     let
-      r = builtins.fromJSON (builtins.substring 1 2 hex);
-      g = builtins.fromJSON (builtins.substring 3 2 hex);
-      b = builtins.fromJSON (builtins.substring 5 2 hex);
+      r = hexByteToInt (builtins.substring 1 2 hex);
+      g = hexByteToInt (builtins.substring 3 2 hex);
+      b = hexByteToInt (builtins.substring 5 2 hex);
       r' = r * (100 - pct) / 100;
       g' = g * (100 - pct) / 100;
       b' = b * (100 - pct) / 100;
