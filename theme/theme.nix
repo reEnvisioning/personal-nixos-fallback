@@ -20,14 +20,10 @@ let
   allThemes = {
     void = {
       mode = "dark";
-      localsend_color = "oled";
-      obs_style = "Acri";
-      KDEwidgetStyle = "Fusion";
       wallpaper = ./resources/wallpaper/void.png;
       wallpapers = [
         ./resources/wallpaper/void.png
       ];
-      yazi = ./resources/yazi/void.toml;
       active_opacity = 0.9;
       inactive_opacity = 0.85;
       cursor_theme = "Vanilla-DMZ";
@@ -75,15 +71,11 @@ let
 
     radiance = {
       mode = "light";
-      localsend_color = "system";
-      obs_style = "Light";
-      KDEwidgetStyle = "Fusion";
       wallpaper = ./resources/wallpaper/radiance.png;
       wallpapers = [
         ./resources/wallpaper/radiance.png
         ./resources/wallpaper/radiance2.png
       ];
-      yazi = ./resources/yazi/radiance.toml;
       active_opacity = 0.9;
       inactive_opacity = 0.85;
       cursor_theme = "Vanilla-DMZ";
@@ -131,14 +123,10 @@ let
 
     sakura = {
       mode = "light";
-      localsend_color = "yaru";
-      obs_style = "Light";
-      KDEwidgetStyle = "Fusion";
       wallpaper = ./resources/wallpaper/sakura.png;
       wallpapers = [
         ./resources/wallpaper/sakura.png
       ];
-      yazi = ./resources/yazi/sakura.toml;
       active_opacity = 0.9;
       inactive_opacity = 0.85;
       cursor_theme = "Vanilla-DMZ";
@@ -186,15 +174,11 @@ let
 
     horror = {
       mode = "dark";
-      localsend_color = "oled";
-      obs_style = "Acri";
-      KDEwidgetStyle = "Fusion";
       wallpaper = ./resources/wallpaper/horror.png;
       wallpapers = [
         ./resources/wallpaper/horror.png
         ./resources/wallpaper/backrooms.png
       ];
-      yazi = ./resources/yazi/horror.toml;
       active_opacity = 0.9;
       inactive_opacity = 0.85;
       cursor_theme = "Vanilla-DMZ";
@@ -246,7 +230,6 @@ in {
 
   mode = allThemes.${default}.mode;
   wallpaper = allThemes.${default}.wallpaper;
-  localsend_color = allThemes.${default}.localsend_color;
   active_opacity = allThemes.${default}.active_opacity;
   inactive_opacity = allThemes.${default}.inactive_opacity;
   cursor_theme = allThemes.${default}.cursor_theme;

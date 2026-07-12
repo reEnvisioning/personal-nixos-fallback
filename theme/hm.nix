@@ -1,16 +1,15 @@
 { config, pkgs, lib, quickshellSrc, ... }:
 let
   theme = import ./theme.nix;
+  external = import ./external.nix { inherit config pkgs lib; };
+  generators = import ./generators.nix;
 
-  mkUnifiedThemeJson = name: t: builtins.toJSON ({
+  # Clean theme.json: only colors, mode, wallpapers, cursor, opacity, font
+  mkCleanThemeJson = name: t: builtins.toJSON ({
     name = name;
     mode = t.mode;
     wallpaper = toString t.wallpaper;
     wallpapers = map (x: toString x) t.wallpapers;
-    gtkThemeName = t.gtk.themeName;
-    localsend_color = t.localsend_color;
-    obs_style = t.obs_style;
-    KDEwidgetStyle = t.KDEwidgetStyle;
     cursor_theme = t.cursor_theme;
     cursor_size = t.cursor_size;
     active_opacity = t.active_opacity;
@@ -18,75 +17,39 @@ let
     font = { family = "Monospace"; size = 10; };
   } // t.colors);
 
-  mkBtopTheme = name: t: ''
-    theme[main_bg]=${t.colors.background}
-    theme[main_fg]=${t.colors.text}
-    theme[title]=${t.colors.text}
-    theme[hi_fg]=${t.colors.mauve}
-    theme[selected_bg]=${t.colors.highlighted}
-    theme[selected_fg]=${t.colors.text}
-    theme[inactive_fg]=${t.colors.subtext0}
-    theme[graph_text]=${t.colors.mauve}
-    theme[meter_bg]=${t.colors.overlay2}
-    theme[proc_misc]=${t.colors.mauve}
-    theme[cpu_box]=${t.colors.mauve}
-    theme[mem_box]=${t.colors.green}
-    theme[net_box]=${t.colors.maroon}
-    theme[proc_box]=${t.colors.blue}
-    theme[div_line]=${t.colors.overlay1}
-    theme[temp_start]=${t.colors.green}
-    theme[temp_mid]=${t.colors.yellow}
-    theme[temp_end]=${t.colors.red}
-    theme[cpu_start]=${t.colors.cyan}
-    theme[cpu_mid]=${t.colors.sapphire}
-    theme[cpu_end]=${t.colors.lavender}
-    theme[free_start]=${t.colors.mauve}
-    theme[free_mid]=${t.colors.lavender}
-    theme[free_end]=${t.colors.blue}
-    theme[cached_start]=${t.colors.sapphire}
-    theme[cached_mid]=${t.colors.blue}
-    theme[cached_end]=${t.colors.lavender}
-    theme[available_start]=${t.colors.peach}
-    theme[available_mid]=${t.colors.maroon}
-    theme[available_end]=${t.colors.red}
-    theme[used_start]=${t.colors.green}
-    theme[used_mid]=${t.colors.cyan}
-    theme[used_end]=${t.colors.sky}
-    theme[download_start]=${t.colors.peach}
-    theme[download_mid]=${t.colors.maroon}
-    theme[download_end]=${t.colors.red}
-    theme[upload_start]=${t.colors.green}
-    theme[upload_mid]=${t.colors.cyan}
-    theme[upload_end]=${t.colors.sky}
-    theme[process_start]=${t.colors.overlay2}
-    theme[process_mid]=${t.colors.overlay2}
-    theme[process_end]=${t.colors.overlay2}
-  '';
-
-  themeJsonConfigs = builtins.listToAttrs (lib.flatten (map (name: [
+  themeJsonConfigs = builtins.listToAttrs (lib.flatten (map (name: let t = theme.all.${name}; in [
     {
       name = "reEnvisioning/themes/${name}/theme.json";
       value = {
-        text = mkUnifiedThemeJson name theme.all.${name};
+        text = mkCleanThemeJson name t;
         force = true;
       };
     }
     {
-      name = "reEnvisioning/yazi-themes/${name}.toml";
+      name = "reEnvisioning/themes/${name}/kitty.conf";
       value = {
-        source = theme.all.${name}.yazi;
+        text = generators.mkKittyConf t;
         force = true;
       };
     }
     {
-      name = "reEnvisioning/btop-themes/${name}.theme";
+      name = "reEnvisioning/themes/${name}/btop.theme";
       value = {
-        text = mkBtopTheme name theme.all.${name};
+        text = generators.mkBtopTheme t;
+        force = true;
+      };
+    }
+    {
+      name = "reEnvisioning/themes/${name}/yazi.toml";
+      value = {
+        text = generators.mkYaziTheme t;
         force = true;
       };
     }
   ]) (builtins.attrNames theme.all)));
 in {
+  imports = [ ./theme-reload.nix ];
+
   home.pointerCursor = {
     package = pkgs.vanilla-dmz;
     name = theme.cursor_theme;
@@ -150,6 +113,7 @@ in {
             current = theme.default;
             runtimePath = "reEnvisioning/theme.json";
             themesDir = "reEnvisioning/themes";
+            externalDir = "reEnvisioning/external";
           };
         stateDir = "reEnvisioning/state";
         configDir = "reEnvisioning/config";
@@ -178,9 +142,5 @@ in {
       source = quickshellSrc;
       force = true;
     };
-    "btop/themes/current.theme" = {
-      text = mkBtopTheme theme.default theme.all.${theme.default};
-      force = true;
-    };
-  } // themeJsonConfigs;
+  } // themeJsonConfigs // external.xdg.configFile;
 }
