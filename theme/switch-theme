@@ -21,11 +21,7 @@ fi
 # Read mode
 MODE=$(jq -r '.mode // "dark"' "$THEME_FILE")
 
-# 1. Write runtime theme.json (triggers systemd path → theme-reload → signals kitty/btop)
-mkdir -p "$(dirname "$RUNTIME_FILE")"
-cp "$THEME_FILE" "$RUNTIME_FILE"
-
-# 2. Update symlinks (break Nix symlinks, create new ones)
+# 1. Update symlinks (break Nix symlinks, create new ones)
 for app_conf in \
     "$HOME/.config/kitty/kitty.conf:$THEME_DIR/$THEME_NAME/kitty.conf" \
     "$HOME/.config/btop/themes/current.theme:$THEME_DIR/$THEME_NAME/btop.theme" \
@@ -36,6 +32,10 @@ for app_conf in \
     rm -f "$target"
     ln -s "$source" "$target"
 done
+
+# 2. Write runtime theme.json (triggers systemd path → theme-reload → signals kitty/btop)
+mkdir -p "$(dirname "$RUNTIME_FILE")"
+cp "$THEME_FILE" "$RUNTIME_FILE"
 
 # 3. Wallpaper — per-theme index with bounds check
 WALLPAPER_COUNT=$(jq '.wallpapers | length' "$THEME_FILE")

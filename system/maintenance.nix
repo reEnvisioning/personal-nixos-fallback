@@ -43,10 +43,10 @@
           ;;
         update)
           if [ "$ARG" = "all" ]; then
-            sudo nix flake update "$FLAKE_DIR"
+            sudo nix flake update --flake "$FLAKE_DIR"
           else
             [ -n "$ARG" ] || { echo "Usage: nr update <input|all>"; exit 1; }
-            sudo nix flake update "$ARG" "$FLAKE_DIR"
+            sudo nix flake update "$ARG" --flake "$FLAKE_DIR"
           fi
           rebuild
           ;;
