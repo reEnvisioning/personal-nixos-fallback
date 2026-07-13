@@ -93,14 +93,6 @@ in {
 
     layout {
         gaps 2
-        focus-ring {
-            width 1
-            active-color "${theme.colors.borderFocused}"
-            inactive-color "${theme.colors.borderInactive}"
-        }
-        border {
-            off
-        }
         default-column-width { proportion 0.5; }
     }
 

@@ -55,13 +55,7 @@ if [ -f "$WALLPAPER" ]; then
     nohup swaybg -i "$WALLPAPER" -m fill >/dev/null 2>&1 & disown
 fi
 
-# 4. Niri focus ring colors
-BORDER_FOCUSED=$(jq -r '.colors.borderFocused' "$THEME_FILE")
-BORDER_INACTIVE=$(jq -r '.colors.borderInactive' "$THEME_FILE")
-niri msg config layout.focus-ring.active-color "$BORDER_FOCUSED" 2>/dev/null || true
-niri msg config layout.focus-ring.inactive-color "$BORDER_INACTIVE" 2>/dev/null || true
-
-# 5. Save current theme
+# 4. Save current theme
 state set current-theme "$THEME_NAME"
 
 # 6. Third-party apps (GTK, Firefox, OBS, etc.)

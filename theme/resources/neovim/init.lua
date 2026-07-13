@@ -41,8 +41,7 @@ local function extract_colors(data)
     ov1        = c.overlay1,
     ov2        = c.overlay2,
     surf2      = c.surface2,
-    borderIna  = c.borderInactive,
-    borderFoc  = c.borderFocused,
+    border     = c.border,
     accent     = c.accent,
     accentL    = c.accent_light,
     accentD    = c.accent_dark,
@@ -92,7 +91,7 @@ local function define_highlights(c)
   hl.Directory       = { fg = c.blue }
   hl.EndOfBuffer     = { fg = c.bg, bg = c.bg }
   hl.ErrorMsg        = { fg = c.uiErr, bold = true }
-  hl.FloatBorder     = { fg = c.borderFoc }
+  hl.FloatBorder     = { fg = c.border }
   hl.FloatTitle      = { fg = c.fg, bold = true }
   hl.FoldColumn      = { fg = c.st0 }
   hl.Folded          = { fg = c.st0 }
@@ -279,9 +278,9 @@ local function define_highlights(c)
 
   -- Telescope
   hl.TelescopeNormal        = { fg = c.fg, bg = c.bg }
-  hl.TelescopeBorder        = { fg = c.borderFoc, bg = c.bg }
+  hl.TelescopeBorder        = { fg = c.border, bg = c.bg }
   hl.TelescopePromptNormal  = { fg = c.fg, bg = c.bgAccent }
-  hl.TelescopePromptBorder  = { fg = c.borderFoc, bg = c.bgAccent }
+  hl.TelescopePromptBorder  = { fg = c.border, bg = c.bgAccent }
   hl.TelescopeResultsTitle  = { fg = c.st0 }
   hl.TelescopePreviewTitle  = { fg = c.st0 }
   hl.TelescopePromptTitle   = { fg = c.fg }
@@ -298,7 +297,7 @@ local function define_highlights(c)
   hl.NvimTreeOpenedFile      = { fg = c.fg, bold = true }
   hl.NvimTreeFolderName      = { fg = c.uiInfo }
   hl.NvimTreeEmptyFolderName = { fg = c.st0 }
-  hl.NvimTreeIndentMarker    = { fg = c.borderIna }
+  hl.NvimTreeIndentMarker    = { fg = c.border }
   hl.NvimTreeSymlink         = { fg = c.cyan }
   hl.NvimTreeImageFile       = { fg = c.mauve }
   hl.NvimTreeExecFile        = { fg = c.green }
@@ -317,8 +316,8 @@ local function define_highlights(c)
   hl.GitSignsDeleteNr  = { fg = c.uiErr }
 
   -- Indent Blankline
-  hl.IblIndent = { fg = c.borderIna }
-  hl.IblScope  = { fg = c.borderFoc }
+  hl.IblIndent = { fg = c.border }
+  hl.IblScope  = { fg = c.border }
 
   -- Apply all highlights
   for group, opts in pairs(hl) do
