@@ -144,4 +144,11 @@ in {
       force = true;
     };
   } // themeJsonConfigs // external.xdg.configFile;
+
+  home.activation.restoreTheme = lib.hm.dag.entryAfter ["writeBoundary"] ''
+    CURRENT_THEME="$(cat "$HOME/.config/reEnvisioning/state/current-theme" 2>/dev/null || echo "")"
+    if [ -n "$CURRENT_THEME" ]; then
+      switch-theme "$CURRENT_THEME"
+    fi
+  '';
 }
