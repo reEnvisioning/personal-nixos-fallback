@@ -166,6 +166,11 @@ in {
       # Write runtime theme.json (triggers systemd path → kitty/btop signal)
       mkdir -p "$(dirname "$RUNTIME_FILE")"
       cp "$THEME_DIR/theme.json" "$RUNTIME_FILE"
+
+      # Apply external theming (GTK, Firefox, LibreWolf, etc.)
+      export PATH="/run/current-system/sw/bin:$PATH"
+      MODE="$(jq -r '.mode // "dark"' "$THEME_DIR/theme.json")"
+      external-theme "$MODE"
     fi
   '';
 }
