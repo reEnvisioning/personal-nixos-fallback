@@ -18,7 +18,7 @@ let
       lo = v - hi * 16;
     in "${builtins.substring hi 1 hexChars}${builtins.substring lo 1 hexChars}";
 
-  # Color mapping from theme.json to radiance.toml roles
+  # Color mapping from theme.json to yazi theme roles
   colorMap = c: {
     bg = c.background;
     "bg-2" = c.surface2;
@@ -138,7 +138,7 @@ in {
     theme[process_end]=${processEnd}
   '';
 
-  # Generate yazi theme from theme colors (radiance.toml structure)
+  # Generate yazi theme from theme colors
   mkYaziTheme = t: let
     m = colorMap t.colors;
   in ''

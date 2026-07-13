@@ -1,5 +1,5 @@
 let
-  default = "void";
+  default = "sakura";
 
   mkCatppuccin = variant: accent: {
     package = "catppuccin";
@@ -69,12 +69,11 @@ let
       };
     };
 
-    radiance = {
+    ink = {
       mode = "light";
-      wallpaper = ./resources/wallpaper/radiance.png;
+      wallpaper = ./resources/wallpaper/ink.png;
       wallpapers = [
-        ./resources/wallpaper/radiance.png
-        ./resources/wallpaper/radiance2.png
+        ./resources/wallpaper/ink.png
       ];
       active_opacity = 0.9;
       inactive_opacity = 0.85;
@@ -82,24 +81,24 @@ let
       cursor_size = 24;
       gtk = mkCatppuccinLight "Latte" "Blue";
       colors = {
-        crust             = "#F8F8F8";
-        background        = "#F0F0F0";
-        accent_dark       = "#FCFCFC";
-        accent            = "#ECECEC";
+        crust             = "#FEFEFE";
+        background        = "#FFFFFF";
+        accent_dark       = "#FFFFFF";
+        accent            = "#F0F0F0";
         accent_light      = "#E8E8E8";
-        borderInactive    = "#E4E4E4";
-        borderFocused     = "#D8D8D8";
-        backgroundAccent  = "#EAEAEA";
-        overlay2          = "#E6E6E6";
-        surface2          = "#A0A0A0";
-        overlay1          = "#D4D4D4";
-        highlighted       = "#C8C8C8";
-        ui_error          = "#6A5A5A";
-        ui_warning        = "#6A6A5A";
-        ui_success        = "#5A6A5A";
-        ui_info           = "#5A5A6A";
-        ui_hint           = "#AAAAAA";
-        ui_match          = "#5A5A4A";
+        borderInactive    = "#E0E0E0";
+        borderFocused     = "#000000";
+        backgroundAccent  = "#F5F5F5";
+        overlay2          = "#ECECEC";
+        surface2          = "#909090";
+        overlay1          = "#E0E0E0";
+        highlighted       = "#D8D8D8";
+        ui_error          = "#3A2A2A";
+        ui_warning        = "#3A3A2A";
+        ui_success        = "#2A3A2A";
+        ui_info           = "#2A2A3A";
+        ui_hint           = "#777777";
+        ui_match          = "#3A3A2A";
         red               = "#565656";
         blue              = "#5A5A5A";
         sapphire          = "#5E5E5E";
@@ -116,8 +115,8 @@ let
         yellow            = "#8E8E8E";
         rosewater         = "#929292";
         subtext0          = "#555555";
-        subtext1          = "#444444";
-        text              = "#222222";
+        subtext1          = "#333333";
+        text              = "#000000";
       };
     };
 
