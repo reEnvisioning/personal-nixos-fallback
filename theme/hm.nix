@@ -148,8 +148,24 @@ in {
   home.activation.restoreTheme = lib.hm.dag.entryAfter ["writeBoundary"] ''
     CURRENT_THEME="$(cat "$HOME/.config/reEnvisioning/state/current-theme" 2>/dev/null || echo "")"
     if [ -n "$CURRENT_THEME" ]; then
-      export PATH="/run/current-system/sw/bin:$PATH"
-      /run/current-system/sw/bin/switch-theme "$CURRENT_THEME"
+      THEME_DIR="$HOME/.config/reEnvisioning/themes/$CURRENT_THEME"
+      RUNTIME_FILE="$HOME/.config/reEnvisioning/theme.json"
+
+      # Restore symlinks (home-manager overwrites them on rebuild)
+      for app_conf in \
+          "$HOME/.config/kitty/kitty.conf:$THEME_DIR/kitty.conf" \
+          "$HOME/.config/btop/themes/current.theme:$THEME_DIR/btop.theme" \
+          "$HOME/.config/yazi/theme.toml:$THEME_DIR/yazi.toml"; do
+          target="''${app_conf%%:*}"
+          source="''${app_conf##*:}"
+          mkdir -p "$(dirname "$target")"
+          rm -f "$target"
+          ln -s "$source" "$target"
+      done
+
+      # Write runtime theme.json (triggers systemd path → kitty/btop signal)
+      mkdir -p "$(dirname "$RUNTIME_FILE")"
+      cp "$THEME_DIR/theme.json" "$RUNTIME_FILE"
     fi
   '';
 }
