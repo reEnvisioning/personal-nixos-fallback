@@ -1,4 +1,4 @@
-{ pkgs, hostname, username, ... }: {
+{ pkgs, hostname, ... }: {
   nix.gc = {
     automatic = true;
     dates = "weekly";
@@ -14,83 +14,62 @@
     SystemMaxUse=500M
   '';
 
-  services.udisks2.enable = true;
-  services.power-profiles-daemon.enable = true;
-
   environment.systemPackages = with pkgs; [
     nvd
 
-    (writeShellScriptBin "ng" ''
-      set -xeuo pipefail
-
-      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +10
-      sudo -u ${username} nix-env --profile /nix/var/nix/profiles/per-user/${username}/profile --delete-generations +10 2>/dev/null || true
-      sudo nix-collect-garbage
-      sudo nix store optimise
-
-      bootctl=$(which bootctl 2>/dev/null || echo /run/current-system/sw/bin/bootctl)
-      if [ -x "$bootctl" ]; then
-        "$bootctl" remove-old 2>/dev/null || true
-      fi
-    '')
-
-    (writeShellScriptBin "nu" ''
-      set -xeuo pipefail
-
-      FLAKE_DIR=''${1:-/${hostname}}
-
-      sudo nix flake update "$FLAKE_DIR"
-      sudo nixos-rebuild switch --flake "''${FLAKE_DIR}#${hostname}"
-
-      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +10
-      nix-collect-garbage
-    '')
-
-    (writeShellScriptBin "nu-stable" ''
-      set -xeuo pipefail
-      sudo nix flake lock --update-input nixpkgs /${hostname}
-      sudo nixos-rebuild switch --flake "/${hostname}#${hostname}"
-      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +10
-      nix-collect-garbage
-    '')
-
-    (writeShellScriptBin "nu-unstable" ''
-      set -xeuo pipefail
-      sudo nix flake lock --update-input nixpkgs-unstable /${hostname}
-      sudo nixos-rebuild switch --flake "/${hostname}#${hostname}"
-      sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +10
-      nix-collect-garbage
-    '')
-
     (writeShellScriptBin "nr" ''
-      set -xeuo pipefail
-
-      THEME=''${1:-$(state get current-theme || echo void)}
-
-      if [ -z "${hostname}" ]; then
-        echo "FATAL: hostname is empty, aborting"
-        exit 1
-      fi
-
+      set -euo pipefail
       FLAKE_DIR="/${hostname}"
+      CMD="''${1:-}"
+      ARG="''${2:-}"
 
-      if [ ! -f "$FLAKE_DIR/flake.nix" ]; then
-        echo "FATAL: $FLAKE_DIR does not contain flake.nix, aborting"
-        exit 1
-      fi
-
-      TMPDIR=$(mktemp -d)
-      git clone --depth 1 https://github.com/reEnvisioning/personal-nixos-fallback.git "$TMPDIR" || {
-        echo "FATAL: git clone failed, aborting"
-        rm -rf "$TMPDIR"
-        exit 1
+      rebuild() {
+        sudo nixos-rebuild switch --flake "$FLAKE_DIR#${hostname}"
       }
-      sudo rm -rf "$FLAKE_DIR"/*
-      sudo cp -rf "$TMPDIR"/* "$FLAKE_DIR"/
-      sudo cp /resources/secret.nix "$FLAKE_DIR"/
-      rm -rf "$TMPDIR"
-      sudo nixos-rebuild switch --flake "$FLAKE_DIR#${hostname}"
-      switch-theme "$THEME"
+
+      case "$CMD" in
+        "")
+          read -rp "Wipe $FLAKE_DIR and rebuild from GitHub? [Y/n] " confirm
+          case "$confirm" in
+            ""|[Yy]*) ;;
+            *) exit 0 ;;
+          esac
+          TMPDIR=$(mktemp -d)
+          git clone --depth 1 https://github.com/reEnvisioning/personal-nixos-fallback.git "$TMPDIR"
+          sudo rm -rf "$FLAKE_DIR"/*
+          sudo cp -rf "$TMPDIR"/* "$FLAKE_DIR"/
+          rm -rf "$TMPDIR"
+          rebuild
+          ;;
+        update)
+          if [ "$ARG" = "all" ]; then
+            sudo nix flake update "$FLAKE_DIR"
+          else
+            [ -n "$ARG" ] || { echo "Usage: nr update <input|all>"; exit 1; }
+            sudo nix flake update "$ARG" "$FLAKE_DIR"
+          fi
+          rebuild
+          ;;
+        rollback)
+          COUNT=''${ARG:?Usage: nr rollback <count>}
+          CURRENT=$(sudo nix-env --profile /nix/var/nix/profiles/system --list-generations \
+                   | tail -1 | awk '{print $1}')
+          TARGET=$((CURRENT - COUNT))
+          [ "$TARGET" -ge 1 ] || { echo "Cannot go back $COUNT generations"; exit 1; }
+          sudo nix-env --profile /nix/var/nix/profiles/system --switch-generation "$TARGET"
+          rebuild
+          ;;
+        collect)
+          COUNT=''${ARG:-10}
+          sudo nix-env --profile /nix/var/nix/profiles/system --delete-generations +"$COUNT"
+          sudo nix-collect-garbage
+          sudo nix store optimise
+          ;;
+        *)
+          echo "Usage: nr [update <input|all>|rollback <count>|collect [<count>]]"
+          exit 1
+          ;;
+      esac
     '')
   ];
 }

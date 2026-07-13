@@ -20,6 +20,8 @@ in {
     ./polkit.nix
     ./security.nix
     ./maintenance.nix
+    ./power.nix
+    ./mount.nix
   ] ++ hw.systemImports;
 
   system.stateVersion = "26.05";
