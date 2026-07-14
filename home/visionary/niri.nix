@@ -93,6 +93,12 @@ in {
 
     layout {
         gaps 2
+        focus-ring {
+            width 0
+        }
+        border {
+            off
+        }
         default-column-width { proportion 0.5; }
     }
 
