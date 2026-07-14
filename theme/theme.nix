@@ -195,9 +195,9 @@ let
         border            = "#E6CC9A";
         backgroundAccent  = "#000000";
         overlay2          = "#241C14";
-        surface          = "#2A2018";
+        surface           = "#3A3028";
         overlay1          = "#1E1810";
-        highlighted       = "#E6CC9A";
+        highlighted       = "#C9A881";
         element_background = "#2A2018";
         ui_error          = "#D4553A";
         ui_warning        = "#E8A040";
