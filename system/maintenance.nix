@@ -19,7 +19,7 @@
 
     (writeShellScriptBin "nr" ''
       set -euo pipefail
-      FLAKE_DIR="/${hostname}"
+      FLAKE_DIR="/etc/nixos"
       CMD="''${1:-}"
       ARG="''${2:-}"
 

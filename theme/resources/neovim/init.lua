@@ -40,7 +40,7 @@ local function extract_colors(data)
     hl         = c.highlighted,
     ov1        = c.overlay1,
     ov2        = c.overlay2,
-    surf2      = c.surface2,
+    surf       = c.surface,
     border     = c.border,
     accent     = c.accent,
     accentL    = c.accent_light,
@@ -70,6 +70,7 @@ local function extract_colors(data)
     uiInfo     = c.ui_info,
     uiHint     = c.ui_hint,
     uiMatch    = c.ui_match,
+    cursor     = c.cursor,
   }
 end
 
@@ -85,7 +86,7 @@ local function define_highlights(c)
   hl.NormalFloat     = { fg = c.fg, bg = c.bg }
   hl.ColorColumn     = { bg = c.hl }
   hl.Conceal         = { fg = c.st0 }
-  hl.Cursor          = { bg = c.fg }
+  hl.Cursor          = { bg = c.cursor }
   hl.CursorLine      = { bg = c.hl }
   hl.CursorLineNr    = { fg = c.fg, bg = c.hl }
   hl.Directory       = { fg = c.blue }
@@ -95,22 +96,22 @@ local function define_highlights(c)
   hl.FloatTitle      = { fg = c.fg, bold = true }
   hl.FoldColumn      = { fg = c.st0 }
   hl.Folded          = { fg = c.st0 }
-  hl.IncSearch       = { fg = c.fg, bg = c.surf2 }
-  hl.CurSearch       = { fg = c.fg, bg = c.surf2 }
+  hl.IncSearch       = { fg = c.fg, bg = c.hl }
+  hl.CurSearch       = { fg = c.fg, bg = c.hl }
   hl.LineNr          = { fg = c.st0 }
-  hl.MatchParen      = { bg = c.ov1, bold = true }
+  hl.MatchParen      = { bg = c.hl, bold = true }
   hl.ModeMsg         = { fg = c.fg, bold = true }
   hl.MoreMsg         = { fg = c.fg }
   hl.MsgSeparator    = { fg = c.ov1 }
   hl.NonText         = { fg = c.st0 }
-  hl.Pmenu           = { bg = c.hl, fg = c.fg }
+  hl.Pmenu           = { bg = c.surf, fg = c.fg }
   hl.PmenuMatch      = { fg = c.uiMatch, bold = true }
-  hl.PmenuSbar       = { bg = c.hl }
-  hl.PmenuSel        = { bg = c.surf2, fg = c.fg }
-  hl.PmenuThumb      = { bg = c.surf2 }
+  hl.PmenuSbar       = { bg = c.surf }
+  hl.PmenuSel        = { bg = c.hl, fg = c.fg }
+  hl.PmenuThumb      = { bg = c.hl }
   hl.Question        = { fg = c.fg }
   hl.QuickFixLine    = { bg = c.hl, bold = true }
-  hl.Search          = { fg = c.fg, bg = c.ov1 }
+  hl.Search          = { fg = c.fg, bg = c.hl }
   hl.SignColumn      = { bg = c.bg }
   hl.StatusLine      = { fg = c.fg, bg = c.bgAccent }
   hl.StatusLineNC    = { fg = c.st0, bg = c.ov2 }
@@ -125,7 +126,7 @@ local function define_highlights(c)
   hl.VisualNOS       = { bg = c.hl }
   hl.WarningMsg      = { fg = c.uiWarn, bold = true }
   hl.Whitespace      = { fg = c.ov1 }
-  hl.WildMenu        = { bg = c.surf2, fg = c.fg }
+  hl.WildMenu        = { bg = c.hl, fg = c.fg }
   hl.WinBar          = { fg = c.fg, bg = c.bgAccent }
   hl.WinBarNC        = { fg = c.st0, bg = c.ov2 }
   hl.WinSeparator    = { fg = c.ov1 }

@@ -21,7 +21,7 @@ let
   # Color mapping from theme.json to yazi theme roles
   colorMap = c: {
     bg = c.background;
-    "bg-2" = c.surface2;
+    "bg-2" = c.surface;
     ui = c.overlay1;
     "ui-3" = c.overlay2;
     tx = c.text;
@@ -63,7 +63,7 @@ in {
   mkKittyConf = t: ''
     background ${t.colors.background}
     foreground ${t.colors.text}
-    cursor ${t.colors.text}
+    cursor ${t.colors.cursor}
     selection_background ${t.colors.highlighted}
     selection_foreground ${t.colors.background}
     color0 ${t.colors.background}
@@ -81,7 +81,7 @@ in {
     color12 ${t.colors.blue}
     color13 ${t.colors.magenta}
     color14 ${t.colors.cyan}
-    color15 ${t.colors.background}
+    color15 ${t.colors.text}
     font_family Monospace
     font_size 10
     confirm_os_window_close 0
@@ -121,15 +121,15 @@ in {
     theme[cached_start]=${c.sapphire}
     theme[cached_mid]=${c.blue}
     theme[cached_end]=${c.lavender}
-    theme[available_start]=${c.peach}
-    theme[available_mid]=${c.maroon}
-    theme[available_end]=${c.red}
+    theme[available_start]=${c.green}
+    theme[available_mid]=${c.yellow}
+    theme[available_end]=${c.peach}
     theme[used_start]=${c.green}
     theme[used_mid]=${c.cyan}
     theme[used_end]=${c.sky}
-    theme[download_start]=${c.peach}
-    theme[download_mid]=${c.maroon}
-    theme[download_end]=${c.red}
+    theme[download_start]=${c.green}
+    theme[download_mid]=${c.cyan}
+    theme[download_end]=${c.sky}
     theme[upload_start]=${c.green}
     theme[upload_mid]=${c.cyan}
     theme[upload_end]=${c.sky}
@@ -187,7 +187,7 @@ in {
     perm_exec = { fg = "${m.gr}" }
     perm_sep = { fg = "${m.tx-2}" }
     progress_label = { fg = "${m.bg}" }
-    progress_normal = { fg = "${m.cy}", bg = "${m.cy-300}" }
+    progress_normal = { fg = "${m.bg}", bg = "${m.cy-300}" }
     progress_error = { bg = "${m.re}" }
 
     [which]

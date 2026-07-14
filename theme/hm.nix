@@ -67,7 +67,7 @@ in {
       confirm_os_window_close = 0;
       background = "${theme.colors.background}";
       foreground = "${theme.colors.text}";
-      cursor = "${theme.colors.text}";
+      cursor = "${theme.colors.cursor}";
       selection_background = "${theme.colors.highlighted}";
       selection_foreground = "${theme.colors.background}";
     };
