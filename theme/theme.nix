@@ -75,12 +75,10 @@ let
         interactive_hover = "#6A6A6A";
         interactive_pressed = "#4A4A4A";
         interactive_disabled = "#363636";
-        focus             = "#6A6A6A";
 
         # Input/form states
-        input_background  = "#1C1C1C";
-        input_border      = "#363636";
-        input_border_focus = "#6A6A6A";
+        input_background  = "#080808";
+        input_border      = "#FFFFFF";
 
         # Status indicators
         status_active     = "#4A5A4A";
@@ -185,12 +183,10 @@ let
         interactive_hover = "#222222";
         interactive_pressed = "#444444";
         interactive_disabled = "#999999";
-        focus             = "#222222";
 
         # Input/form states
-        input_background  = "#F0F0F0";
-        input_border      = "#D8D8D8";
-        input_border_focus = "#222222";
+        input_background  = "#FFFFFF";
+        input_border      = "#000000";
 
         # Status indicators
         status_active     = "#2A3A2A";
@@ -295,12 +291,10 @@ let
         interactive_hover = "#C06060";
         interactive_pressed = "#E0A0A0";
         interactive_disabled = "#F5DADA";
-        focus             = "#C06060";
 
         # Input/form states
-        input_background  = "#FFF0F0";
+        input_background  = "#FFF5F5";
         input_border      = "#E8C0C0";
-        input_border_focus = "#D64545";
 
         # Status indicators
         status_active     = "#388E3C";
@@ -406,12 +400,10 @@ let
         interactive_hover = "#5a5048";
         interactive_pressed = "#3a3028";
         interactive_disabled = "#242018";
-        focus             = "#5a5048";
 
         # Input/form states
-        input_background  = "#1a1712";
+        input_background  = "#0a0908";
         input_border      = "#3a3028";
-        input_border_focus = "#d4c4a8";
 
         # Status indicators
         status_active     = "#7ABA5E";
