@@ -42,9 +42,7 @@ in {
     git
     openssh
     hyprshot
-    pavucontrol
     brightnessctl
-    temurin-bin-21
     tmux
   ];
 
