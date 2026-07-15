@@ -77,7 +77,6 @@ let
         interactive_disabled = "#363636";
 
         # Input/form states
-        input_border      = "#FFFFFF";
 
         # Status indicators
         status_active     = "#4A5A4A";
@@ -184,7 +183,6 @@ let
         interactive_disabled = "#999999";
 
         # Input/form states
-        input_border      = "#000000";
 
         # Status indicators
         status_active     = "#2A3A2A";
@@ -291,7 +289,6 @@ let
         interactive_disabled = "#F5DADA";
 
         # Input/form states
-        input_border      = "#E8C0C0";
 
         # Status indicators
         status_active     = "#388E3C";
@@ -399,7 +396,6 @@ let
         interactive_disabled = "#242018";
 
         # Input/form states
-        input_border      = "#3a3028";
 
         # Status indicators
         status_active     = "#7ABA5E";
