@@ -71,6 +71,12 @@ local function extract_colors(data)
     uiHint     = c.ui_hint,
     uiMatch    = c.ui_match,
     cursor     = c.cursor,
+    synKw      = c.syntax_keyword,
+    synStr     = c.syntax_string,
+    synNum     = c.syntax_number,
+    synComment = c.syntax_comment,
+    synFunc    = c.syntax_function,
+    synVar     = c.syntax_variable,
   }
 end
 
@@ -168,21 +174,21 @@ local function define_highlights(c)
   hl.SpellRare  = { sp = c.uiInfo, undercurl = true }
 
   -- Legacy syntax groups
-  hl.Comment      = { fg = c.green }
+  hl.Comment      = { fg = c.synComment }
   hl.Constant     = { fg = c.cyan }
-  hl.String       = { fg = c.red }
+  hl.String       = { fg = c.synStr }
   hl.Character    = { link = "String" }
-  hl.Number       = { fg = c.cyan }
+  hl.Number       = { fg = c.synNum }
   hl.Boolean      = { link = "Number" }
   hl.Float        = { link = "Number" }
-  hl.Identifier   = { fg = c.fg }
-  hl.Function     = { fg = c.blue }
-  hl.Statement    = { fg = c.blue, bold = true }
+  hl.Identifier   = { fg = c.synVar }
+  hl.Function     = { fg = c.synFunc }
+  hl.Statement    = { fg = c.synKw, bold = true }
   hl.Conditional  = { link = "Statement" }
   hl.Repeat       = { link = "Statement" }
   hl.Label        = { fg = c.magenta }
   hl.Operator     = { fg = c.peach }
-  hl.Keyword      = { fg = c.blue, bold = true }
+  hl.Keyword      = { fg = c.synKw, bold = true }
   hl.Exception    = { link = "Keyword" }
   hl.Include      = { fg = c.magenta }
   hl.Define       = { link = "PreProc" }
@@ -195,35 +201,35 @@ local function define_highlights(c)
   hl.Type         = { fg = c.mauve }
   hl.Special      = { fg = c.peach }
   hl.SpecialChar  = { link = "Special" }
-  hl.Tag          = { fg = c.blue }
+  hl.Tag          = { fg = c.synFunc }
   hl.Delimiter    = { fg = c.peach }
-  hl.SpecialComment = { fg = c.green }
+  hl.SpecialComment = { fg = c.synComment, bold = true }
   hl.Debug        = { fg = c.yellow }
   hl.Error        = { link = "DiagnosticError" }
   hl.Ignore       = {}
 
   -- Tree-sitter captures
-  hl["@comment"]             = { fg = c.green }
+  hl["@comment"]             = { fg = c.synComment }
   hl["@error"]               = { fg = c.uiErr }
   hl["@warning"]             = { fg = c.uiWarn }
   hl["@note"]                = { fg = c.uiInfo }
   hl["@todo"]                = { fg = c.yellow, bold = true }
-  hl["@string"]              = { fg = c.red }
+  hl["@string"]              = { fg = c.synStr }
   hl["@string.regexp"]       = { fg = c.peach }
-  hl["@string.escape"]       = { fg = c.red }
-  hl["@character"]           = { fg = c.red }
+  hl["@string.escape"]       = { fg = c.synStr, bold = true }
+  hl["@character"]           = { fg = c.synStr }
   hl["@character.special"]   = { link = "@string.escape" }
-  hl["@number"]              = { fg = c.cyan }
-  hl["@boolean"]             = { fg = c.cyan }
-  hl["@float"]               = { fg = c.cyan }
-  hl["@function"]            = { fg = c.blue }
-  hl["@function.builtin"]    = { fg = c.blue, bold = true }
+  hl["@number"]              = { fg = c.synNum }
+  hl["@boolean"]             = { fg = c.synNum }
+  hl["@float"]               = { fg = c.synNum }
+  hl["@function"]            = { fg = c.synFunc }
+  hl["@function.builtin"]    = { fg = c.synFunc, bold = true }
   hl["@function.macro"]      = { fg = c.magenta }
-  hl["@method"]              = { fg = c.blue }
+  hl["@method"]              = { fg = c.synFunc }
   hl["@constructor"]         = { fg = c.pink }
-  hl["@keyword"]             = { fg = c.blue, bold = true }
-  hl["@keyword.function"]    = { fg = c.blue, bold = true }
-  hl["@keyword.return"]      = { fg = c.blue, bold = true }
+  hl["@keyword"]             = { fg = c.synKw, bold = true }
+  hl["@keyword.function"]    = { fg = c.synKw, bold = true }
+  hl["@keyword.return"]      = { fg = c.synKw, bold = true }
   hl["@keyword.operator"]    = { fg = c.peach }
   hl["@include"]             = { fg = c.magenta }
   hl["@label"]               = { fg = c.magenta }
@@ -235,7 +241,7 @@ local function define_highlights(c)
   hl["@property"]            = { fg = c.sky }
   hl["@field"]               = { fg = c.sky }
   hl["@parameter"]           = { fg = c.lavender }
-  hl["@variable"]            = { fg = c.fg }
+  hl["@variable"]            = { fg = c.synVar }
   hl["@variable.builtin"]    = { fg = c.maroon }
   hl["@constant"]            = { fg = c.cyan }
   hl["@constant.builtin"]    = { fg = c.maroon }
@@ -246,14 +252,14 @@ local function define_highlights(c)
   hl["@text.emphasis"]       = { fg = c.fg, italic = true }
   hl["@text.underline"]      = { fg = c.fg, underline = true }
   hl["@text.title"]          = { fg = c.fg, bold = true }
-  hl["@text.literal"]        = { fg = c.green }
+  hl["@text.literal"]        = { fg = c.synStr }
   hl["@text.uri"]            = { fg = c.blue, underline = true }
   hl["@text.reference"]      = { fg = c.mauve }
   hl["@text.todo"]           = { fg = c.yellow, bold = true }
   hl["@text.note"]           = { fg = c.blue, bold = true }
   hl["@text.warning"]        = { fg = c.yellow, bold = true }
-  hl["@text.danger"]         = { fg = c.red, bold = true }
-  hl["@tag"]                 = { fg = c.blue }
+  hl["@text.danger"]         = { fg = c.uiErr, bold = true }
+  hl["@tag"]                 = { fg = c.synFunc }
   hl["@tag.attribute"]       = { fg = c.yellow }
   hl["@tag.delimiter"]       = { fg = c.st0 }
   hl["@punctuation.delimiter"] = { fg = c.peach }
