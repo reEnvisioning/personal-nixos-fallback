@@ -52,7 +52,7 @@
         }
         inputs.home-manager.nixosModules.home-manager
         ./theme/appearance.nix
-        { pkgs, ... }: {
+        ({ pkgs, ... }: {
           networking.hostName = hostname;
           appearance.users = allUsers;
 
@@ -115,7 +115,7 @@
               exec sudo -u ${aiAgentUser} pi "$@"
             '')
           ];
-        }
+        })
       ];
     };
   in {
