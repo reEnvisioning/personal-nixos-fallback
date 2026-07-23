@@ -123,7 +123,7 @@
           environment.systemPackages = with pkgs; [
             sandboxed-pi
             (writeShellScriptBin "pi-sandbox" ''
-              exec sudo -u ${aiAgentUser} -H pi "$@"
+              exec sudo -u ${aiAgentUser} -i pi "$@"
             '')
           ];
         })
