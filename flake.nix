@@ -36,11 +36,13 @@
 
     usernames = [ "visionary" ];
     primaryUser = builtins.head usernames;
+    aiAgentUser = "ai-agent";
+    allUsers = usernames ++ [ aiAgentUser ];
     quickshellSrc = quickshell.packages.${system}.default;
 
     mkSystem = { pc }: inputs.nixpkgs.lib.nixosSystem {
       inherit system;
-      specialArgs = { inherit inputs hostname unstable gitUsername pc cpuVendor gpuVendor quickshellSrc; nixUsers = usernames; username = primaryUser; };
+      specialArgs = { inherit inputs hostname unstable gitUsername pc cpuVendor gpuVendor quickshellSrc; nixUsers = allUsers; trustedUsers = usernames; username = primaryUser; };
       modules = [
         ./system/default.nix
         {
@@ -52,38 +54,70 @@
         ./theme/appearance.nix
         {
           networking.hostName = hostname;
-          appearance.users = usernames;
+          appearance.users = allUsers;
 
-          users.users = builtins.listToAttrs (map (u: {
-            name = u;
-            value = {
-              isNormalUser = true;
-              initialPassword = "changeme";
-              extraGroups = [ "wheel" "networkmanager" "disk" "vboxusers" ];
-            };
-          }) usernames);
+          users.users = builtins.listToAttrs (
+            (map (u: {
+              name = u;
+              value = {
+                isNormalUser = true;
+                initialPassword = "changeme";
+                extraGroups = [ "wheel" "networkmanager" "disk" "vboxusers" ];
+              };
+            }) usernames)
+            ++ [{
+              name = aiAgentUser;
+              value = {
+                isNormalUser = true;
+                initialPassword = "changeme";
+                group = aiAgentUser;
+                extraGroups = [ ];
+              };
+            }]
+          );
+          users.groups.ai-agent = { };
+          users.users.visionary.extraGroups = [ "ai-agent" ];
 
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
 
           home-manager.extraSpecialArgs = { inherit hostname unstable gitUsername pc cpuVendor gpuVendor quickshellSrc; };
 
-          home-manager.users = builtins.listToAttrs (map (u: {
-            name = u;
-            value = {
-              _module.args = { username = u; };
-              imports = [
-                ./home/${u}/home.nix
-                ./home/${u}/niri.nix
-                ./home/${u}/yazi.nix
-                ./home/${u}/firefox.nix
-                ./home/${u}/librewolf.nix
-                ./home/${u}/ssh.nix
-                ./home/${u}/neovim.nix
-                ./network/hm.nix
-              ];
-            };
-          }) usernames);
+          home-manager.users = builtins.listToAttrs (
+            (map (u: {
+              name = u;
+              value = {
+                _module.args = { username = u; };
+                imports = [
+                  ./home/${u}/home.nix
+                  ./home/${u}/niri.nix
+                  ./home/${u}/yazi.nix
+                  ./home/${u}/firefox.nix
+                  ./home/${u}/librewolf.nix
+                  ./home/${u}/ssh.nix
+                  ./home/${u}/neovim.nix
+                  ./network/hm.nix
+                ];
+              };
+            }) usernames)
+            ++ [{
+              name = aiAgentUser;
+              value = {
+                _module.args = { username = aiAgentUser; };
+                imports = [
+                  ./home/ai-agent/home.nix
+                ];
+              };
+            }]
+          );
+
+        }
+        { pkgs, ... }: {
+          environment.systemPackages = with pkgs; [
+            (writeShellScriptBin "pi-sandbox" ''
+              exec sudo -u ${aiAgentUser} pi "$@"
+            '')
+          ];
         }
       ];
     };

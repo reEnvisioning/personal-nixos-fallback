@@ -1,4 +1,4 @@
-{ pkgs, nixUsers, cpuVendor, gpuVendor, pc ? "desktop", ... }:
+{ pkgs, nixUsers, trustedUsers ? nixUsers, cpuVendor, gpuVendor, pc ? "desktop", ... }:
 let
   hw = import ../hardware/hardware.nix { inherit pc cpuVendor gpuVendor; };
   vbox-wrapped = pkgs.virtualbox.overrideAttrs (old: {
@@ -18,6 +18,7 @@ in {
     ./audio.nix
     ./compositor.nix
     ./polkit.nix
+    ./ai-polkit.nix
     ./security.nix
     ./maintenance.nix
     ./power.nix
@@ -33,7 +34,7 @@ in {
     ];
 
     allowed-users = nixUsers;
-    trusted-users = nixUsers;
+    trusted-users = trustedUsers;
     require-sigs = true;
   };
 
