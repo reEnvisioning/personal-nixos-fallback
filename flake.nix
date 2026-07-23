@@ -52,7 +52,7 @@
         }
         inputs.home-manager.nixosModules.home-manager
         ./theme/appearance.nix
-        {
+        { pkgs, ... }: {
           networking.hostName = hostname;
           appearance.users = allUsers;
 
@@ -110,8 +110,6 @@
             }]
           );
 
-        }
-        { pkgs, ... }: {
           environment.systemPackages = with pkgs; [
             (writeShellScriptBin "pi-sandbox" ''
               exec sudo -u ${aiAgentUser} pi "$@"
