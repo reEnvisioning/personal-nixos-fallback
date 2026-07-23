@@ -52,7 +52,17 @@
         }
         inputs.home-manager.nixosModules.home-manager
         ./theme/appearance.nix
-        ({ pkgs, ... }: {
+        ({ pkgs, ... }: let
+          sandboxed-pi = pkgs.symlinkJoin {
+            name = "pi-sandboxed";
+            paths = [ unstable.pi-coding-agent ];
+            buildInputs = [ pkgs.makeWrapper ];
+            postBuild = ''
+              wrapProgram $out/bin/pi \
+                --set PATH "/run/wrappers/bin:/run/current-system/sw/bin"
+            '';
+          };
+        in {
           networking.hostName = hostname;
           appearance.users = allUsers;
 
@@ -111,6 +121,7 @@
           );
 
           environment.systemPackages = with pkgs; [
+            sandboxed-pi
             (writeShellScriptBin "pi-sandbox" ''
               exec sudo -u ${aiAgentUser} pi "$@"
             '')

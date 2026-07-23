@@ -1,16 +1,4 @@
-{ pkgs, lib, config, username, unstable, ... }:
-let
-  sandboxed-pi = pkgs.symlinkJoin {
-    name = "pi-sandboxed";
-    paths = [ unstable.pi-coding-agent ];
-    buildInputs = [ pkgs.makeWrapper ];
-    postBuild = ''
-      wrapProgram $out/bin/pi \
-        --set PATH "/run/wrappers/bin:/run/current-system/sw/bin" \
-        --set PI_CODING_AGENT_DIR "${config.home.homeDirectory}/.pi/agent"
-    '';
-  };
-in {
+{ pkgs, lib, config, username, ... }: {
   home = {
     stateVersion = "26.05";
     username = username;
@@ -23,7 +11,6 @@ in {
   '';
 
   home.packages = with pkgs; [
-    sandboxed-pi
     nodejs
     curl
     wget
