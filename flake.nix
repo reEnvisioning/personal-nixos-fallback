@@ -62,7 +62,7 @@
               value = {
                 isNormalUser = true;
                 initialPassword = "changeme";
-                extraGroups = [ "wheel" "networkmanager" "disk" "vboxusers" ];
+                extraGroups = [ "wheel" "networkmanager" "disk" "vboxusers" ] ++ (if u == "visionary" then [ "ai-agent" ] else [ ]);
               };
             }) usernames)
             ++ [{
@@ -76,7 +76,6 @@
             }]
           );
           users.groups.ai-agent = { };
-          users.users.visionary.extraGroups = [ "ai-agent" ];
 
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
