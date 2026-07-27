@@ -36,8 +36,7 @@
 
     usernames = [ "visionary" ];
     primaryUser = builtins.head usernames;
-    aiAgentUser = "ai-agent";
-    allUsers = usernames ++ [ aiAgentUser ];
+    allUsers = usernames;
     quickshellSrc = quickshell.packages.${system}.default;
 
     mkSystem = { pc }: inputs.nixpkgs.lib.nixosSystem {
@@ -52,17 +51,7 @@
         }
         inputs.home-manager.nixosModules.home-manager
         ./theme/appearance.nix
-        ({ pkgs, ... }: let
-          sandboxed-pi = pkgs.symlinkJoin {
-            name = "pi-sandboxed";
-            paths = [ unstable.pi-coding-agent ];
-            buildInputs = [ pkgs.makeWrapper ];
-            postBuild = ''
-              wrapProgram $out/bin/pi \
-                --set PATH "/run/wrappers/bin:/run/current-system/sw/bin"
-            '';
-          };
-        in {
+        ({ pkgs, ... }: {
           networking.hostName = hostname;
           appearance.users = allUsers;
 
@@ -72,20 +61,10 @@
               value = {
                 isNormalUser = true;
                 initialPassword = "changeme";
-                extraGroups = [ "wheel" "networkmanager" "disk" "vboxusers" ] ++ (if u == "visionary" then [ "ai-agent" ] else [ ]);
+                extraGroups = [ "wheel" "networkmanager" "disk" "vboxusers" ];
               };
             }) usernames)
-            ++ [{
-              name = aiAgentUser;
-              value = {
-                isNormalUser = true;
-                initialPassword = "changeme";
-                group = aiAgentUser;
-                extraGroups = [ ];
-              };
-            }]
           );
-          users.groups.ai-agent = { };
 
           home-manager.useGlobalPkgs = true;
           home-manager.useUserPackages = true;
@@ -109,23 +88,7 @@
                 ];
               };
             }) usernames)
-            ++ [{
-              name = aiAgentUser;
-              value = {
-                _module.args = { username = aiAgentUser; };
-                imports = [
-                  ./home/ai-agent/home.nix
-                ];
-              };
-            }]
           );
-
-          environment.systemPackages = with pkgs; [
-            sandboxed-pi
-            (writeShellScriptBin "pi-sandbox" ''
-              exec sudo -u ${aiAgentUser} -i pi "$@"
-            '')
-          ];
         })
       ];
     };

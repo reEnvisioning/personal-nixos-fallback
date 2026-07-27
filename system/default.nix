@@ -18,7 +18,6 @@ in {
     ./audio.nix
     ./compositor.nix
     ./polkit.nix
-    ./ai-polkit.nix
     ./security.nix
     ./maintenance.nix
     ./power.nix
