@@ -246,7 +246,7 @@ in
       RUNTIME_FILE="$ACTIVE_DIR/theme.json"
 
       extract_content() {
-          awk '
+          ${pkgs.gawk}/bin/awk '
               /^text = """$/ { in_content = 1; next }
               in_content && /^"""$/ { exit }
               in_content { print }

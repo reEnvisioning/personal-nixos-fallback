@@ -53,6 +53,7 @@ in
       qt5.qtwayland
       qt6.qtwayland
       jq
+      gawk
       catppuccin-mocha
       catppuccin-latte
       (writeShellScriptBin "shell" (builtins.readFile "${quickshellSrc}/scripts/shell"))
