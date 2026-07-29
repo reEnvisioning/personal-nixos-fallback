@@ -44,6 +44,7 @@ for app_conf in \
     target="${app_conf##*:}"
     [ -f "$source" ] || continue
     mkdir -p "$(dirname "$target")"
+    rm -f "$target"
     extract_content "$source" > "$target"
 done
 
