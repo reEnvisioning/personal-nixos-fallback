@@ -272,6 +272,7 @@ in
       done
 
       # Write runtime theme.json (triggers systemd path → kitty/btop signal)
+      rm -f "$RUNTIME_FILE"
       cp "$THEME_DIR/theme.json" "$RUNTIME_FILE"
 
       # Apply external theming (GTK, Firefox, LibreWolf, etc.)

@@ -49,6 +49,7 @@ for app_conf in \
 done
 
 # 2. Write runtime theme.json (triggers systemd path → theme-reload → signals kitty/btop)
+rm -f "$RUNTIME_FILE"
 cp "$THEME_FILE" "$RUNTIME_FILE"
 
 # 3. Wallpaper — per-theme index with bounds check
