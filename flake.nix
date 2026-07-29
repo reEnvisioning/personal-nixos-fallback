@@ -20,9 +20,14 @@
       url = "github:reEnvisioning/temp";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    retheme = {
+      url = "github:reEnvisioning/test-reTheme";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, quickshell, ... }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, quickshell, retheme, ... }:
     let
       hostname = "headspace";
       pc = "desktop";
@@ -30,7 +35,7 @@
       gpuVendor = "nvidia";
       system = "x86_64-linux";
       gitUsername = "reEnvisioning";
-      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko quickshell; };
+      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko quickshell retheme; };
       unstable = import nixpkgs-unstable {
         inherit system;
       };
@@ -39,10 +44,11 @@
       primaryUser = builtins.head usernames;
       allUsers = usernames;
       quickshellSrc = quickshell.packages.${system}.default;
+      rethemePackage = retheme.packages.${system}.default;
 
       mkSystem = { pc }: inputs.nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit inputs hostname unstable gitUsername pc cpuVendor gpuVendor quickshellSrc; nixUsers = allUsers; trustedUsers = usernames; username = primaryUser; };
+        specialArgs = { inherit inputs hostname unstable gitUsername pc cpuVendor gpuVendor quickshellSrc rethemePackage; nixUsers = allUsers; trustedUsers = usernames; username = primaryUser; };
         modules = [
           ./system/default.nix
           {

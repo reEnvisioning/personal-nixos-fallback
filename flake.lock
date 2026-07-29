@@ -135,13 +135,34 @@
         "type": "github"
       }
     },
+    "retheme": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1785327993,
+        "narHash": "sha256-gWLZT+qJ2FXxDWlnE75R0BadCrcUIUH+QaCRc/sOURk=",
+        "owner": "reEnvisioning",
+        "repo": "test-reTheme",
+        "rev": "eb672f02cddb71f821cdca4c9c2851aeaff6a85e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "reEnvisioning",
+        "repo": "test-reTheme",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "disko": "disko",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "quickshell": "quickshell"
+        "quickshell": "quickshell",
+        "retheme": "retheme"
       }
     },
     "systems": {
