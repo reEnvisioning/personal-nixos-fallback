@@ -7,7 +7,7 @@ ACTIVE_DIR="$ROOT/active"
 
 THEME_NAME="$(cat "$ACTIVE_DIR/current-theme" 2>/dev/null || state get current-theme || true)"
 if [ -z "$THEME_NAME" ]; then
-    echo "No current theme set. Use switch-theme first."
+    echo "No current theme set. Use retheme switch first."
     exit 1
 fi
 

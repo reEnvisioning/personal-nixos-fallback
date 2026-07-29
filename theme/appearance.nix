@@ -57,7 +57,6 @@ in
       catppuccin-mocha
       catppuccin-latte
       (writeShellScriptBin "shell" (builtins.readFile "${quickshellSrc}/scripts/shell"))
-      (writeShellScriptBin "switch-theme" (builtins.readFile ./switch-theme))
       (writeShellScriptBin "external-theme" (builtins.readFile ./external-theme))
       (writeShellScriptBin "switch-wallpaper" (builtins.readFile ./switch-wallpaper))
       (writeShellScriptBin "indicator" (builtins.readFile "${quickshellSrc}/scripts/indicator"))

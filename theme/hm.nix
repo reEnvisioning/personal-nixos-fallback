@@ -1,7 +1,8 @@
-{ config, pkgs, lib, quickshellSrc, ... }:
+{ config, pkgs, lib, quickshellSrc, rethemePackage ? null, ... }:
 let
   theme = import ./theme.nix;
   generators = import ./generators.nix;
+  rethemeBin = if rethemePackage == null then "retheme" else "${rethemePackage}/bin/retheme";
 
   # Clean theme.json: only colors, mode, wallpapers, cursor, opacity, font
   mkCleanThemeJson = name: t: builtins.toJSON ({
@@ -242,40 +243,9 @@ in
       THEME_DIR="$HOME/.config/reEnvisioning/themes/$CURRENT_THEME"
     fi
     if [ -f "$THEME_DIR/theme.json" ]; then
-      ACTIVE_DIR="$HOME/.config/reEnvisioning/active"
-      RUNTIME_FILE="$ACTIVE_DIR/theme.json"
+      RETHEME_ROOT="$HOME/.config/reEnvisioning" ${rethemeBin} switch "$CURRENT_THEME"
 
-      extract_content() {
-          ${pkgs.gawk}/bin/awk '
-              /^text = """$/ { in_content = 1; next }
-              in_content && /^"""$/ { exit }
-              in_content { print }
-          ' "$1"
-      }
-
-      rm -rf "$ACTIVE_DIR/apps"
-      mkdir -p "$ACTIVE_DIR/apps"
-      printf '%s' "$CURRENT_THEME" > "$ACTIVE_DIR/current-theme"
-      ln -sfn "../themes/$CURRENT_THEME" "$ACTIVE_DIR/theme"
-      cp "$THEME_DIR/apps/"*.toml "$ACTIVE_DIR/apps/" 2>/dev/null || true
-
-      for app_conf in \
-          "kitty.toml:$HOME/.config/kitty/kitty.conf" \
-          "btop.toml:$HOME/.config/btop/themes/current.theme" \
-          "yazi.toml:$HOME/.config/yazi/theme.toml"; do
-          source="$ACTIVE_DIR/apps/''${app_conf%%:*}"
-          target="''${app_conf##*:}"
-          [ -f "$source" ] || continue
-          mkdir -p "$(dirname "$target")"
-          rm -f "$target"
-          extract_content "$source" > "$target"
-      done
-
-      # Write runtime theme.json (triggers systemd path → kitty/btop signal)
-      rm -f "$RUNTIME_FILE"
-      cp "$THEME_DIR/theme.json" "$RUNTIME_FILE"
-
-      # Apply external theming (GTK, Firefox, LibreWolf, etc.)
+      # Apply settings handlers (GTK, Firefox, LibreWolf, etc.) until reTheme owns them.
       export PATH="/run/current-system/sw/bin:$PATH"
       external-theme
     fi

@@ -1,18 +1,18 @@
 { pkgs, cpuVendor, gpuVendor, pc ? "desktop", ... }:
 let
-  theme = import ../../theme/theme.nix;
   hw = import ../../hardware/hardware.nix { inherit pc cpuVendor gpuVendor; };
   mod = "Mod";
 
   niri-startup = pkgs.writeShellScript "niri-startup" ''
     active="$HOME/.config/reEnvisioning/active"
-    rt="$active/theme.json"
     def_th="$(cat "$active/current-theme" 2>/dev/null || echo sakura)"
     [ -f "$HOME/.config/reEnvisioning/themes/$def_th/theme.json" ] || def_th=sakura
-    mkdir -p "$active"
-    [ ! -f "$rt" ] && cp "$HOME/.config/reEnvisioning/themes/$def_th/theme.json" "$rt"
+    if RETHEME_ROOT="$HOME/.config/reEnvisioning" retheme switch "$def_th"; then
+      external-theme
+      wp_idx="$(state get wallpaper-idx:$def_th || true)"
+      switch-wallpaper "''${wp_idx:-0}"
+    fi
     pgrep -x quickshell >/dev/null 2>&1 || quickshell &
-    switch-theme "$def_th"
     if [ "$(state get idle-inhibit)" != "disabled" ]; then
       sway-audio-idle-inhibit &
       swayidle -w \
