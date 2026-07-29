@@ -117,6 +117,10 @@ set_browser_dark() {
     grep '^Path=' "$root_dir/profiles.ini" 2>/dev/null | cut -d= -f2 | while read -r profile; do
         userjs="$root_dir/$profile/user.js"
         [ -n "$profile" ] && [ -d "$root_dir/$profile" ] || continue
+        if ! touch "$userjs" 2>/dev/null; then
+            rm -f "$userjs" 2>/dev/null || continue
+            : > "$userjs" 2>/dev/null || continue
+        fi
         for pref in ui.systemUsesDarkTheme browser.theme.toolbar-theme browser.theme.content-theme; do
             line="user_pref(\"$pref\", $val);"
             if grep -q "^user_pref(\"$pref\"," "$userjs" 2>/dev/null; then
