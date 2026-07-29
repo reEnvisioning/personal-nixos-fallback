@@ -1,148 +1,7 @@
 { config, pkgs, lib, quickshellSrc, rethemePackage ? null, ... }:
 let
   theme = import ./theme.nix;
-  generators = import ./generators.nix;
   rethemeBin = if rethemePackage == null then "retheme" else "${rethemePackage}/bin/retheme";
-
-  # Clean theme.json: only colors, mode, wallpapers, cursor, opacity, font
-  mkCleanThemeJson = name: t: builtins.toJSON ({
-    themeName = name;
-    mode = t.mode;
-    wallpaper = toString t.wallpaper;
-    wallpapers = map (x: toString x) t.wallpapers;
-    cursor_theme = t.cursor_theme;
-    cursor_size = t.cursor_size;
-    active_opacity = t.active_opacity;
-    inactive_opacity = t.inactive_opacity;
-    font = { family = "Monospace"; size = 10; };
-    colors = t.colors;
-  });
-
-  bool = x: if x then "true" else "false";
-
-  externalFor = t:
-    if t.mode == "dark" then {
-      gtkTheme = "Catppuccin-Mocha-Standard-Maroon-Dark";
-      preferDark = true;
-      localsendColor = "oled";
-      obsStyle = "Acri";
-      qtStyle = "adwaita-dark";
-      kdeScheme = "BreezeDark";
-      kdeWidgetStyle = "Fusion";
-      gimpTheme = "Default";
-      gimpColorScheme = "dark";
-      browserDark = true;
-    } else {
-      gtkTheme = "Catppuccin-Latte-Standard-Pink";
-      preferDark = false;
-      localsendColor = "system";
-      obsStyle = "Light";
-      qtStyle = "Adwaita";
-      kdeScheme = "BreezeLight";
-      kdeWidgetStyle = "Fusion";
-      gimpTheme = "Default";
-      gimpColorScheme = "light";
-      browserDark = false;
-    };
-
-  mkFileApp = app: target: filename: content: ''
-    [meta]
-    app = "${app}"
-    schema = 1
-    handler = "file"
-    target = "${target}"
-    filename = "${filename}"
-    dynamic = false
-
-    [content]
-    text = """
-    ${content}
-    """
-  '';
-
-  mkSettingsApp = app: settings: ''
-    [meta]
-    app = "${app}"
-    schema = 1
-    handler = "settings"
-    dynamic = false
-
-    [settings]
-    ${settings}
-  '';
-
-  mkAppConfigs = name: t:
-    let e = externalFor t; in [
-      {
-        name = "reEnvisioning/themes/${name}/theme.json";
-        value = {
-          text = mkCleanThemeJson name t;
-          force = true;
-        };
-      }
-      {
-        name = "reEnvisioning/themes/${name}/apps/kitty.toml";
-        value.text = mkFileApp "kitty" "~/.config/kitty" "kitty.conf" (generators.mkKittyConf t);
-      }
-      {
-        name = "reEnvisioning/themes/${name}/apps/btop.toml";
-        value.text = mkFileApp "btop" "~/.config/btop/themes" "current.theme" (generators.mkBtopTheme t);
-      }
-      {
-        name = "reEnvisioning/themes/${name}/apps/yazi.toml";
-        value.text = mkFileApp "yazi" "~/.config/yazi" "theme.toml" (generators.mkYaziTheme t);
-      }
-      {
-        name = "reEnvisioning/themes/${name}/apps/localsend_app.toml";
-        value.text = mkSettingsApp "localsend_app" ''
-          mode = "${t.mode}"
-          color = "${e.localsendColor}"
-          target = "~/.local/share/org.localsend.localsend_app"
-          filename = "shared_preferences.json"
-        '';
-      }
-      {
-        name = "reEnvisioning/themes/${name}/apps/gtk.toml";
-        value.text = mkSettingsApp "gtk" ''
-          theme = "${e.gtkTheme}"
-          prefer_dark = ${bool e.preferDark}
-        '';
-      }
-      {
-        name = "reEnvisioning/themes/${name}/apps/qt.toml";
-        value.text = mkSettingsApp "qt" ''style = "${e.qtStyle}"'';
-      }
-      {
-        name = "reEnvisioning/themes/${name}/apps/kdenlive.toml";
-        value.text = mkSettingsApp "kdenlive" ''
-          scheme = "${e.kdeScheme}"
-          widget_style = "${e.kdeWidgetStyle}"
-        '';
-      }
-      {
-        name = "reEnvisioning/themes/${name}/apps/obs.toml";
-        value.text = mkSettingsApp "obs" ''style = "${e.obsStyle}"'';
-      }
-      {
-        name = "reEnvisioning/themes/${name}/apps/gimp.toml";
-        value.text = mkSettingsApp "gimp" ''
-          theme = "${e.gimpTheme}"
-          color_scheme = "${e.gimpColorScheme}"
-        '';
-      }
-      {
-        name = "reEnvisioning/themes/${name}/apps/firefox.toml";
-        value.text = mkSettingsApp "firefox" ''dark_mode = ${bool e.browserDark}'';
-      }
-      {
-        name = "reEnvisioning/themes/${name}/apps/librewolf.toml";
-        value.text = mkSettingsApp "librewolf" ''dark_mode = ${bool e.browserDark}'';
-      }
-    ];
-
-  themeJsonConfigs = builtins.listToAttrs (lib.flatten (map
-    (name: mkAppConfigs name theme.all.${name})
-    (builtins.attrNames theme.all)));
 in
 {
   imports = [ ./theme-reload.nix ];
@@ -233,7 +92,7 @@ in
       source = quickshellSrc;
       force = true;
     };
-  } // themeJsonConfigs;
+  };
 
   home.activation.restoreTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     CURRENT_THEME="$(cat "$HOME/.config/reEnvisioning/active/current-theme" 2>/dev/null || echo "${theme.default}")"

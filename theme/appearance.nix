@@ -2,15 +2,6 @@
 let
   cfg = config.appearance;
 
-  theme = import ./theme.nix;
-
-  # Collect all wallpaper store paths to prevent garbage collection
-  allWallpaperPaths =
-    let
-      themes = builtins.attrValues theme.all;
-    in
-    lib.unique (lib.flatten (map (t: [ t.wallpaper ] ++ t.wallpapers) themes));
-
   catppuccin-mocha = pkgs.catppuccin-gtk.override {
     variant = "mocha";
     accents = [ "blue" "mauve" "maroon" "pink" ];
@@ -29,10 +20,6 @@ in
   };
 
   config = lib.mkIf (cfg.users != [ ]) {
-    # Pin all wallpaper store paths into the system closure so they
-    # cannot be garbage-collected even if string context is lost by toJSON
-    system.extraDependencies = allWallpaperPaths;
-
     environment.variables = {
       "QT_QPA_PLATFORM" = "wayland;xcb";
       "ADW_DISABLE_PORTAL" = "1";

@@ -51,6 +51,10 @@ case "${1:-next}" in
 esac
 
 WALLPAPER=$(jq -r ".wallpapers[$NEW_IDX]" "$THEME_FILE")
+case "$WALLPAPER" in
+    /*) ;;
+    *) WALLPAPER="$THEME_DIR/$THEME_NAME/$WALLPAPER" ;;
+esac
 
 sleep 0.2
 if [ -f "$WALLPAPER" ]; then
