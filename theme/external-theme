@@ -1,87 +1,66 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-MODE="${1:-dark}"
-EXTERNAL_DIR="$HOME/.config/reEnvisioning/external"
-EXTERNAL_FILE="$EXTERNAL_DIR/${MODE}.json"
+APP_DIR="$HOME/.config/reEnvisioning/active/apps"
+THEME_FILE="$HOME/.config/reEnvisioning/active/theme.json"
+MODE="$(jq -r '.mode // "dark"' "$THEME_FILE" 2>/dev/null || echo dark)"
 
-[ -f "$EXTERNAL_FILE" ] || exit 0
-
-GTK_THEME_NAME=$(jq -r '.gtk.theme // empty' "$EXTERNAL_FILE")
-LS_COLOR=$(jq -r '.localsend.color // "system"' "$EXTERNAL_FILE")
-
-# LocalSend — write prefs, restart
-LOCALSEND_PREFS="$HOME/.local/share/org.localsend.localsend_app/shared_preferences.json"
-mkdir -p "$(dirname "$LOCALSEND_PREFS")"
-cat > "$LOCALSEND_PREFS" << EOF
-{"flutter.ls_theme":"$MODE","flutter.ls_color":"$LS_COLOR"}
-EOF
-pkill localsend 2>/dev/null || true
-
-# GTK theme + dark/light mode — gsettings + overwrite settings.ini + copy GTK4 assets
-find_gtk_theme_dir() {
-    local theme_name="$1"
-    local dir
-    for dir in \
-        "/run/current-system/sw/share/themes/$theme_name" \
-        "$HOME/.nix-profile/share/themes/$theme_name" \
-        "/usr/share/themes/$theme_name"; do
-        if [ -d "$dir" ]; then
-            echo "$dir"
-            return 0
-        fi
-    done
-    return 1
+value() {
+    file="$1"
+    key="$2"
+    fallback="$3"
+    [ -f "$file" ] || { printf '%s\n' "$fallback"; return; }
+    awk -F' = ' -v key="$key" -v fallback="$fallback" '
+        $1 == key { gsub(/^"|"$/, "", $2); print $2; found=1; exit }
+        END { if (!found) print fallback }
+    ' "$file" 2>/dev/null
 }
 
+bool() {
+    [ "$(value "$1" "$2" "$3")" = "true" ]
+}
+
+# LocalSend
+LS_FILE="$APP_DIR/localsend_app.toml"
+LS_COLOR="$(value "$LS_FILE" color system)"
+LOCALSEND_PREFS="$HOME/.local/share/org.localsend.localsend_app/shared_preferences.json"
+mkdir -p "$(dirname "$LOCALSEND_PREFS")"
+tmp="$(mktemp)"
+if [ -s "$LOCALSEND_PREFS" ]; then
+    jq --arg mode "$MODE" --arg color "$LS_COLOR" \
+        '. + {"flutter.ls_theme": $mode, "flutter.ls_color": $color}' \
+        "$LOCALSEND_PREFS" > "$tmp" 2>/dev/null || \
+        printf '{"flutter.ls_theme":"%s","flutter.ls_color":"%s"}\n' "$MODE" "$LS_COLOR" > "$tmp"
+else
+    printf '{"flutter.ls_theme":"%s","flutter.ls_color":"%s"}\n' "$MODE" "$LS_COLOR" > "$tmp"
+fi
+mv "$tmp" "$LOCALSEND_PREFS"
+pkill localsend 2>/dev/null || true
+
+# GTK
+GTK_FILE="$APP_DIR/gtk.toml"
+GTK_THEME_NAME="$(value "$GTK_FILE" theme "")"
 if [ -n "$GTK_THEME_NAME" ]; then
     gsettings set org.gnome.desktop.interface gtk-theme "$GTK_THEME_NAME" 2>/dev/null || true
 fi
-
-if [ "$MODE" = "dark" ]; then
+if bool "$GTK_FILE" prefer_dark false; then
     gsettings set org.gnome.desktop.interface color-scheme 'prefer-dark' 2>/dev/null || true
     PREFER_DARK=1
 else
     gsettings set org.gnome.desktop.interface color-scheme 'default' 2>/dev/null || true
     PREFER_DARK=0
 fi
-
 for ver in 3.0 4.0; do
     ini="$HOME/.config/gtk-$ver/settings.ini"
     mkdir -p "$(dirname "$ini")"
-    rm -f "$ini"
-    if [ -n "$GTK_THEME_NAME" ]; then
-        printf "[Settings]\ngtk-theme-name=%s\ngtk-application-prefer-dark-theme=%d\n" "$GTK_THEME_NAME" "$PREFER_DARK" > "$ini"
-    else
-        printf "[Settings]\ngtk-application-prefer-dark-theme=%d\n" "$PREFER_DARK" > "$ini"
-    fi
+    printf "[Settings]\ngtk-theme-name=%s\ngtk-application-prefer-dark-theme=%d\n" "$GTK_THEME_NAME" "$PREFER_DARK" > "$ini"
 done
 
-# Copy GTK4 assets (break Nix symlink, copy theme CSS/assets for libadwaita theming)
-if [ -n "$GTK_THEME_NAME" ]; then
-    GTK_THEME_DIR=$(find_gtk_theme_dir "$GTK_THEME_NAME")
-    if [ -n "$GTK_THEME_DIR" ] && [ -d "$GTK_THEME_DIR/gtk-4.0" ]; then
-        GTK4_DIR="$HOME/.config/gtk-4.0"
-        mkdir -p "$GTK4_DIR"
-        rm -f "$GTK4_DIR/gtk.css" "$GTK4_DIR/gtk-dark.css"
-        rm -rf "$GTK4_DIR/assets"
-        if [ -f "$GTK_THEME_DIR/gtk-4.0/gtk.css" ]; then
-            cp "$GTK_THEME_DIR/gtk-4.0/gtk.css" "$GTK4_DIR/"
-        fi
-        if [ -f "$GTK_THEME_DIR/gtk-4.0/gtk-dark.css" ]; then
-            cp "$GTK_THEME_DIR/gtk-4.0/gtk-dark.css" "$GTK4_DIR/"
-        fi
-        if [ -d "$GTK_THEME_DIR/gtk-4.0/assets" ]; then
-            cp -r "$GTK_THEME_DIR/gtk-4.0/assets" "$GTK4_DIR/"
-        fi
-    fi
-fi
-
-# QT
+# Qt
+QT_STYLE="$(value "$APP_DIR/qt.toml" style Adwaita)"
 for qtver in qt5ct qt6ct; do
     conf_dir="$HOME/.config/$qtver"
     mkdir -p "$conf_dir"
-    QT_STYLE=$(jq -r '.qt.style // "Adwaita"' "$EXTERNAL_FILE")
     cat > "$conf_dir/$qtver.conf" << EOF
 [Appearance]
 color_scheme_path=
@@ -91,123 +70,64 @@ style=$QT_STYLE
 EOF
 done
 
-# Kdenlive — color scheme + widget style
+# Kdenlive
 KDENLIVE_RC="$HOME/.config/kdenliverc"
 mkdir -p "$(dirname "$KDENLIVE_RC")"
-KDE_SCHEME=$(jq -r '.kdenlive.scheme // "BreezeDark"' "$EXTERNAL_FILE")
-KDE_SCHEME_PATH="${KDE_SCHEME}.colors"
-KDE_WIDGET_STYLE=$(jq -r '.kde.widgetStyle // "Default"' "$EXTERNAL_FILE")
-
-# [KDE] section — widget style (skip if "Default")
-if [ "$KDE_WIDGET_STYLE" != "Default" ]; then
-    if grep -q '^widgetStyle=' "$KDENLIVE_RC" 2>/dev/null; then
-        sed -i 's|^widgetStyle=.*|widgetStyle='"$KDE_WIDGET_STYLE"'|' "$KDENLIVE_RC"
-    elif grep -q '^\[KDE\]' "$KDENLIVE_RC" 2>/dev/null; then
-        sed -i '/^\[KDE\]/a widgetStyle='"$KDE_WIDGET_STYLE" "$KDENLIVE_RC"
-    else
-        printf '\n[KDE]\nwidgetStyle=%s\n' "$KDE_WIDGET_STYLE" >> "$KDENLIVE_RC"
-    fi
+KDE_SCHEME="$(value "$APP_DIR/kdenlive.toml" scheme BreezeDark)"
+KDE_WIDGET_STYLE="$(value "$APP_DIR/kdenlive.toml" widget_style Fusion)"
+if grep -q '^widgetStyle=' "$KDENLIVE_RC" 2>/dev/null; then
+    sed -i 's|^widgetStyle=.*|widgetStyle='"$KDE_WIDGET_STYLE"'|' "$KDENLIVE_RC"
 else
-    sed -i '/^widgetStyle=/d' "$KDENLIVE_RC"
+    printf '\n[KDE]\nwidgetStyle=%s\n' "$KDE_WIDGET_STYLE" >> "$KDENLIVE_RC"
 fi
-
 if grep -q '^\[UiSettings\]' "$KDENLIVE_RC" 2>/dev/null; then
     sed -i '/^\[UiSettings\]/,/^\[/ s|^ColorScheme=.*|ColorScheme='"$KDE_SCHEME"'|' "$KDENLIVE_RC"
-    sed -i '/^\[UiSettings\]/,/^\[/ s|^ColorSchemePath=.*|ColorSchemePath='"$KDE_SCHEME_PATH"'|' "$KDENLIVE_RC"
+    sed -i '/^\[UiSettings\]/,/^\[/ s|^ColorSchemePath=.*|ColorSchemePath='"$KDE_SCHEME"'.colors|' "$KDENLIVE_RC"
 else
-    printf '\n[UiSettings]\nColorScheme=%s\nColorSchemePath=%s\n' "$KDE_SCHEME" "$KDE_SCHEME_PATH" >> "$KDENLIVE_RC"
+    printf '\n[UiSettings]\nColorScheme=%s\nColorSchemePath=%s.colors\n' "$KDE_SCHEME" "$KDE_SCHEME" >> "$KDENLIVE_RC"
 fi
 
-# OBS Studio — set theme
-OBS_STYLE=$(jq -r '.obs.style // "Acri"' "$EXTERNAL_FILE")
+# OBS
+OBS_STYLE="$(value "$APP_DIR/obs.toml" style Acri)"
 obs_ini="$HOME/.config/obs-studio/user.ini"
 if [ -f "$obs_ini" ]; then
     obs_theme="com.obsproject.Yami.$OBS_STYLE"
     if grep -q '^Theme=' "$obs_ini" 2>/dev/null; then
         sed -i 's|^Theme=.*|Theme='"$obs_theme"'|' "$obs_ini"
     else
-        if grep -q '^\[Appearance\]' "$obs_ini" 2>/dev/null; then
-            sed -i '/^\[Appearance\]/a Theme='"$obs_theme" "$obs_ini"
-        else
-            printf '\n[Appearance]\nTheme=%s\n' "$obs_theme" >> "$obs_ini"
-        fi
+        printf '\n[Appearance]\nTheme=%s\n' "$obs_theme" >> "$obs_ini"
     fi
 fi
 
-# GIMP 3.0 — set theme + color scheme, restart to pick up
+# GIMP
 pkill gimp 2>/dev/null || true
-sleep 0.2
-
-GIMP_THEME=$(jq -r '.gimp.theme // "Default"' "$EXTERNAL_FILE")
-GIMP_SCHEME=$(jq -r '.gimp.colorScheme // "dark"' "$EXTERNAL_FILE")
+GIMP_THEME="$(value "$APP_DIR/gimp.toml" theme Default)"
+GIMP_SCHEME="$(value "$APP_DIR/gimp.toml" color_scheme dark)"
 gimp_dir="$HOME/.config/GIMP/3.0"
 gimprc="$gimp_dir/gimprc"
 mkdir -p "$gimp_dir"
+grep -q '(theme ' "$gimprc" 2>/dev/null && sed -i 's|(theme .*)|(theme "'"$GIMP_THEME"'")|' "$gimprc" || echo "(theme \"$GIMP_THEME\")" >> "$gimprc"
+grep -q '(theme-color-scheme ' "$gimprc" 2>/dev/null && sed -i 's|(theme-color-scheme .*)|(theme-color-scheme '"$GIMP_SCHEME"')|' "$gimprc" || echo "(theme-color-scheme $GIMP_SCHEME)" >> "$gimprc"
 
-theme_line="(theme \"$GIMP_THEME\")"
-scheme_line="(theme-color-scheme $GIMP_SCHEME)"
-
-if grep -q '(theme ' "$gimprc" 2>/dev/null; then
-    sed -i 's|(theme .*)|'"$theme_line"'|' "$gimprc"
-else
-    echo "$theme_line" >> "$gimprc"
-fi
-
-if grep -q '(theme-color-scheme ' "$gimprc" 2>/dev/null; then
-    sed -i 's|(theme-color-scheme .*)|'"$scheme_line"'|' "$gimprc"
-else
-    echo "$scheme_line" >> "$gimprc"
-fi
-
-# Firefox — update theme prefs in-place, preserving Nix-managed prefs
-FIREFOX_DARK=$(jq -r '.firefox.darkMode // false' "$EXTERNAL_FILE")
-if [ "$FIREFOX_DARK" = "true" ]; then FF_VAL=1; else FF_VAL=0; fi
-FF_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/mozilla/firefox"
-grep '^Path=' "$FF_DIR/profiles.ini" 2>/dev/null | cut -d= -f2 | while read -r profile; do
-    userjs="$FF_DIR/$profile/user.js"
-    if [ -z "$profile" ] || [ ! -d "$FF_DIR/$profile" ]; then
-        continue
-    fi
-    nix_content=$(cat "$userjs" 2>/dev/null || true)
-    rm -f "$userjs"
-    [ -n "$nix_content" ] && printf '%s\n' "$nix_content" > "$userjs"
-    for pref in \
-        "ui.systemUsesDarkTheme" \
-        "browser.theme.toolbar-theme" \
-        "browser.theme.content-theme"; do
-        line="user_pref(\"$pref\", $FF_VAL);"
-        if grep -q "^user_pref(\"$pref\"," "$userjs" 2>/dev/null; then
-            sed -i "s|^user_pref(\"$pref\", .*|$line|" "$userjs"
-        else
-            echo "$line" >> "$userjs"
-        fi
+# Firefox / LibreWolf
+set_browser_dark() {
+    app_file="$1"
+    root_dir="$2"
+    bool "$app_file" dark_mode false && val=1 || val=0
+    grep '^Path=' "$root_dir/profiles.ini" 2>/dev/null | cut -d= -f2 | while read -r profile; do
+        userjs="$root_dir/$profile/user.js"
+        [ -n "$profile" ] && [ -d "$root_dir/$profile" ] || continue
+        for pref in ui.systemUsesDarkTheme browser.theme.toolbar-theme browser.theme.content-theme; do
+            line="user_pref(\"$pref\", $val);"
+            if grep -q "^user_pref(\"$pref\"," "$userjs" 2>/dev/null; then
+                sed -i "s|^user_pref(\"$pref\", .*|$line|" "$userjs"
+            else
+                echo "$line" >> "$userjs"
+            fi
+        done
     done
-done
-
-# LibreWolf — same treatment as Firefox
-LIBREWOLF_DARK=$(jq -r '.librewolf.darkMode // false' "$EXTERNAL_FILE")
-if [ "$LIBREWOLF_DARK" = "true" ]; then LW_VAL=1; else LW_VAL=0; fi
+}
+set_browser_dark "$APP_DIR/firefox.toml" "${XDG_CONFIG_HOME:-$HOME/.config}/mozilla/firefox"
 LW_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/librewolf"
-if [ ! -f "$LW_DIR/profiles.ini" ]; then
-    LW_DIR="$HOME/.librewolf"
-fi
-grep '^Path=' "$LW_DIR/profiles.ini" 2>/dev/null | cut -d= -f2 | while read -r profile; do
-    userjs="$LW_DIR/$profile/user.js"
-    if [ -z "$profile" ] || [ ! -d "$LW_DIR/$profile" ]; then
-        continue
-    fi
-    nix_content=$(cat "$userjs" 2>/dev/null || true)
-    rm -f "$userjs"
-    [ -n "$nix_content" ] && printf '%s\n' "$nix_content" > "$userjs"
-    for pref in \
-        "ui.systemUsesDarkTheme" \
-        "browser.theme.toolbar-theme" \
-        "browser.theme.content-theme"; do
-        line="user_pref(\"$pref\", $LW_VAL);"
-        if grep -q "^user_pref(\"$pref\"," "$userjs" 2>/dev/null; then
-            sed -i "s|^user_pref(\"$pref\", .*|$line|" "$userjs"
-        else
-            echo "$line" >> "$userjs"
-        fi
-    done
-done
+[ -f "$LW_DIR/profiles.ini" ] || LW_DIR="$HOME/.librewolf"
+set_browser_dark "$APP_DIR/librewolf.toml" "$LW_DIR"

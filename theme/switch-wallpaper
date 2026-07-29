@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -uo pipefail
 
-THEME_DIR="$HOME/.config/reEnvisioning/themes"
+ROOT="$HOME/.config/reEnvisioning"
+THEME_DIR="$ROOT/themes"
+ACTIVE_DIR="$ROOT/active"
 
-THEME_NAME="$(state get current-theme || true)"
+THEME_NAME="$(cat "$ACTIVE_DIR/current-theme" 2>/dev/null || state get current-theme || true)"
 if [ -z "$THEME_NAME" ]; then
     echo "No current theme set. Use switch-theme first."
     exit 1
@@ -55,6 +57,8 @@ if [ -f "$WALLPAPER" ]; then
     pkill swaybg 2>/dev/null || true
     nohup swaybg -i "$WALLPAPER" -m fill >/dev/null 2>&1 & disown
     state set wallpaper-idx:$THEME_NAME "$NEW_IDX"
+    mkdir -p "$ACTIVE_DIR"
+    printf 'theme = "%s"\nindex = %s\npath = "%s"\n' "$THEME_NAME" "$NEW_IDX" "$WALLPAPER" > "$ACTIVE_DIR/wallpaper.toml"
     echo "Switched to wallpaper $NEW_IDX for theme '$THEME_NAME'"
 else
     echo "Wallpaper not found: $WALLPAPER"

@@ -1,4 +1,4 @@
-{ pkgs, lib, username, gitUsername, ... }:
+{ pkgs, lib, username, gitUsername, unstable, ... }:
 {
   home = {
     stateVersion = "26.05";
@@ -34,6 +34,8 @@
     libreoffice-qt
     obs-studio
     xwayland-satellite
+    opencode
+    unstable.pi-coding-agent
   ];
 
   services.udiskie = {

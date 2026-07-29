@@ -18,7 +18,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 local function colors_path()
-  return os.getenv("HOME") .. "/.config/reEnvisioning/theme.json"
+  return os.getenv("HOME") .. "/.config/reEnvisioning/active/theme.json"
 end
 
 local function read_colors()

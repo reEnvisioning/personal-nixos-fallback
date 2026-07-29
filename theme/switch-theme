@@ -7,9 +7,11 @@ if [ -z "$THEME_NAME" ]; then
     exit 1
 fi
 
-THEME_DIR="$HOME/.config/reEnvisioning/themes"
+ROOT="$HOME/.config/reEnvisioning"
+THEME_DIR="$ROOT/themes"
+ACTIVE_DIR="$ROOT/active"
 THEME_FILE="$THEME_DIR/$THEME_NAME/theme.json"
-RUNTIME_FILE="$HOME/.config/reEnvisioning/theme.json"
+RUNTIME_FILE="$ACTIVE_DIR/theme.json"
 
 if [ ! -f "$THEME_FILE" ]; then
     echo "Theme '$THEME_NAME' not found at $THEME_FILE"
@@ -18,23 +20,34 @@ if [ ! -f "$THEME_FILE" ]; then
     exit 1
 fi
 
-# Read mode
-MODE=$(jq -r '.mode // "dark"' "$THEME_FILE")
+extract_content() {
+    awk '
+        /^text = """$/ { in_content = 1; next }
+        in_content && /^"""$/ { exit }
+        in_content { print }
+    ' "$1"
+}
 
-# 1. Update symlinks (break Nix symlinks, create new ones)
+# 1. Update active theme view and app entries.
+rm -rf "$ACTIVE_DIR/apps"
+mkdir -p "$ACTIVE_DIR/apps"
+ln -sfn "../themes/$THEME_NAME" "$ACTIVE_DIR/theme"
+printf '%s' "$THEME_NAME" > "$ACTIVE_DIR/current-theme"
+cp "$THEME_DIR/$THEME_NAME/apps/"*.toml "$ACTIVE_DIR/apps/" 2>/dev/null || true
+
+# Render static-file app themes for apps that do not read runtime colors.
 for app_conf in \
-    "$HOME/.config/kitty/kitty.conf:$THEME_DIR/$THEME_NAME/kitty.conf" \
-    "$HOME/.config/btop/themes/current.theme:$THEME_DIR/$THEME_NAME/btop.theme" \
-    "$HOME/.config/yazi/theme.toml:$THEME_DIR/$THEME_NAME/yazi.toml"; do
-    target="${app_conf%%:*}"
-    source="${app_conf##*:}"
+    "kitty.toml:$HOME/.config/kitty/kitty.conf" \
+    "btop.toml:$HOME/.config/btop/themes/current.theme" \
+    "yazi.toml:$HOME/.config/yazi/theme.toml"; do
+    source="$ACTIVE_DIR/apps/${app_conf%%:*}"
+    target="${app_conf##*:}"
+    [ -f "$source" ] || continue
     mkdir -p "$(dirname "$target")"
-    rm -f "$target"
-    ln -s "$source" "$target"
+    extract_content "$source" > "$target"
 done
 
 # 2. Write runtime theme.json (triggers systemd path → theme-reload → signals kitty/btop)
-mkdir -p "$(dirname "$RUNTIME_FILE")"
 cp "$THEME_FILE" "$RUNTIME_FILE"
 
 # 3. Wallpaper — per-theme index with bounds check
@@ -53,13 +66,11 @@ sleep 1
 if [ -f "$WALLPAPER" ]; then
     pkill swaybg 2>/dev/null || true
     nohup swaybg -i "$WALLPAPER" -m fill >/dev/null 2>&1 & disown
+    printf 'theme = "%s"\nindex = %s\npath = "%s"\n' "$THEME_NAME" "$WALLPAPER_IDX" "$WALLPAPER" > "$ACTIVE_DIR/wallpaper.toml"
 fi
 
-# 4. Save current theme
-state set current-theme "$THEME_NAME"
-
 # 6. Third-party apps (GTK, Firefox, OBS, etc.)
-command -v external-theme >/dev/null 2>&1 && external-theme "$MODE"
+command -v external-theme >/dev/null 2>&1 && external-theme
 
 # 7. Notification
 notify-send --app-name="Theme Indicator" --expire-time=2000 "Theme" "$THEME_NAME"

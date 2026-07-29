@@ -1,7 +1,6 @@
 { config, pkgs, lib, quickshellSrc, ... }:
 let
   theme = import ./theme.nix;
-  external = import ./external.nix { inherit config pkgs lib; };
   generators = import ./generators.nix;
 
   # Clean theme.json: only colors, mode, wallpapers, cursor, opacity, font
@@ -18,37 +17,133 @@ let
     colors = t.colors;
   });
 
-  themeJsonConfigs = builtins.listToAttrs (lib.flatten (map (name: let t = theme.all.${name}; in [
-    {
-      name = "reEnvisioning/themes/${name}/theme.json";
-      value = {
-        text = mkCleanThemeJson name t;
-        force = true;
-      };
-    }
-    {
-      name = "reEnvisioning/themes/${name}/kitty.conf";
-      value = {
-        text = generators.mkKittyConf t;
-        force = true;
-      };
-    }
-    {
-      name = "reEnvisioning/themes/${name}/btop.theme";
-      value = {
-        text = generators.mkBtopTheme t;
-        force = true;
-      };
-    }
-    {
-      name = "reEnvisioning/themes/${name}/yazi.toml";
-      value = {
-        text = generators.mkYaziTheme t;
-        force = true;
-      };
-    }
-  ]) (builtins.attrNames theme.all)));
-in {
+  bool = x: if x then "true" else "false";
+
+  externalFor = t:
+    if t.mode == "dark" then {
+      gtkTheme = "Catppuccin-Mocha-Standard-Maroon-Dark";
+      preferDark = true;
+      localsendColor = "oled";
+      obsStyle = "Acri";
+      qtStyle = "adwaita-dark";
+      kdeScheme = "BreezeDark";
+      kdeWidgetStyle = "Fusion";
+      gimpTheme = "Default";
+      gimpColorScheme = "dark";
+      browserDark = true;
+    } else {
+      gtkTheme = "Catppuccin-Latte-Standard-Pink";
+      preferDark = false;
+      localsendColor = "system";
+      obsStyle = "Light";
+      qtStyle = "Adwaita";
+      kdeScheme = "BreezeLight";
+      kdeWidgetStyle = "Fusion";
+      gimpTheme = "Default";
+      gimpColorScheme = "light";
+      browserDark = false;
+    };
+
+  mkFileApp = app: target: filename: content: ''
+    [meta]
+    app = "${app}"
+    schema = 1
+    handler = "file"
+    target = "${target}"
+    filename = "${filename}"
+    dynamic = false
+
+    [content]
+    text = """
+    ${content}
+    """
+  '';
+
+  mkSettingsApp = app: settings: ''
+    [meta]
+    app = "${app}"
+    schema = 1
+    handler = "settings"
+    dynamic = false
+
+    [settings]
+    ${settings}
+  '';
+
+  mkAppConfigs = name: t:
+    let e = externalFor t; in [
+      {
+        name = "reEnvisioning/themes/${name}/theme.json";
+        value = {
+          text = mkCleanThemeJson name t;
+          force = true;
+        };
+      }
+      {
+        name = "reEnvisioning/themes/${name}/apps/kitty.toml";
+        value.text = mkFileApp "kitty" "~/.config/kitty" "kitty.conf" (generators.mkKittyConf t);
+      }
+      {
+        name = "reEnvisioning/themes/${name}/apps/btop.toml";
+        value.text = mkFileApp "btop" "~/.config/btop/themes" "current.theme" (generators.mkBtopTheme t);
+      }
+      {
+        name = "reEnvisioning/themes/${name}/apps/yazi.toml";
+        value.text = mkFileApp "yazi" "~/.config/yazi" "theme.toml" (generators.mkYaziTheme t);
+      }
+      {
+        name = "reEnvisioning/themes/${name}/apps/localsend_app.toml";
+        value.text = mkSettingsApp "localsend_app" ''
+          mode = "${t.mode}"
+          color = "${e.localsendColor}"
+          target = "~/.local/share/org.localsend.localsend_app"
+          filename = "shared_preferences.json"
+        '';
+      }
+      {
+        name = "reEnvisioning/themes/${name}/apps/gtk.toml";
+        value.text = mkSettingsApp "gtk" ''
+          theme = "${e.gtkTheme}"
+          prefer_dark = ${bool e.preferDark}
+        '';
+      }
+      {
+        name = "reEnvisioning/themes/${name}/apps/qt.toml";
+        value.text = mkSettingsApp "qt" ''style = "${e.qtStyle}"'';
+      }
+      {
+        name = "reEnvisioning/themes/${name}/apps/kdenlive.toml";
+        value.text = mkSettingsApp "kdenlive" ''
+          scheme = "${e.kdeScheme}"
+          widget_style = "${e.kdeWidgetStyle}"
+        '';
+      }
+      {
+        name = "reEnvisioning/themes/${name}/apps/obs.toml";
+        value.text = mkSettingsApp "obs" ''style = "${e.obsStyle}"'';
+      }
+      {
+        name = "reEnvisioning/themes/${name}/apps/gimp.toml";
+        value.text = mkSettingsApp "gimp" ''
+          theme = "${e.gimpTheme}"
+          color_scheme = "${e.gimpColorScheme}"
+        '';
+      }
+      {
+        name = "reEnvisioning/themes/${name}/apps/firefox.toml";
+        value.text = mkSettingsApp "firefox" ''dark_mode = ${bool e.browserDark}'';
+      }
+      {
+        name = "reEnvisioning/themes/${name}/apps/librewolf.toml";
+        value.text = mkSettingsApp "librewolf" ''dark_mode = ${bool e.browserDark}'';
+      }
+    ];
+
+  themeJsonConfigs = builtins.listToAttrs (lib.flatten (map
+    (name: mkAppConfigs name theme.all.${name})
+    (builtins.attrNames theme.all)));
+in
+{
   imports = [ ./theme-reload.nix ];
 
   home.pointerCursor = {
@@ -105,72 +200,82 @@ in {
     "gtk-4.0/settings.ini".force = true;
 
     # Ecosystem root
-    "reEnvisioning/ecosystem.json" = {
+    "reEnvisioning/ecosystem.toml" = {
       force = true;
-      text = builtins.toJSON {
-        version = 1;
-        schema = "reEnvisioning-ecosystem";
-          theme = {
-            current = theme.default;
-            runtimePath = "reEnvisioning/theme.json";
-            themesDir = "reEnvisioning/themes";
-            externalDir = "reEnvisioning/external";
-          };
-        stateDir = "reEnvisioning/state";
-        configDir = "reEnvisioning/config";
-        dataDir = "reEnvisioning/data";
-      };
+      text = ''
+        version = 1
+        schema = "reEnvisioning-ecosystem"
+        appdata_dir = "reEnvisioning/appdata"
+        usr_dir = "reEnvisioning/usr"
+
+        [theme]
+        current = "${theme.default}"
+        runtime_path = "reEnvisioning/active/theme.json"
+        themes_dir = "reEnvisioning/themes"
+        active_dir = "reEnvisioning/active"
+      '';
     };
 
-    # Ecosystem-wide settings
-    "reEnvisioning/config/general.json" = {
+    # App-owned data/config scaffolds
+    "reEnvisioning/appdata/reShell/config.toml" = {
       force = true;
-      text = builtins.toJSON { uiScale = 1; };
+      text = ''
+        ui_scale = 1
+      '';
     };
 
-    # App config directory scaffold
-    "reEnvisioning/config/apps/.empty" = {
-      text = "";
-    };
-
-    "reEnvisioning/reShell/user" = {
-      source = ./resources/user;
-      force = true;
-      recursive = true;
-    };
+    "reEnvisioning/appdata/reTheme/.keep".text = "";
+    "reEnvisioning/appdata/reWallpaper/wallpapers/.keep".text = "";
+    "reEnvisioning/usr/.keep".text = "";
 
     "quickshell" = {
       source = quickshellSrc;
       force = true;
     };
-  } // themeJsonConfigs // external.xdg.configFile;
+  } // themeJsonConfigs;
 
-  home.activation.restoreTheme = lib.hm.dag.entryAfter ["writeBoundary"] ''
-    CURRENT_THEME="$(cat "$HOME/.config/reEnvisioning/state/current-theme" 2>/dev/null || echo "")"
-    if [ -n "$CURRENT_THEME" ]; then
+  home.activation.restoreTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    CURRENT_THEME="$(cat "$HOME/.config/reEnvisioning/active/current-theme" 2>/dev/null || echo "${theme.default}")"
+    THEME_DIR="$HOME/.config/reEnvisioning/themes/$CURRENT_THEME"
+    if [ ! -f "$THEME_DIR/theme.json" ]; then
+      CURRENT_THEME="${theme.default}"
       THEME_DIR="$HOME/.config/reEnvisioning/themes/$CURRENT_THEME"
-      RUNTIME_FILE="$HOME/.config/reEnvisioning/theme.json"
+    fi
+    if [ -f "$THEME_DIR/theme.json" ]; then
+      ACTIVE_DIR="$HOME/.config/reEnvisioning/active"
+      RUNTIME_FILE="$ACTIVE_DIR/theme.json"
 
-      # Restore symlinks (home-manager overwrites them on rebuild)
+      extract_content() {
+          awk '
+              /^text = """$/ { in_content = 1; next }
+              in_content && /^"""$/ { exit }
+              in_content { print }
+          ' "$1"
+      }
+
+      rm -rf "$ACTIVE_DIR/apps"
+      mkdir -p "$ACTIVE_DIR/apps"
+      printf '%s' "$CURRENT_THEME" > "$ACTIVE_DIR/current-theme"
+      ln -sfn "../themes/$CURRENT_THEME" "$ACTIVE_DIR/theme"
+      cp "$THEME_DIR/apps/"*.toml "$ACTIVE_DIR/apps/" 2>/dev/null || true
+
       for app_conf in \
-          "$HOME/.config/kitty/kitty.conf:$THEME_DIR/kitty.conf" \
-          "$HOME/.config/btop/themes/current.theme:$THEME_DIR/btop.theme" \
-          "$HOME/.config/yazi/theme.toml:$THEME_DIR/yazi.toml"; do
-          target="''${app_conf%%:*}"
-          source="''${app_conf##*:}"
+          "kitty.toml:$HOME/.config/kitty/kitty.conf" \
+          "btop.toml:$HOME/.config/btop/themes/current.theme" \
+          "yazi.toml:$HOME/.config/yazi/theme.toml"; do
+          source="$ACTIVE_DIR/apps/''${app_conf%%:*}"
+          target="''${app_conf##*:}"
+          [ -f "$source" ] || continue
           mkdir -p "$(dirname "$target")"
-          rm -f "$target"
-          ln -s "$source" "$target"
+          extract_content "$source" > "$target"
       done
 
       # Write runtime theme.json (triggers systemd path → kitty/btop signal)
-      mkdir -p "$(dirname "$RUNTIME_FILE")"
       cp "$THEME_DIR/theme.json" "$RUNTIME_FILE"
 
       # Apply external theming (GTK, Firefox, LibreWolf, etc.)
       export PATH="/run/current-system/sw/bin:$PATH"
-      MODE="$(jq -r '.mode // "dark"' "$THEME_DIR/theme.json")"
-      external-theme "$MODE"
+      external-theme
     fi
   '';
 }

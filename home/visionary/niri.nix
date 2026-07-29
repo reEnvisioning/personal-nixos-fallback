@@ -5,8 +5,11 @@ let
   mod = "Mod";
 
   niri-startup = pkgs.writeShellScript "niri-startup" ''
-    rt="$HOME/.config/reEnvisioning/theme.json"
-    def_th="$(cat "$HOME/.config/reEnvisioning/state/current-theme" 2>/dev/null || echo void)"
+    active="$HOME/.config/reEnvisioning/active"
+    rt="$active/theme.json"
+    def_th="$(cat "$active/current-theme" 2>/dev/null || echo sakura)"
+    [ -f "$HOME/.config/reEnvisioning/themes/$def_th/theme.json" ] || def_th=sakura
+    mkdir -p "$active"
     [ ! -f "$rt" ] && cp "$HOME/.config/reEnvisioning/themes/$def_th/theme.json" "$rt"
     pgrep -x quickshell >/dev/null 2>&1 || quickshell &
     switch-theme "$def_th"
@@ -21,14 +24,16 @@ let
     fi
   '';
 
-  wsBinds = builtins.concatLists (builtins.genList (x:
-    let wsNum = x + 1; wsKey = if wsNum == 10 then "0" else builtins.toString wsNum; wsStr = builtins.toString wsNum; in [
-      ''        "${mod}+${wsKey}" hotkey-overlay-title="Focus workspace ${wsStr}" { focus-workspace ${wsStr}; }''
-      ''        "${mod}+Shift+${wsKey}" hotkey-overlay-title="Move window to workspace ${wsStr}" { move-window-to-workspace ${wsStr}; }''
-      ''        "${mod}+Ctrl+${wsKey}" hotkey-overlay-title="Move column to workspace ${wsStr}" { move-column-to-workspace ${wsStr}; }''
-    ]
-  ) 10);
-in {
+  wsBinds = builtins.concatLists (builtins.genList
+    (x:
+      let wsNum = x + 1; wsKey = if wsNum == 10 then "0" else builtins.toString wsNum; wsStr = builtins.toString wsNum; in [
+        ''        "${mod}+${wsKey}" hotkey-overlay-title="Focus workspace ${wsStr}" { focus-workspace ${wsStr}; }''
+        ''        "${mod}+Shift+${wsKey}" hotkey-overlay-title="Move window to workspace ${wsStr}" { move-window-to-workspace ${wsStr}; }''
+        ''        "${mod}+Ctrl+${wsKey}" hotkey-overlay-title="Move column to workspace ${wsStr}" { move-column-to-workspace ${wsStr}; }''
+      ]
+    ) 10);
+in
+{
   xdg.configFile."niri/config.kdl".text = ''
     prefer-no-csd
 
@@ -273,30 +278,30 @@ in {
       indicator-radius = 50;
       indicator-thickness = 7;
 
-      ring-color         = "#333333";
-      ring-clear-color   = "#444444";
-      ring-ver-color     = "#555555";
-      ring-wrong-color   = "#662222";
+      ring-color = "#333333";
+      ring-clear-color = "#444444";
+      ring-ver-color = "#555555";
+      ring-wrong-color = "#662222";
 
-      inside-color         = "#111111";
-      inside-clear-color   = "#1A1A1A";
-      inside-ver-color     = "#222222";
-      inside-wrong-color   = "#330000";
+      inside-color = "#111111";
+      inside-clear-color = "#1A1A1A";
+      inside-ver-color = "#222222";
+      inside-wrong-color = "#330000";
 
-      text-color         = "#CCCCCC";
-      text-clear-color   = "#BBBBBB";
-      text-ver-color     = "#AAAAAA";
-      text-wrong-color   = "#CC6666";
+      text-color = "#CCCCCC";
+      text-clear-color = "#BBBBBB";
+      text-ver-color = "#AAAAAA";
+      text-wrong-color = "#CC6666";
 
-      key-hl-color         = "#888888";
-      bs-hl-color          = "#444444";
+      key-hl-color = "#888888";
+      bs-hl-color = "#444444";
       caps-lock-key-hl-color = "#555555";
-      caps-lock-bs-hl-color  = "#333333";
-      separator-color      = "#222222";
-      line-color           = "#1A1A1A";
-      line-ver-color       = "#333333";
-      line-wrong-color     = "#442222";
-      line-clear-color     = "#222222";
+      caps-lock-bs-hl-color = "#333333";
+      separator-color = "#222222";
+      line-color = "#1A1A1A";
+      line-ver-color = "#333333";
+      line-wrong-color = "#442222";
+      line-clear-color = "#222222";
     };
   };
 

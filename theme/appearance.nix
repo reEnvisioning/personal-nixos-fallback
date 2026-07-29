@@ -1,13 +1,15 @@
-{ config, pkgs, lib, quickshellSrc, ... }:
+{ config, pkgs, lib, quickshellSrc, rethemePackage ? null, ... }:
 let
   cfg = config.appearance;
 
   theme = import ./theme.nix;
 
   # Collect all wallpaper store paths to prevent garbage collection
-  allWallpaperPaths = let
-    themes = builtins.attrValues theme.all;
-  in lib.unique (lib.flatten (map (t: [t.wallpaper] ++ t.wallpapers) themes));
+  allWallpaperPaths =
+    let
+      themes = builtins.attrValues theme.all;
+    in
+    lib.unique (lib.flatten (map (t: [ t.wallpaper ] ++ t.wallpapers) themes));
 
   catppuccin-mocha = pkgs.catppuccin-gtk.override {
     variant = "mocha";
@@ -18,14 +20,15 @@ let
     variant = "latte";
     accents = [ "blue" "pink" ];
   };
-in {
+in
+{
   options.appearance.users = lib.mkOption {
     type = lib.types.listOf lib.types.str;
-    default = [];
+    default = [ ];
     description = "Users that get theme + quickshell config applied";
   };
 
-  config = lib.mkIf (cfg.users != []) {
+  config = lib.mkIf (cfg.users != [ ]) {
     # Pin all wallpaper store paths into the system closure so they
     # cannot be garbage-collected even if string context is lost by toJSON
     system.extraDependencies = allWallpaperPaths;
@@ -38,7 +41,7 @@ in {
       "TERMINAL" = "kitty";
     };
 
-    environment.systemPackages = with pkgs; [
+    environment.systemPackages = (with pkgs; [
       quickshell
       wl-clipboard
       libnotify
@@ -64,11 +67,13 @@ in {
       (writeShellScriptBin "state" (builtins.readFile "${quickshellSrc}/scripts/state"))
       (writeShellScriptBin "mic" (builtins.readFile "${quickshellSrc}/scripts/mic"))
       (writeShellScriptBin "powerprofile" (builtins.readFile "${quickshellSrc}/scripts/powerprofile"))
-    ];
+    ]) ++ lib.optional (rethemePackage != null) rethemePackage;
 
-    home-manager.users = builtins.listToAttrs (map (username: {
-      name = username;
-      value.imports = [ ./hm.nix ];
-    }) cfg.users);
+    home-manager.users = builtins.listToAttrs (map
+      (username: {
+        name = username;
+        value.imports = [ ./hm.nix ];
+      })
+      cfg.users);
   };
 }

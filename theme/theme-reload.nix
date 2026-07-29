@@ -7,7 +7,8 @@ let
     killall -USR2 btop 2>/dev/null || true
     # Yazi auto-reloads via inotifywait on theme.toml — no signal needed
   '';
-in {
+in
+{
   systemd.user.services.theme-reload = {
     Unit = {
       Description = "Reload apps on theme change";
@@ -20,10 +21,10 @@ in {
 
   systemd.user.paths.theme-reload = {
     Unit = {
-      Description = "Watch theme.json for changes";
+      Description = "Watch active theme.json for changes";
     };
     Path = {
-      PathModified = "%h/.config/reEnvisioning/theme.json";
+      PathModified = "%h/.config/reEnvisioning/active/theme.json";
     };
     Install = {
       WantedBy = [ "default.target" ];
