@@ -1,4 +1,4 @@
-{ pkgs, nixUsers, trustedUsers ? nixUsers, cpuVendor, gpuVendor, pc ? "desktop", ... }:
+{ pkgs, inputs, nixUsers, trustedUsers ? nixUsers, cpuVendor, gpuVendor, pc ? "desktop", ... }:
 let
   hw = import ../hardware/hardware.nix { inherit pc cpuVendor gpuVendor; };
   vbox-wrapped = pkgs.virtualbox.overrideAttrs (old: {
@@ -12,7 +12,7 @@ let
 in {
   imports = [
     ../network/networking.nix
-    ./local.nix
+    (inputs.usr + "/local.nix")
     ../theme/plymouth.nix
     ./greeter.nix
     ./audio.nix
