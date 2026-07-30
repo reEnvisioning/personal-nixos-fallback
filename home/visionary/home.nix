@@ -1,4 +1,4 @@
-{ pkgs, lib, username, gitUsername, unstable, ... }:
+{ pkgs, lib, username, unstable, ... }:
 {
   home = {
     stateVersion = "26.05";
@@ -13,12 +13,10 @@
 
   programs.git = {
     enable = true;
-    settings = {
-      user = {
-        name = gitUsername;
-        useConfigOnly = true;
-      };
-    };
+    includes = [
+      { path = "~/.config/reEnvisioning/usr/apps/gitconfig"; }
+    ];
+    settings.user.useConfigOnly = true;
   };
 
   programs.home-manager.enable = true;

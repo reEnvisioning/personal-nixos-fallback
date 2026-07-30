@@ -29,7 +29,6 @@
       cpuVendor = "intel";
       gpuVendor = "nvidia";
       system = "x86_64-linux";
-      gitUsername = "reEnvisioning";
       inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme; };
       unstable = import nixpkgs-unstable {
         inherit system;
@@ -42,7 +41,7 @@
 
       mkSystem = { pc }: inputs.nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit inputs hostname unstable gitUsername pc cpuVendor gpuVendor rethemePackage; nixUsers = allUsers; trustedUsers = usernames; username = primaryUser; };
+        specialArgs = { inherit inputs hostname unstable pc cpuVendor gpuVendor rethemePackage; nixUsers = allUsers; trustedUsers = usernames; username = primaryUser; };
         modules = [
           ./system/default.nix
           {
@@ -72,7 +71,7 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
 
-            home-manager.extraSpecialArgs = { inherit hostname unstable gitUsername pc cpuVendor gpuVendor rethemePackage; };
+            home-manager.extraSpecialArgs = { inherit hostname unstable pc cpuVendor gpuVendor rethemePackage; };
 
             home-manager.users = builtins.listToAttrs (
               (map
