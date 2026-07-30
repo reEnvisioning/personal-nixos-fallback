@@ -21,10 +21,10 @@ in
 
   systemd.user.paths.theme-reload = {
     Unit = {
-      Description = "Watch active theme.json for changes";
+      Description = "Watch active theme.toml for changes";
     };
     Path = {
-      PathModified = "%h/.config/reEnvisioning/active/theme.json";
+      PathModified = "%h/.config/reEnvisioning/active/theme.toml";
     };
     Install = {
       WantedBy = [ "default.target" ];

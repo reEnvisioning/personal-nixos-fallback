@@ -1,4 +1,4 @@
-{ config, pkgs, lib, quickshellSrc, rethemePackage ? null, ... }:
+{ config, pkgs, lib, rethemePackage ? null, ... }:
 let
   theme = import ./theme.nix;
   rethemeBin = if rethemePackage == null then "retheme" else "${rethemePackage}/bin/retheme";
@@ -70,38 +70,27 @@ in
 
         [theme]
         current = "${theme.default}"
-        runtime_path = "reEnvisioning/active/theme.json"
+        runtime_path = "reEnvisioning/active/theme.toml"
         themes_dir = "reEnvisioning/themes"
         active_dir = "reEnvisioning/active"
       '';
     };
 
     # App-owned data/config scaffolds
-    "reEnvisioning/appdata/reShell/config.toml" = {
-      force = true;
-      text = ''
-        ui_scale = 1
-      '';
-    };
-
     "reEnvisioning/appdata/reTheme/.keep".text = "";
     "reEnvisioning/appdata/reWallpaper/wallpapers/.keep".text = "";
     "reEnvisioning/usr/.keep".text = "";
 
-    "quickshell" = {
-      source = quickshellSrc;
-      force = true;
-    };
   };
 
   home.activation.restoreTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     CURRENT_THEME="$(cat "$HOME/.config/reEnvisioning/active/current-theme" 2>/dev/null || echo "${theme.default}")"
     THEME_DIR="$HOME/.config/reEnvisioning/themes/$CURRENT_THEME"
-    if [ ! -f "$THEME_DIR/theme.json" ]; then
+    if [ ! -f "$THEME_DIR/theme.toml" ]; then
       CURRENT_THEME="${theme.default}"
       THEME_DIR="$HOME/.config/reEnvisioning/themes/$CURRENT_THEME"
     fi
-    if [ -f "$THEME_DIR/theme.json" ]; then
+    if [ -f "$THEME_DIR/theme.toml" ]; then
       RETHEME_ROOT="$HOME/.config/reEnvisioning" ${rethemeBin} switch "$CURRENT_THEME"
 
       # Apply settings handlers (GTK, Firefox, LibreWolf, etc.) until reTheme owns them.

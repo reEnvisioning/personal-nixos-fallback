@@ -17,18 +17,24 @@ vim.opt.signcolumn = 'yes'
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
-local function colors_path()
-  return os.getenv("HOME") .. "/.config/reEnvisioning/active/theme.json"
+local function read_kv(path)
+  local out = {}
+  local f = io.open(path, "r")
+  if not f then return out end
+  for line in f:lines() do
+    local key, value = line:match('^%s*([%w_]+)%s*=%s*"([^"]*)"')
+    if key then out[key] = value end
+  end
+  f:close()
+  return out
 end
 
 local function read_colors()
-  local f = io.open(colors_path(), "r")
-  if not f then return nil end
-  local content = f:read("*a")
-  f:close()
-  local ok, data = pcall(vim.json.decode, content)
-  if not ok or type(data) ~= "table" then return nil end
-  return data
+  local root = os.getenv("HOME") .. "/.config/reEnvisioning/active"
+  local theme = read_kv(root .. "/theme.toml")
+  local colors = read_kv(root .. "/colors.toml")
+  if not next(colors) then return nil end
+  return { mode = theme.mode or "dark", colors = colors }
 end
 
 --- Build a flat color table from theme data
@@ -481,9 +487,9 @@ setup_server("lua_ls", {
   },
 })
 
--- Live-switching: watch colors.json for changes
+-- Live-switching: watch active colors for changes
 local uv = vim.uv or vim.loop
-local watch_path = colors_path()
+local watch_path = os.getenv("HOME") .. "/.config/reEnvisioning/active/colors.toml"
 local watcher = uv.new_fs_event()
 local reload_timer = nil
 

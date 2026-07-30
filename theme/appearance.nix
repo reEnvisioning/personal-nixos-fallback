@@ -1,4 +1,4 @@
-{ config, pkgs, lib, quickshellSrc, rethemePackage ? null, ... }:
+{ config, pkgs, lib, rethemePackage ? null, ... }:
 let
   cfg = config.appearance;
 
@@ -16,7 +16,7 @@ in
   options.appearance.users = lib.mkOption {
     type = lib.types.listOf lib.types.str;
     default = [ ];
-    description = "Users that get theme + quickshell config applied";
+    description = "Users that get theme configuration applied";
   };
 
   config = lib.mkIf (cfg.users != [ ]) {
@@ -29,9 +29,6 @@ in
     };
 
     environment.systemPackages = (with pkgs; [
-      quickshell
-      wl-clipboard
-      libnotify
       adw-gtk3
       adwaita-qt
       adwaita-qt6
@@ -43,17 +40,8 @@ in
       gawk
       catppuccin-mocha
       catppuccin-latte
-      (writeShellScriptBin "shell" (builtins.readFile "${quickshellSrc}/scripts/shell"))
       (writeShellScriptBin "external-theme" (builtins.readFile ./external-theme))
       (writeShellScriptBin "switch-wallpaper" (builtins.readFile ./switch-wallpaper))
-      (writeShellScriptBin "indicator" (builtins.readFile "${quickshellSrc}/scripts/indicator"))
-      (writeShellScriptBin "volume" (builtins.readFile "${quickshellSrc}/scripts/volume"))
-      (writeShellScriptBin "brightness" (builtins.readFile "${quickshellSrc}/scripts/brightness"))
-      (writeShellScriptBin "dnd" (builtins.readFile "${quickshellSrc}/scripts/dnd"))
-      (writeShellScriptBin "idle-toggle" (builtins.readFile "${quickshellSrc}/scripts/idle-toggle"))
-      (writeShellScriptBin "state" (builtins.readFile "${quickshellSrc}/scripts/state"))
-      (writeShellScriptBin "mic" (builtins.readFile "${quickshellSrc}/scripts/mic"))
-      (writeShellScriptBin "powerprofile" (builtins.readFile "${quickshellSrc}/scripts/powerprofile"))
     ]) ++ lib.optional (rethemePackage != null) rethemePackage;
 
     home-manager.users = builtins.listToAttrs (map

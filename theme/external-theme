@@ -2,8 +2,7 @@
 set -uo pipefail
 
 APP_DIR="$HOME/.config/reEnvisioning/active/apps"
-THEME_FILE="$HOME/.config/reEnvisioning/active/theme.json"
-MODE="$(jq -r '.mode // "dark"' "$THEME_FILE" 2>/dev/null || echo dark)"
+THEME_FILE="$HOME/.config/reEnvisioning/active/theme.toml"
 
 value() {
     file="$1"
@@ -15,6 +14,8 @@ value() {
         END { if (!found) print fallback }
     ' "$file" 2>/dev/null
 }
+
+MODE="$(value "$THEME_FILE" mode dark)"
 
 bool() {
     [ "$(value "$1" "$2" "$3")" = "true" ]

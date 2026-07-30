@@ -6,22 +6,18 @@ let
   niri-startup = pkgs.writeShellScript "niri-startup" ''
     active="$HOME/.config/reEnvisioning/active"
     def_th="$(cat "$active/current-theme" 2>/dev/null || echo sakura)"
-    [ -f "$HOME/.config/reEnvisioning/themes/$def_th/theme.json" ] || def_th=sakura
+    [ -f "$HOME/.config/reEnvisioning/themes/$def_th/theme.toml" ] || def_th=sakura
     if RETHEME_ROOT="$HOME/.config/reEnvisioning" retheme switch "$def_th"; then
       external-theme
-      wp_idx="$(state get wallpaper-idx:$def_th || true)"
-      switch-wallpaper "''${wp_idx:-0}"
+      switch-wallpaper
     fi
-    pgrep -x quickshell >/dev/null 2>&1 || quickshell &
-    if [ "$(state get idle-inhibit)" != "disabled" ]; then
-      sway-audio-idle-inhibit &
-      swayidle -w \
-        timeout 300 'swaylock -f' \
-        timeout 600 'niri msg action power-off-monitors' \
-        resume 'niri msg action power-on-monitors' \
-        before-sleep 'swaylock -f' &
-      disown
-    fi
+    sway-audio-idle-inhibit &
+    swayidle -w \
+      timeout 300 'swaylock -f' \
+      timeout 600 'niri msg action power-off-monitors' \
+      resume 'niri msg action power-on-monitors' \
+      before-sleep 'swaylock -f' &
+    disown
   '';
 
   wsBinds = builtins.concatLists (builtins.genList
@@ -152,27 +148,15 @@ in
         "Mod+Shift+G" hotkey-overlay-title="GIMP" { spawn "gimp"; }
 
         // Brightness, volume, mic
-        "F13" hotkey-overlay-title="Brightness down" { spawn "brightness" "down"; }
-        "F14" hotkey-overlay-title="Brightness up" { spawn "brightness" "up"; }
-        "F24" hotkey-overlay-title="Volume up" { spawn "volume" "up"; }
-        "F23" hotkey-overlay-title="Volume down" { spawn "volume" "down"; }
-        "Mod+Alt+M" hotkey-overlay-title="Toggle volume" { spawn "volume" "toggle"; }
-        "Mod+Shift+M" hotkey-overlay-title="Toggle mic" { spawn "mic" "toggle"; }
-
-        // Tab trigger
-        "Mod+Alt+1" hotkey-overlay-title="Tab trigger 0" { spawn "shell" "tab" "0"; }
-        "Mod+Alt+2" hotkey-overlay-title="Tab trigger 1" { spawn "shell" "tab" "1"; }
-        "Mod+Alt+3" hotkey-overlay-title="Tab trigger 2" { spawn "shell" "tab" "2"; }
-
-        // Notifications
-        "Mod+Alt+N" hotkey-overlay-title="Toggle DND" { spawn "dnd" "toggle"; }
-        "Mod+Alt+Backspace" hotkey-overlay-title="Dismiss notification" { spawn "shell" "dismiss"; }
+        "F13" hotkey-overlay-title="Brightness down" { spawn "brightnessctl" "set" "5%-"; }
+        "F14" hotkey-overlay-title="Brightness up" { spawn "brightnessctl" "set" "5%+"; }
+        "F24" hotkey-overlay-title="Volume up" { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }
+        "F23" hotkey-overlay-title="Volume down" { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
+        "Mod+Alt+M" hotkey-overlay-title="Toggle volume" { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+        "Mod+Shift+M" hotkey-overlay-title="Toggle mic" { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
 
         // System
-        "Mod+Space" hotkey-overlay-title="Launcher" { spawn "shell" "launcher"; }
-        "Mod+V" hotkey-overlay-title="Toggle clipboard" { spawn "shell" "clip"; }
         "Mod+Shift+O" hotkey-overlay-title="Lock screen" { spawn "swaylock" "-f"; }
-        "Mod+Shift+I" hotkey-overlay-title="Toggle idle" { spawn "idle-toggle" "toggle"; }
         "Mod+Shift+P" hotkey-overlay-title="Quit" { quit; }
         "Mod+Shift+E" hotkey-overlay-title="Quit" { quit; }
 
