@@ -1,5 +1,10 @@
 { pkgs, inputs, nixUsers, trustedUsers ? nixUsers, cpuVendor, gpuVendor, pc ? "desktop", ... }:
 let
+  localSettingsPath = inputs.usr + "/apps/NixOS/local.toml";
+  localOverrides =
+    if builtins.pathExists localSettingsPath
+    then builtins.fromTOML (builtins.readFile localSettingsPath)
+    else {};
   hw = import ../hardware/hardware.nix { inherit pc cpuVendor gpuVendor; };
   vbox-wrapped = pkgs.virtualbox.overrideAttrs (old: {
     nativeBuildInputs = (old.nativeBuildInputs or []) ++ [ pkgs.makeWrapper ];
@@ -12,7 +17,7 @@ let
 in {
   imports = [
     ../network/networking.nix
-    (inputs.usr + "/local.nix")
+    (import ./local.nix { inherit localOverrides; })
     ../theme/plymouth.nix
     ./greeter.nix
     ./audio.nix

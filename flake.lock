@@ -106,11 +106,11 @@
     "usr": {
       "flake": false,
       "locked": {
-        "lastModified": 1785406654,
-        "narHash": "sha256-RekTM9tQF+uIIrn47YeND2z0XUF7A/nB/xysWzRufis=",
+        "lastModified": 1785689961,
+        "narHash": "sha256-OVxBxqp4MxgqTA0o15eM1f1WGQ3fFFXITjweI6KrjcQ=",
         "ref": "refs/heads/main",
-        "rev": "aaf65e1f032e0ff7c8e7dfdfc18ee63fe4e5ce76",
-        "revCount": 3,
+        "rev": "a8976e3436de8459411f1366b81a154771906046",
+        "revCount": 4,
         "type": "git",
         "url": "ssh://git@github.com/reEnvisioning/usr.git"
       },
