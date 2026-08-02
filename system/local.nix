@@ -1,8 +1,11 @@
-{ localOverrides ? {}, ... }:
 {
-  time.timeZone = localOverrides.timezone or "UTC";
-  console.keyMap = localOverrides.keymap or "us";
+  # Portable defaults; the optional usr file is applied at runtime.
+  time.timeZone = null;
+  # nixpkgs 26.05 emits an invalid tmpfiles rule for imperative console settings.
+  console.enable = false;
 
-  i18n.defaultLocale = localOverrides.defaultLocale or "en_US.UTF-8";
-  i18n.extraLocaleSettings = localOverrides.extraLocaleSettings or { };
+  i18n.defaultLocale = "en_US.UTF-8";
+  i18n.extraLocaleSettings = { };
+  i18n.extraLocales = "all";
+  i18n.imperativeLocale = true;
 }

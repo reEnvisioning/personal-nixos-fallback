@@ -99,24 +99,7 @@
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "retheme": "retheme",
-        "usr": "usr"
-      }
-    },
-    "usr": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1785689961,
-        "narHash": "sha256-OVxBxqp4MxgqTA0o15eM1f1WGQ3fFFXITjweI6KrjcQ=",
-        "ref": "refs/heads/main",
-        "rev": "a8976e3436de8459411f1366b81a154771906046",
-        "revCount": 4,
-        "type": "git",
-        "url": "ssh://git@github.com/reEnvisioning/usr.git"
-      },
-      "original": {
-        "type": "git",
-        "url": "ssh://git@github.com/reEnvisioning/usr.git"
+        "retheme": "retheme"
       }
     }
   },

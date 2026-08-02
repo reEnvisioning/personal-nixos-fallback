@@ -20,21 +20,16 @@
       url = "github:reEnvisioning/test-reTheme";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    usr = {
-      url = "git+ssh://git@github.com/reEnvisioning/usr.git";
-      flake = false;
-    };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, usr, ... }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, ... }:
     let
       hostname = "headspace";
       pc = "desktop";
       cpuVendor = "intel";
       gpuVendor = "nvidia";
       system = "x86_64-linux";
-      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme usr; };
+      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme; };
       unstable = import nixpkgs-unstable {
         inherit system;
       };
