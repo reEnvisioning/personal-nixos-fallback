@@ -1,16 +1,6 @@
 { config, pkgs, lib, rethemePackage ? null, ... }:
 let
   cfg = config.appearance;
-
-  catppuccin-mocha = pkgs.catppuccin-gtk.override {
-    variant = "mocha";
-    accents = [ "blue" "mauve" "maroon" "pink" ];
-  };
-
-  catppuccin-latte = pkgs.catppuccin-gtk.override {
-    variant = "latte";
-    accents = [ "blue" "pink" ];
-  };
 in
 {
   options.appearance.users = lib.mkOption {
@@ -22,8 +12,8 @@ in
   config = lib.mkIf (cfg.users != [ ]) {
     environment.variables = {
       "QT_QPA_PLATFORM" = "wayland;xcb";
-      "ADW_DISABLE_PORTAL" = "1";
       "QT_QPA_PLATFORMTHEME" = "qt5ct";
+      "SAL_USE_VCLPLUGIN" = "gtk3";
       "XDG_CURRENT_DESKTOP" = "niri";
       "TERMINAL" = "kitty";
     };
@@ -36,11 +26,6 @@ in
       kdePackages.qt6ct
       qt5.qtwayland
       qt6.qtwayland
-      jq
-      gawk
-      catppuccin-mocha
-      catppuccin-latte
-      (writeShellScriptBin "external-theme" (builtins.readFile ./external-theme))
       (writeShellScriptBin "switch-wallpaper" (builtins.readFile ./switch-wallpaper))
     ]) ++ lib.optional (rethemePackage != null) rethemePackage;
 

@@ -80,11 +80,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1785402044,
-        "narHash": "sha256-wNM7tT64GKns+Ks6Mypk9GWn5fEIKSsv93PsVyIfYEg=",
+        "lastModified": 1785698525,
+        "narHash": "sha256-CqOcqui7fmXabu8m6Za5IKMGWcwq8QWSJ/WBlHnBHoQ=",
         "owner": "reEnvisioning",
         "repo": "test-reTheme",
-        "rev": "bb3302b523f54368e7b89be483b005b27d41fb60",
+        "rev": "d66d8911a43b85d471de93d061295d7cb0648ba3",
         "type": "github"
       },
       "original": {
