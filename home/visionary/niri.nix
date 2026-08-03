@@ -282,5 +282,5 @@ in
     };
   };
 
-  home.packages = with pkgs; [ sway-audio-idle-inhibit swayidle ];
+  home.packages = with pkgs; [ sway-audio-idle-inhibit swaybg swayidle ];
 }
