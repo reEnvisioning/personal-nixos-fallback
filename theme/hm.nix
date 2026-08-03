@@ -71,7 +71,9 @@ in
       THEME_DIR="$HOME/.config/reEnvisioning/themes/$CURRENT_THEME"
     fi
     if [ -f "$THEME_DIR/theme.toml" ]; then
-      RETHEME_ROOT="$HOME/.config/reEnvisioning" ${rethemeBin} switch "$CURRENT_THEME"
+      if ! RETHEME_ROOT="$HOME/.config/reEnvisioning" ${rethemeBin} switch "$CURRENT_THEME"; then
+        echo "warning: could not apply theme '$CURRENT_THEME'; keeping current runtime theme" >&2
+      fi
     fi
   '';
 }
