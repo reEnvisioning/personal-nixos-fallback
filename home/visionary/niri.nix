@@ -4,12 +4,6 @@ let
   mod = "Mod";
 
   niri-startup = pkgs.writeShellScript "niri-startup" ''
-    active="$HOME/.config/reEnvisioning/active"
-    def_th="$(cat "$active/current-theme" 2>/dev/null || echo sakura)"
-    [ -f "$HOME/.config/reEnvisioning/themes/$def_th/theme.toml" ] || def_th=sakura
-    if RETHEME_ROOT="$HOME/.config/reEnvisioning" retheme switch "$def_th"; then
-      switch-wallpaper
-    fi
     sway-audio-idle-inhibit &
     swayidle -w \
       timeout 300 'swaylock -f' \
@@ -288,5 +282,5 @@ in
     };
   };
 
-  home.packages = with pkgs; [ sway-audio-idle-inhibit swaybg swayidle ];
+  home.packages = with pkgs; [ sway-audio-idle-inhibit swayidle ];
 }

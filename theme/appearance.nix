@@ -26,7 +26,6 @@ in
       kdePackages.qt6ct
       qt5.qtwayland
       qt6.qtwayland
-      (writeShellScriptBin "switch-wallpaper" (builtins.readFile ./switch-wallpaper))
     ]) ++ lib.optional (rethemePackage != null) rethemePackage;
 
     home-manager.users = builtins.listToAttrs (map

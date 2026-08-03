@@ -17,6 +17,7 @@ vim.opt.signcolumn = 'yes'
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
+-- reTheme may provide this generated colorscheme; keep the built-in default otherwise.
 pcall(vim.cmd, "colorscheme retheme-base16")
 
 -- Plugin setups

@@ -1,13 +1,9 @@
-{ config, pkgs, lib, rethemePackage ? null, ... }:
-let
-  theme = import ./theme.nix;
-  rethemeBin = if rethemePackage == null then "retheme" else "${rethemePackage}/bin/retheme";
-in
+{ config, pkgs, ... }:
 {
   home.pointerCursor = {
     package = pkgs.vanilla-dmz;
-    name = theme.cursor_theme;
-    size = theme.cursor_size;
+    name = "Vanilla-DMZ";
+    size = 24;
     gtk.enable = true;
     x11.enable = true;
   };
@@ -15,8 +11,8 @@ in
   programs.kitty = {
     enable = true;
     settings = {
-      font_family = "${theme.font.family}";
-      font_size = theme.font.size;
+      font_family = "Monospace";
+      font_size = 10;
       confirm_os_window_close = 0;
     };
     extraConfig = ''
@@ -41,39 +37,4 @@ in
     enable = true;
     iconTheme.name = "Adwaita";
   };
-
-  xdg.configFile = {
-    "reEnvisioning/ecosystem.toml" = {
-      force = true;
-      text = ''
-        version = 1
-        schema = "reEnvisioning-ecosystem"
-        appdata_dir = "reEnvisioning/appdata"
-        usr_dir = "reEnvisioning/usr"
-
-        [theme]
-        current = "${theme.default}"
-        runtime_path = "reEnvisioning/active/theme.toml"
-        themes_dir = "reEnvisioning/themes"
-        active_dir = "reEnvisioning/active"
-      '';
-    };
-    "reEnvisioning/appdata/reTheme/.keep".text = "";
-    "reEnvisioning/appdata/reWallpaper/wallpapers/.keep".text = "";
-    "reEnvisioning/usr/.keep".text = "";
-  };
-
-  home.activation.restoreTheme = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    CURRENT_THEME="$(cat "$HOME/.config/reEnvisioning/active/current-theme" 2>/dev/null || echo "${theme.default}")"
-    THEME_DIR="$HOME/.config/reEnvisioning/themes/$CURRENT_THEME"
-    if [ ! -f "$THEME_DIR/theme.toml" ]; then
-      CURRENT_THEME="${theme.default}"
-      THEME_DIR="$HOME/.config/reEnvisioning/themes/$CURRENT_THEME"
-    fi
-    if [ -f "$THEME_DIR/theme.toml" ]; then
-      if ! RETHEME_ROOT="$HOME/.config/reEnvisioning" ${rethemeBin} switch "$CURRENT_THEME"; then
-        echo "warning: could not apply theme '$CURRENT_THEME'; keeping current runtime theme" >&2
-      fi
-    fi
-  '';
 }
