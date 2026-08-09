@@ -1,4 +1,4 @@
-{ pkgs, lib, username, unstable, ... }:
+{ config, pkgs, lib, username, unstable, ... }:
 {
   home = {
     stateVersion = "26.05";
@@ -30,35 +30,35 @@
     enable = true;
     enableZshIntegration = true;
     settings = {
-      add_newline = false;
+      add_newline = true;
       format = "\${custom.host_root}\${custom.host}$directory$git_branch\${custom.git_clean}$git_status$line_break$character";
       custom.host_root = {
         command = "hostname";
         when = ''[ "$(id -u)" = 0 ]'';
         format = "[$output]($style) ";
-        style = "bold fg:#FE8019";
+        style = "bold fg:#${config.lib.stylix.colors.base09}";
       };
       custom.host = {
         command = "hostname";
         when = ''[ "$(id -u)" != 0 ]'';
         format = "[$output]($style) ";
-        style = "bold fg:#B5B0A6";
+        style = "bold fg:#${config.lib.stylix.colors.base04}";
       };
       custom.git_clean = {
         command = "echo ✓";
         when = ''git rev-parse --is-inside-work-tree >/dev/null 2>&1 && test -z "$(git status --porcelain)"'';
         format = "[$output]($style) ";
-        style = "bold fg:#B5B0A6";
+        style = "bold fg:#${config.lib.stylix.colors.base04}";
       };
       directory = {
         truncation_length = 4;
         truncate_to_repo = false;
         format = "[$path]($style) ";
-        style = "fg:#7A7B82";
+        style = "fg:#${config.lib.stylix.colors.base03}";
       };
       git_branch = {
         format = "[$branch]($style)";
-        style = "bold fg:#FE8019";
+        style = "bold fg:#${config.lib.stylix.colors.base09}";
       };
       git_status = {
         format = "([ $all_status$ahead_behind]($style)) ";
@@ -72,11 +72,11 @@
         staged = "+";
         renamed = "»";
         deleted = "✘";
-        style = "bold fg:#FFCC1B";
+        style = "bold fg:#${config.lib.stylix.colors.base0A}";
       };
       character = {
-        success_symbol = "[>](bold fg:#B5B0A6)";
-        error_symbol = "[>](bold fg:#FE8019)";
+        success_symbol = "[>](bold fg:#${config.lib.stylix.colors.base09})";
+        error_symbol = "[>](bold fg:#${config.lib.stylix.colors.base08})";
       };
     };
   };
