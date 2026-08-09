@@ -30,7 +30,7 @@ in
         keyboard {
             xkb {
                 layout "us"
-                options "caps:swapescape,altwin:menu_win"
+                options "caps:escape,altwin:menu_win"
             }
             repeat-delay 200
             repeat-rate 40
