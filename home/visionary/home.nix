@@ -11,13 +11,7 @@
     chmod 700 /home/${username}/.ssh/control
   '';
 
-  programs.git = {
-    enable = true;
-    includes = [
-      { path = "~/.config/reEnvisioning/usr/apps/gitconfig"; }
-    ];
-    settings.user.useConfigOnly = true;
-  };
+  programs.git.enable = true;
 
   programs.home-manager.enable = true;
 

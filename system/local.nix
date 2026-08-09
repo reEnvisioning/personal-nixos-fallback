@@ -1,5 +1,4 @@
 {
-  # Portable defaults; the optional usr file is applied at runtime.
   time.timeZone = null;
   # nixpkgs 26.05 emits an invalid tmpfiles rule for imperative console settings.
   console.enable = false;

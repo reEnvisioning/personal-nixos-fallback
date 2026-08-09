@@ -25,28 +25,32 @@
       url = "github:danth/stylix/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, stylix, ... }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, stylix, sops-nix, ... }:
     let
       hostname = "headspace";
       pc = "desktop";
       cpuVendor = "intel";
       gpuVendor = "nvidia";
       system = "x86_64-linux";
-      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme stylix; };
+      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme stylix sops-nix; };
       unstable = import nixpkgs-unstable {
         inherit system;
       };
 
       usernames = [ "visionary" ];
-      primaryUser = builtins.head usernames;
       allUsers = usernames;
       rethemePackage = retheme.packages.${system}.default;
 
       mkSystem = { pc }: inputs.nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit inputs hostname unstable pc cpuVendor gpuVendor rethemePackage; nixUsers = allUsers; trustedUsers = usernames; username = primaryUser; };
+        specialArgs = { inherit inputs hostname unstable pc cpuVendor gpuVendor rethemePackage; nixUsers = allUsers; trustedUsers = usernames; };
         modules = [
           ./system/default.nix
           {
@@ -56,6 +60,7 @@
           }
           inputs.home-manager.nixosModules.home-manager
           inputs.stylix.nixosModules.stylix
+          inputs.sops-nix.nixosModules.sops
           ./theme/stylix.nix
           ./theme/appearance.nix
           ({ pkgs, ... }: {
