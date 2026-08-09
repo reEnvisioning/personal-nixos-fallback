@@ -10,7 +10,10 @@
 
   stylix.targets = {
     firefox.profileNames = [ "default" "profile1" "profile2" ];
-    librewolf.profileNames = [ "default" ];
+    librewolf = {
+      profileNames = [ "default" ];
+      firefoxGnomeTheme.enable = true;
+    };
   };
 
   xdg.configFile = {
