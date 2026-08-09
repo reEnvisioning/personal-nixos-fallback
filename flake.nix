@@ -25,21 +25,16 @@
       url = "github:danth/stylix/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-
-    themes = {
-      url = "github:reEnvisioning/themes";
-      flake = false;
-    };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, stylix, themes, ... }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, stylix, ... }:
     let
       hostname = "headspace";
       pc = "desktop";
       cpuVendor = "intel";
       gpuVendor = "nvidia";
       system = "x86_64-linux";
-      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme stylix themes; };
+      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme stylix; };
       unstable = import nixpkgs-unstable {
         inherit system;
       };
@@ -61,6 +56,7 @@
           }
           inputs.home-manager.nixosModules.home-manager
           inputs.stylix.nixosModules.stylix
+          ./theme/stylix.nix
           ./theme/appearance.nix
           ({ pkgs, ... }: {
             networking.hostName = hostname;

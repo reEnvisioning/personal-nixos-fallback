@@ -263,8 +263,7 @@
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "retheme": "retheme",
-        "stylix": "stylix",
-        "themes": "themes"
+        "stylix": "stylix"
       }
     },
     "stylix": {
@@ -313,22 +312,6 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
-        "type": "github"
-      }
-    },
-    "themes": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1785837795,
-        "narHash": "sha256-5SeukYpo6NOJ7l3A3r7nFbyir4615ELvDqZRFozj6ic=",
-        "owner": "reEnvisioning",
-        "repo": "themes",
-        "rev": "d11f948354c08b34799b0ea84c67cde3bdb100aa",
-        "type": "github"
-      },
-      "original": {
-        "owner": "reEnvisioning",
-        "repo": "themes",
         "type": "github"
       }
     },

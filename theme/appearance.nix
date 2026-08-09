@@ -1,4 +1,4 @@
-{ config, pkgs, lib, inputs, rethemePackage ? null, ... }:
+{ config, pkgs, lib, rethemePackage ? null, ... }:
 let
   cfg = config.appearance;
 in
@@ -10,13 +10,6 @@ in
   };
 
   config = lib.mkIf (cfg.users != [ ]) {
-    stylix = {
-      enable = true;
-      polarity = "dark";
-      base16Scheme = "${inputs.themes}/horror/base16.yaml";
-      targets.plymouth.enable = false;
-    };
-
     environment.variables = {
       "QT_QPA_PLATFORM" = "wayland;xcb";
       "QT_QPA_PLATFORMTHEME" = "qt5ct";
