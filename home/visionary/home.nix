@@ -89,8 +89,7 @@
     protonmail-desktop
     procps
     gimp
-    jetbrains.idea-oss
-    kdePackages.kdenlive
+    blender
     libreoffice-qt
     obs-studio
     xwayland-satellite
