@@ -31,7 +31,7 @@
     enableZshIntegration = true;
     settings = {
       add_newline = true;
-      format = "\${custom.host_root}\${custom.host}$directory$git_branch\${custom.git_clean}$git_status$line_break$character";
+      format = "\${custom.host_root}\${custom.host}$directory$git_branch\${custom.git_clean}$git_status$line_break$line_break$character";
       custom.host_root = {
         command = "hostname";
         when = ''[ "$(id -u)" = 0 ]'';
