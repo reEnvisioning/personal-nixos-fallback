@@ -36,28 +36,29 @@
         command = "hostname";
         when = ''[ "$(id -u)" = 0 ]'';
         format = "[$output]($style) ";
-        style = "bold red";
+        style = "bold fg:#FE8019";
       };
       custom.host = {
         command = "hostname";
         when = ''[ "$(id -u)" != 0 ]'';
         format = "[$output]($style) ";
-        style = "bold cyan";
+        style = "bold fg:#B5B0A6";
       };
       custom.git_clean = {
         command = "echo ✓";
         when = ''git rev-parse --is-inside-work-tree >/dev/null 2>&1 && test -z "$(git status --porcelain)"'';
         format = "[$output]($style) ";
-        style = "bold green";
+        style = "bold fg:#B5B0A6";
       };
       directory = {
         truncation_length = 4;
         truncate_to_repo = false;
         format = "[$path]($style) ";
+        style = "fg:#7A7B82";
       };
       git_branch = {
         format = "[$branch]($style)";
-        style = "bold purple";
+        style = "bold fg:#FE8019";
       };
       git_status = {
         format = "([ $all_status$ahead_behind]($style)) ";
@@ -71,11 +72,11 @@
         staged = "+";
         renamed = "»";
         deleted = "✘";
-        style = "bold red";
+        style = "bold fg:#FFCC1B";
       };
       character = {
-        success_symbol = "[>](bold green)";
-        error_symbol = "[>](bold red)";
+        success_symbol = "[>](bold fg:#B5B0A6)";
+        error_symbol = "[>](bold fg:#FE8019)";
       };
     };
   };
