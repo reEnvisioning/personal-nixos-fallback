@@ -13,6 +13,14 @@
     librewolf.profileNames = [ "default" ];
   };
 
+  xdg.configFile = {
+    "gtk-3.0/gtk.css".force = true;
+    "gtk-4.0/gtk.css".force = true;
+    "qt5ct/qt5ct.conf".force = true;
+    "qt6ct/qt6ct.conf".force = true;
+    "yazi/theme.toml".force = true;
+  };
+
   programs.kitty = {
     enable = true;
     settings = {
