@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ pkgs, ... }:
 {
   home.pointerCursor = {
     package = pkgs.vanilla-dmz;
@@ -8,6 +8,11 @@
     x11.enable = true;
   };
 
+  stylix.targets = {
+    firefox.profileNames = [ "default" "profile1" "profile2" ];
+    librewolf.profileNames = [ "default" ];
+  };
+
   programs.kitty = {
     enable = true;
     settings = {
@@ -15,15 +20,11 @@
       font_size = 10;
       confirm_os_window_close = 0;
     };
-    extraConfig = ''
-      include ~/.config/kitty/retheme-base16.conf
-    '';
   };
 
   programs.btop = {
     enable = true;
     settings = {
-      color_theme = "${config.home.homeDirectory}/.config/btop/themes/retheme-base16.theme";
       theme_background = false;
       truecolor = true;
       rounded_corners = true;

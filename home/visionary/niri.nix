@@ -251,34 +251,8 @@ in
     settings = {
       ignore-empty-password = true;
       hide-keyboard-layout = true;
-      color = "#000000";
       indicator-radius = 50;
       indicator-thickness = 7;
-
-      ring-color = "#333333";
-      ring-clear-color = "#444444";
-      ring-ver-color = "#555555";
-      ring-wrong-color = "#662222";
-
-      inside-color = "#111111";
-      inside-clear-color = "#1A1A1A";
-      inside-ver-color = "#222222";
-      inside-wrong-color = "#330000";
-
-      text-color = "#CCCCCC";
-      text-clear-color = "#BBBBBB";
-      text-ver-color = "#AAAAAA";
-      text-wrong-color = "#CC6666";
-
-      key-hl-color = "#888888";
-      bs-hl-color = "#444444";
-      caps-lock-key-hl-color = "#555555";
-      caps-lock-bs-hl-color = "#333333";
-      separator-color = "#222222";
-      line-color = "#1A1A1A";
-      line-ver-color = "#333333";
-      line-wrong-color = "#442222";
-      line-clear-color = "#222222";
     };
   };
 
