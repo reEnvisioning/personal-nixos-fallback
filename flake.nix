@@ -61,6 +61,7 @@
           ({ pkgs, ... }: {
             networking.hostName = hostname;
             appearance.users = allUsers;
+            programs.zsh.enable = true;
 
             users.users = builtins.listToAttrs (
               (map
@@ -68,7 +69,8 @@
                   name = u;
                   value = {
                     isNormalUser = true;
-                    initialPassword = "changeme";
+                    initialHashedPassword = "!";
+                    shell = pkgs.zsh;
                     extraGroups = [ "wheel" "networkmanager" "disk" "vboxusers" ];
                   };
                 })
