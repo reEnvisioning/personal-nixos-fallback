@@ -1,7 +1,8 @@
 { modulesPath, lib, ... }:
 let
   diskDevice = "/dev/nvme0n1";
-in {
+in
+{
   imports = [
     (modulesPath + "/installer/scan/not-detected.nix")
   ];

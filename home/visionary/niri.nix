@@ -1,4 +1,4 @@
-{ pkgs, cpuVendor, gpuVendor, pc ? "desktop", ... }:
+{ pkgs, cpuVendor, gpuVendor, pc ? "computer", ... }:
 let
   hw = import ../../hardware/hardware.nix { inherit pc cpuVendor gpuVendor; };
   mod = "Mod";

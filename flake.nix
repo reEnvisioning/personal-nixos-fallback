@@ -34,8 +34,6 @@
 
   outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, stylix, sops-nix, ... }:
     let
-      hostname = "headspace";
-      pc = "desktop";
       cpuVendor = "intel";
       gpuVendor = "nvidia";
       system = "x86_64-linux";
@@ -48,7 +46,7 @@
       allUsers = usernames;
       rethemePackage = retheme.packages.${system}.default;
 
-      mkSystem = { pc }: inputs.nixpkgs.lib.nixosSystem {
+      mkSystem = { pc, hostname }: inputs.nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = { inherit inputs hostname unstable pc cpuVendor gpuVendor rethemePackage; nixUsers = allUsers; trustedUsers = usernames; };
         modules = [
@@ -112,8 +110,9 @@
       };
     in
     {
-      nixosConfigurations.headspace = mkSystem { pc = "desktop"; };
-      nixosConfigurations.usb = mkSystem { pc = "usb"; };
+      nixosConfigurations.computer = mkSystem { pc = "computer"; hostname = "headspace"; };
+      nixosConfigurations.laptop = mkSystem { pc = "laptop"; hostname = "headspace"; };
+      nixosConfigurations.usb = mkSystem { pc = "usb"; hostname = "blackspace"; };
 
       apps.x86_64-linux.disko = {
         type = "app";
@@ -134,7 +133,7 @@
         };
 
       checks.x86_64-linux = {
-        build = self.nixosConfigurations.headspace.config.system.build.toplevel;
+        build = self.nixosConfigurations.computer.config.system.build.toplevel;
       };
     };
 }

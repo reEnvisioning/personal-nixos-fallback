@@ -1,4 +1,4 @@
-{ pkgs, nixUsers, trustedUsers ? nixUsers, cpuVendor, gpuVendor, pc ? "desktop", ... }:
+{ pkgs, nixUsers, trustedUsers ? nixUsers, cpuVendor, gpuVendor, pc ? "computer", ... }:
 let
   hw = import ../hardware/hardware.nix { inherit pc cpuVendor gpuVendor; };
   vbox-wrapped = pkgs.virtualbox.overrideAttrs (old: {

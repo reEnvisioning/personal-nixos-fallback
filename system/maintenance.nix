@@ -1,4 +1,4 @@
-{ pkgs, hostname, ... }: {
+{ pkgs, pc, ... }: {
   nix.gc = {
     automatic = true;
     dates = "weekly";
@@ -6,7 +6,7 @@
   };
 
   nix.optimise.automatic = true;
-  nix.optimise.dates = ["weekly"];
+  nix.optimise.dates = [ "weekly" ];
 
   services.fstrim.enable = true;
 
@@ -24,7 +24,7 @@
       ARG="''${2:-}"
 
       rebuild() {
-        sudo nixos-rebuild switch --flake "$FLAKE_DIR#${hostname}"
+        sudo nixos-rebuild switch --flake "$FLAKE_DIR#${pc}"
       }
 
       case "$CMD" in
