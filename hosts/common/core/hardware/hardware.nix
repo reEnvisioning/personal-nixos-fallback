@@ -14,7 +14,7 @@ let
   ];
 
   importIf = name: path: if name != "off" then [ path ] else [ ];
-  pcDir = import ../hosts/${pc};
+  pcDir = import ../../../${pc};
 
   niriOutputEntry = m: ''
     output "${m.name}" {

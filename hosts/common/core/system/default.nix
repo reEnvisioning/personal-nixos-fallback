@@ -14,7 +14,7 @@ in
   imports = [
     ../network/networking.nix
     ./local.nix
-    ../theme/plymouth.nix
+    ../../optional/theme/plymouth.nix
     ./greeter.nix
     ./audio.nix
     ./compositor.nix

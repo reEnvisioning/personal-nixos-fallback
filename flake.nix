@@ -50,7 +50,7 @@
         inherit system;
         specialArgs = { inherit inputs hostname unstable pc cpuVendor gpuVendor rethemePackage; nixUsers = allUsers; trustedUsers = usernames; };
         modules = [
-          ./system/default.nix
+          ./hosts/common/core/system/default.nix
           {
             nixpkgs.overlays = [
               (final: prev: { inherit unstable; })
@@ -59,8 +59,8 @@
           inputs.home-manager.nixosModules.home-manager
           inputs.stylix.nixosModules.stylix
           inputs.sops-nix.nixosModules.sops
-          ./theme/stylix.nix
-          ./theme/appearance.nix
+          ./hosts/common/optional/theme/stylix.nix
+          ./hosts/common/optional/theme/appearance.nix
           ({ pkgs, ... }: {
             networking.hostName = hostname;
             appearance.users = allUsers;
@@ -92,14 +92,7 @@
                   value = {
                     _module.args = { username = u; };
                     imports = [
-                      ./home/${u}/home.nix
-                      ./home/${u}/niri.nix
-                      ./home/${u}/yazi.nix
-                      ./home/${u}/firefox.nix
-                      ./home/${u}/librewolf.nix
-                      ./home/${u}/ssh.nix
-                      ./home/${u}/neovim.nix
-                      ./network/hm.nix
+                      ./home/${u}/default.nix
                     ];
                   };
                 })

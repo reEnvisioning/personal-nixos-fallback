@@ -1,6 +1,6 @@
 { pkgs, cpuVendor, gpuVendor, pc ? "computer", ... }:
 let
-  hw = import ../../hardware/hardware.nix { inherit pc cpuVendor gpuVendor; };
+  hw = import ../../../hosts/common/core/hardware/hardware.nix { inherit pc cpuVendor gpuVendor; };
   mod = "Mod";
 
   niri-startup = pkgs.writeShellScript "niri-startup" ''
