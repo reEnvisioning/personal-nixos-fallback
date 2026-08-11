@@ -1,4 +1,4 @@
-{ pkgs, cpuVendor, gpuVendor, pc ? "computer", ... }:
+{ config, pkgs, cpuVendor, gpuVendor, pc ? "computer", ... }:
 let
   hw = import ../../../hosts/common/core/hardware/hardware.nix { inherit pc cpuVendor gpuVendor; };
   mod = "Mod";
@@ -86,7 +86,7 @@ in
     }
 
     layout {
-        background-color "#1a1a1a"
+        background-color "${config.lib.stylix.colors.base00}"
         gaps 2
         focus-ring {
             width 0
@@ -98,7 +98,7 @@ in
     }
 
     overview {
-        backdrop-color "#1a1a1a"
+        backdrop-color "${config.lib.stylix.colors.base02}"
     }
 
     binds {
