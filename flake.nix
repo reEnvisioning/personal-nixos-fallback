@@ -21,6 +21,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    browserProfile = {
+      url = "github:reEnvisioning/BrowserProfile";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     plymouth = {
       url = "github:reEnvisioning/plymouth";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -37,12 +42,12 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, plymouth, stylix, sops-nix, ... }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, browserProfile, plymouth, stylix, sops-nix, ... }:
     let
       cpuVendor = "intel";
       gpuVendor = "nvidia";
       system = "x86_64-linux";
-      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme plymouth stylix sops-nix; };
+      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme browserProfile plymouth stylix sops-nix; };
       unstable = import nixpkgs-unstable {
         inherit system;
       };
@@ -50,10 +55,11 @@
       usernames = [ "visionary" ];
       allUsers = usernames;
       rethemePackage = retheme.packages.${system}.default;
+      browserProfilePackage = browserProfile.packages.${system}.default;
 
       mkSystem = { pc, hostname }: inputs.nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit inputs hostname unstable pc cpuVendor gpuVendor rethemePackage; nixUsers = allUsers; trustedUsers = usernames; };
+        specialArgs = { inherit inputs hostname unstable pc cpuVendor gpuVendor rethemePackage browserProfilePackage; nixUsers = allUsers; trustedUsers = usernames; };
         modules = [
           ./hosts/common/core/system/default.nix
           {
@@ -88,7 +94,7 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
 
-            home-manager.extraSpecialArgs = { inherit hostname unstable pc cpuVendor gpuVendor rethemePackage; };
+            home-manager.extraSpecialArgs = { inherit hostname unstable pc cpuVendor gpuVendor rethemePackage browserProfilePackage; };
 
             home-manager.users = builtins.listToAttrs (
               (map

@@ -68,6 +68,26 @@
         "type": "github"
       }
     },
+    "browserProfile": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786457339,
+        "narHash": "sha256-AB/c9Lazo45fgw+2UZBoy+r42cftBI85rJkhGEXnoDE=",
+        "owner": "reEnvisioning",
+        "repo": "BrowserProfile",
+        "rev": "daa08257eca08402489c12566b7649dc0d0350f1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "reEnvisioning",
+        "repo": "BrowserProfile",
+        "type": "github"
+      }
+    },
     "disko": {
       "inputs": {
         "nixpkgs": [
@@ -278,6 +298,7 @@
     },
     "root": {
       "inputs": {
+        "browserProfile": "browserProfile",
         "disko": "disko",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",

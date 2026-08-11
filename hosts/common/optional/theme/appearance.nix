@@ -1,4 +1,4 @@
-{ config, pkgs, lib, rethemePackage ? null, ... }:
+{ config, pkgs, lib, rethemePackage ? null, browserProfilePackage ? null, ... }:
 let
   cfg = config.appearance;
 in
@@ -26,7 +26,9 @@ in
       kdePackages.qt6ct
       qt5.qtwayland
       qt6.qtwayland
-    ]) ++ lib.optional (rethemePackage != null) rethemePackage;
+    ])
+    ++ lib.optional (browserProfilePackage != null) browserProfilePackage
+    ++ lib.optional (rethemePackage != null) rethemePackage;
 
     home-manager.users = builtins.listToAttrs (map
       (username: {
