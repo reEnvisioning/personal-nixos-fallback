@@ -1,1 +1,3 @@
-import ../computer/default.nix
+{
+  modules = [ ./partition.nix ./boot.nix ];
+}

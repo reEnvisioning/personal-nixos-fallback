@@ -1,13 +1,7 @@
 { config, lib, pkgs, ... }: {
-  hardware.graphics = {
-    enable = true;
-    enable32Bit = true;
-  };
+  hardware.graphics.enable = true;
 
-  hardware.amdgpu = {
-    initrd.enable = true;
-    opencl.enable = true;
-  };
+  hardware.amdgpu.initrd.enable = true;
 
   services.xserver.videoDrivers = [ "amdgpu" ];
 }

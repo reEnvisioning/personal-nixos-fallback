@@ -3,7 +3,7 @@ let
   cpu = if pc == "usb" then "unknown" else cpuVendor;
   gpu = if pc == "usb" then "off" else gpuVendor;
 
-  monitors = if pc == "usb" then [ ] else [
+  monitors = if pc != "computer" then [ ] else [
     {
       name = "HDMI-A-1";
       mode = "1920x1080@144.000";

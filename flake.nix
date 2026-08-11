@@ -44,8 +44,6 @@
 
   outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, browserProfile, plymouth, stylix, sops-nix, ... }:
     let
-      cpuVendor = "intel";
-      gpuVendor = "nvidia";
       system = "x86_64-linux";
       inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme browserProfile plymouth stylix sops-nix; };
       unstable = import nixpkgs-unstable {
@@ -57,7 +55,7 @@
       rethemePackage = retheme.packages.${system}.default;
       browserProfilePackage = browserProfile.packages.${system}.default;
 
-      mkSystem = { pc, hostname }: inputs.nixpkgs.lib.nixosSystem {
+      mkSystem = { pc, hostname, cpuVendor, gpuVendor }: inputs.nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = { inherit inputs hostname unstable pc cpuVendor gpuVendor rethemePackage browserProfilePackage; nixUsers = allUsers; trustedUsers = usernames; };
         modules = [
@@ -114,9 +112,24 @@
       };
     in
     {
-      nixosConfigurations.computer = mkSystem { pc = "computer"; hostname = "headspace"; };
-      nixosConfigurations.laptop = mkSystem { pc = "laptop"; hostname = "headspace"; };
-      nixosConfigurations.usb = mkSystem { pc = "usb"; hostname = "blackspace"; };
+      nixosConfigurations.computer = mkSystem {
+        pc = "computer";
+        hostname = "headspace";
+        cpuVendor = "intel";
+        gpuVendor = "nvidia";
+      };
+      nixosConfigurations.laptop = mkSystem {
+        pc = "laptop";
+        hostname = "headspace";
+        cpuVendor = "amd";
+        gpuVendor = "amd";
+      };
+      nixosConfigurations.usb = mkSystem {
+        pc = "usb";
+        hostname = "blackspace";
+        cpuVendor = "off";
+        gpuVendor = "off";
+      };
 
       apps.x86_64-linux.disko = {
         type = "app";
