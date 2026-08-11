@@ -24,7 +24,7 @@
     settings = {
       font_family = "Monospace";
       font_size = 10;
-      background = "#0B0B0B";
+      background = "#0D0A09";
       shell = "zsh";
       confirm_os_window_close = 0;
     };

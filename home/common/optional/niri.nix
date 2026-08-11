@@ -98,7 +98,7 @@ in
     }
 
     overview {
-        backdrop-color "${config.lib.stylix.colors.base01}"
+        backdrop-color "${config.lib.stylix.colors.base02}"
     }
 
     binds {
