@@ -86,6 +86,7 @@ in
     }
 
     layout {
+        background-color "#1a1a1a"
         gaps 2
         focus-ring {
             width 0
@@ -96,7 +97,13 @@ in
         default-column-width { proportion 0.5; }
     }
 
+    overview {
+        backdrop-color "#1a1a1a"
+    }
+
     binds {
+        "Mod+O" repeat=false hotkey-overlay-title="Toggle overview" { toggle-overview; }
+
         // Hotkey overlay
         "Mod+Shift+Slash" hotkey-overlay-title="Show hotkey overlay" { show-hotkey-overlay; }
         "Mod+Alt+T" hotkey-overlay-title="Terminal" { spawn "kitty"; }
