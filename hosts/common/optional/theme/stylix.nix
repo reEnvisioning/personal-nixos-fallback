@@ -5,12 +5,12 @@
     base16Scheme = {
       scheme = "horror";
       author = "reEnvisioning";
-      base00 = "#13151B";
+      base00 = "#3A3B41";
       base01 = "#000000";
-      base02 = "#141821";
-      base03 = "#5B5955";
-      base04 = "#918B82";
-      base05 = "#D4CCBF";
+      base02 = "#44454B";
+      base03 = "#7A7B82";
+      base04 = "#B5B0A6";
+      base05 = "#F2EDE4";
       base06 = "#F1E6D2";
       base07 = "#FFF8E8";
       base08 = "#C85A2A";
