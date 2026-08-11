@@ -236,6 +236,26 @@
         "type": "github"
       }
     },
+    "plymouth": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786456315,
+        "narHash": "sha256-Pi1eUFkJ1azc2T+WxTaOgLNHYWN6MkKRth7hf8+PK3o=",
+        "owner": "reEnvisioning",
+        "repo": "plymouth",
+        "rev": "6df7e0fe5dfe13f02922f6a4fa62f0f7ad7a2f27",
+        "type": "github"
+      },
+      "original": {
+        "owner": "reEnvisioning",
+        "repo": "plymouth",
+        "type": "github"
+      }
+    },
     "retheme": {
       "inputs": {
         "nixpkgs": [
@@ -262,6 +282,7 @@
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
+        "plymouth": "plymouth",
         "retheme": "retheme",
         "sops-nix": "sops-nix",
         "stylix": "stylix"

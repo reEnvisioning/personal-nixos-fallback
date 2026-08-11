@@ -21,6 +21,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    plymouth = {
+      url = "github:reEnvisioning/plymouth";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     stylix = {
       url = "github:danth/stylix/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -32,12 +37,12 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, stylix, sops-nix, ... }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, plymouth, stylix, sops-nix, ... }:
     let
       cpuVendor = "intel";
       gpuVendor = "nvidia";
       system = "x86_64-linux";
-      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme stylix sops-nix; };
+      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme plymouth stylix sops-nix; };
       unstable = import nixpkgs-unstable {
         inherit system;
       };

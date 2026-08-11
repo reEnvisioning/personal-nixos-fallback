@@ -1,22 +1,10 @@
-{ pkgs, ... }:
+{ inputs, pkgs, ... }:
 
 {
   boot.plymouth = {
     enable = true;
-    theme = "vision";
-    themePackages = [
-      (pkgs.stdenv.mkDerivation {
-        pname = "plymouth-theme-vision";
-        version = "1.0";
-        src = ./resources/plymouth;
-        installPhase = ''
-          mkdir -p $out/share/plymouth/themes/vision
-          cp -r * $out/share/plymouth/themes/vision/
-          substituteInPlace $out/share/plymouth/themes/vision/vision.plymouth \
-            --replace "/usr" "$out"
-        '';
-      })
-    ];
+    theme = "besein";
+    themePackages = [ inputs.plymouth.packages.${pkgs.system}.default ];
   };
 
   boot.consoleLogLevel = 3;
