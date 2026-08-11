@@ -1,7 +1,8 @@
 { ... }:
 let
   network = import ./network.nix;
-in {
+in
+{
   services.resolved = {
     enable = true;
     settings.Resolve = {

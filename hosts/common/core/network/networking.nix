@@ -1,7 +1,8 @@
 { ... }:
 let
   network = import ./network.nix;
-in {
+in
+{
   imports = [
     ./firewall.nix
     ./dns.nix

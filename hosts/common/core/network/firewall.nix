@@ -1,7 +1,8 @@
 { lib, ... }:
 let
   network = import ./network.nix;
-in {
+in
+{
   networking.firewall = {
     enable = true;
     extraInputRules = network.firewall.localSendExtraRules;

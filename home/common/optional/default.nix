@@ -1,5 +1,6 @@
 {
   imports = [
+    ./zsh.nix
     ./niri.nix
     ./yazi.nix
     ./firefox.nix

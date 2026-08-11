@@ -73,6 +73,7 @@
           ({ pkgs, ... }: {
             networking.hostName = hostname;
             appearance.users = allUsers;
+            # NixOS requires this for users whose login shell is zsh.
             programs.zsh.enable = true;
 
             users.users = builtins.listToAttrs (
