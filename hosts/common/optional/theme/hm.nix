@@ -8,13 +8,8 @@
     x11.enable = true;
   };
 
-  stylix.targets = {
-    firefox.profileNames = [ "default" "profile1" "profile2" ];
-    librewolf = {
-      profileNames = [ "default" ];
-      firefoxGnomeTheme.enable = true;
-    };
-  };
+  stylix.targets.firefox.enable = false;
+  stylix.targets.librewolf.enable = false;
 
   xdg.configFile = {
     "gtk-3.0/gtk.css".force = true;
