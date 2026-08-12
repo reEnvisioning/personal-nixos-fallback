@@ -10,6 +10,7 @@
 
   stylix.targets.firefox.enable = false;
   stylix.targets.librewolf.enable = false;
+  stylix.targets.kitty.enable = false;
 
   xdg.configFile = {
     "gtk-3.0/gtk.css".force = true;
