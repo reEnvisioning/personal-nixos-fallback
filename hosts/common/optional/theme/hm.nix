@@ -10,7 +10,6 @@
 
   stylix.targets.firefox.enable = false;
   stylix.targets.librewolf.enable = false;
-  stylix.targets.kitty.enable = false;
 
   xdg.configFile = {
     "gtk-3.0/gtk.css".force = true;
@@ -25,7 +24,6 @@
     settings = {
       font_family = "Monospace";
       font_size = 10;
-      background = "#0D0A09";
       shell = "zsh";
       confirm_os_window_close = 0;
     };
