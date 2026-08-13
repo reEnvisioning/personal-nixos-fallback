@@ -86,8 +86,8 @@ in
     }
 
     layout {
-        background-color "#0B0A09"
-        gaps 2
+        background-color "#1A1714"
+        gaps 12
         focus-ring {
             width 0
         }
@@ -98,7 +98,7 @@ in
     }
 
     overview {
-        backdrop-color "#2F2B25"
+        backdrop-color "#3A342C"
     }
 
     binds {
