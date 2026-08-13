@@ -8,12 +8,12 @@
     initContent = ''
       zle_highlight=('default:fg=#${config.lib.stylix.colors.base07}')
 
-      autoload -Uz add-zsh-hook up-line-or-beginning-search down-line-or-beginning-search
+      autoload -Uz add-zsh-hook
       add-zsh-hook preexec '_re_prompt_spacing_preexec'
       _re_prompt_spacing_preexec() { print }
 
-      _re_up_line_or_beginning_search() { fc -RI; zle up-line-or-beginning-search }
-      _re_down_line_or_beginning_search() { fc -RI; zle down-line-or-beginning-search }
+      _re_up_line_or_beginning_search() { fc -RI; zle history-beginning-search-backward }
+      _re_down_line_or_beginning_search() { fc -RI; zle history-beginning-search-forward }
       zle -N _re_up_line_or_beginning_search
       zle -N _re_down_line_or_beginning_search
       zmodload zsh/terminfo
