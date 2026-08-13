@@ -25,13 +25,13 @@
         command = "hostname";
         when = ''[ "$(id -u)" = 0 ]'';
         format = "[$output]($style) ";
-        style = "bold fg:#${config.lib.stylix.colors.base09}";
+        style = "bold fg:#${config.lib.stylix.colors.base07}";
       };
       custom.host = {
         command = "hostname";
         when = ''[ "$(id -u)" != 0 ]'';
         format = "[$output]($style) ";
-        style = "bold fg:#${config.lib.stylix.colors.base04}";
+        style = "bold fg:#${config.lib.stylix.colors.base07}";
       };
       custom.git_clean = {
         command = "echo ✓";
@@ -43,7 +43,7 @@
         truncation_length = 4;
         truncate_to_repo = false;
         format = "[$path]($style) ";
-        style = "fg:#${config.lib.stylix.colors.base03}";
+        style = "fg:#${config.lib.stylix.colors.base07}";
       };
       git_branch = {
         format = "[$branch]($style)";
@@ -64,8 +64,8 @@
         style = "bold fg:#${config.lib.stylix.colors.base0A}";
       };
       character = {
-        success_symbol = "[>](bold fg:#${config.lib.stylix.colors.base09})";
-        error_symbol = "[>](bold fg:#${config.lib.stylix.colors.base08})";
+        success_symbol = "[>](bold fg:#${config.lib.stylix.colors.base04})";
+        error_symbol = "[>](bold fg:#${config.lib.stylix.colors.base09})";
       };
     };
   };
