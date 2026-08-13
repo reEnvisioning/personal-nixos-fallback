@@ -4,7 +4,7 @@
   boot.plymouth = {
     enable = true;
     theme = "besein";
-    themePackages = [ inputs.plymouth.packages.${pkgs.system}.default ];
+    themePackages = [ inputs.plymouth.packages.${pkgs.stdenv.hostPlatform.system}.default ];
   };
 
   boot.consoleLogLevel = 3;
