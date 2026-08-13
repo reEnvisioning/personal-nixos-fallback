@@ -20,16 +20,22 @@
     enableZshIntegration = true;
     settings = {
       add_newline = true;
-      format = "\${custom.host_root}\${custom.host}$directory$git_branch\${custom.git_clean}$git_status$line_break$character";
+      format = "\${custom.host_nix_shell}\${custom.host_root}\${custom.host}$directory$git_branch\${custom.git_clean}$git_status$line_break$character";
+      custom.host_nix_shell = {
+        command = "hostname";
+        when = ''[ -n "$IN_NIX_SHELL" ]'';
+        format = "[$output]($style) ";
+        style = "bold fg:#${config.lib.stylix.colors.base0B}";
+      };
       custom.host_root = {
         command = "hostname";
-        when = ''[ "$(id -u)" = 0 ]'';
+        when = ''[ -z "$IN_NIX_SHELL" ] && [ "$(id -u)" = 0 ]'';
         format = "[$output]($style) ";
         style = "bold fg:#${config.lib.stylix.colors.base07}";
       };
       custom.host = {
         command = "hostname";
-        when = ''[ "$(id -u)" != 0 ]'';
+        when = ''[ -z "$IN_NIX_SHELL" ] && [ "$(id -u)" != 0 ]'';
         format = "[$output]($style) ";
         style = "bold fg:#${config.lib.stylix.colors.base07}";
       };
@@ -65,7 +71,7 @@
       };
       character = {
         success_symbol = "[>](bold fg:#${config.lib.stylix.colors.base04})";
-        error_symbol = "[>](bold fg:#${config.lib.stylix.colors.base09})";
+        error_symbol = "[>](bold fg:#${config.lib.stylix.colors.base04})";
       };
     };
   };
