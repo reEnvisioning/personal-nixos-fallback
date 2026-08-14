@@ -3,11 +3,6 @@
   programs.yazi = {
     enable = true;
     settings = {
-      manager = {
-        show_hidden = true;
-        sort_dir_first = true;
-        sort_by = "natural";
-      };
       opener = {
         edit = [{ run = ''nvim "$@"''; block = true; for = "unix"; }];
         open = [{ run = ''xdg-open "$@"''; for = "unix"; }];

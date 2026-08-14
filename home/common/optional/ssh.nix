@@ -1,4 +1,10 @@
-{ ... }: {
+{ lib, username, ... }:
+{
+  home.activation.createSshControlDir = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    mkdir -p /home/${username}/.ssh/control
+    chmod 700 /home/${username}/.ssh/control
+  '';
+
   programs.ssh = {
     enable = true;
     enableDefaultConfig = false;
