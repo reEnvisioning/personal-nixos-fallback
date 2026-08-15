@@ -26,6 +26,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    temporalShell = {
+      url = "github:reEnvisioning/temporalShell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    keyInject = {
+      url = "github:reEnvisioning/KeyInject";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     plymouth = {
       url = "github:reEnvisioning/plymouth";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -42,10 +52,10 @@
     };
   };
 
-  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, browserProfile, plymouth, stylix, sops-nix, ... }:
+  outputs = { self, nixpkgs, nixpkgs-unstable, home-manager, disko, retheme, browserProfile, temporalShell, keyInject, plymouth, stylix, sops-nix, ... }:
     let
       system = "x86_64-linux";
-      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme browserProfile plymouth stylix sops-nix; };
+      inputs = { inherit nixpkgs nixpkgs-unstable home-manager disko retheme browserProfile temporalShell keyInject plymouth stylix sops-nix; };
       unstable = import nixpkgs-unstable {
         inherit system;
       };
@@ -54,10 +64,12 @@
       allUsers = usernames;
       rethemePackage = retheme.packages.${system}.default;
       browserProfilePackage = browserProfile.packages.${system}.default;
+      temporalShellPackage = temporalShell.packages.${system}.default;
+      keyInjectPackage = keyInject.packages.${system}.default;
 
       mkSystem = { pc, hostname, cpuVendor, gpuVendor }: inputs.nixpkgs.lib.nixosSystem {
         inherit system;
-        specialArgs = { inherit inputs hostname unstable pc cpuVendor gpuVendor rethemePackage browserProfilePackage; nixUsers = allUsers; trustedUsers = usernames; };
+        specialArgs = { inherit inputs hostname unstable pc cpuVendor gpuVendor rethemePackage browserProfilePackage temporalShellPackage keyInjectPackage; nixUsers = allUsers; trustedUsers = usernames; };
         modules = [
           ./hosts/common/core/system/default.nix
           {
@@ -93,7 +105,7 @@
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
 
-            home-manager.extraSpecialArgs = { inherit hostname unstable pc cpuVendor gpuVendor rethemePackage browserProfilePackage; };
+            home-manager.extraSpecialArgs = { inherit hostname unstable pc cpuVendor gpuVendor rethemePackage browserProfilePackage temporalShellPackage keyInjectPackage; };
 
             home-manager.users = builtins.listToAttrs (
               (map

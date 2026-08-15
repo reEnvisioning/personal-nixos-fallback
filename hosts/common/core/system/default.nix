@@ -1,4 +1,4 @@
-{ pkgs, nixUsers, trustedUsers ? nixUsers, cpuVendor, gpuVendor, pc ? "computer", ... }:
+{ pkgs, lib, nixUsers, trustedUsers ? nixUsers, cpuVendor, gpuVendor, temporalShellPackage ? null, keyInjectPackage ? null, pc ? "computer", ... }:
 let
   hw = import ../hardware/hardware.nix { inherit pc cpuVendor gpuVendor; };
   vbox-wrapped = pkgs.virtualbox.overrideAttrs (old: {
@@ -39,14 +39,16 @@ in
     require-sigs = true;
   };
 
-  environment.systemPackages = with pkgs; [
+  environment.systemPackages = (with pkgs; [
     vim
     git
     openssh
     hyprshot
     brightnessctl
     tmux
-  ];
+  ])
+  ++ lib.optional (temporalShellPackage != null) temporalShellPackage
+  ++ lib.optional (keyInjectPackage != null) keyInjectPackage;
 
   virtualisation.virtualbox.host = {
     enable = true;

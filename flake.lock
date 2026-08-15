@@ -75,11 +75,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786642209,
-        "narHash": "sha256-UB8894FrzCVBnaoklQPFptM7vC+XMG7dZH3huRGAxPU=",
+        "lastModified": 1786715305,
+        "narHash": "sha256-m9dayvoj+Jhdxnc9XNY2IbB65ulco1Gx/secbLgdoMo=",
         "owner": "reEnvisioning",
         "repo": "BrowserProfile",
-        "rev": "07a6702e18ac9871f42eb018d3be540ecd171d19",
+        "rev": "0e82ea2227be3ac7f572e22d741119879a8009ad",
         "type": "github"
       },
       "original": {
@@ -199,6 +199,26 @@
         "type": "github"
       }
     },
+    "keyInject": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786715305,
+        "narHash": "sha256-hXO7VgDVVPwGx9242rD2bHY4VZY0seIPXgrzY6GyDlw=",
+        "owner": "reEnvisioning",
+        "repo": "KeyInject",
+        "rev": "93c271acbb32c4e2cb98fb07c2c7ad744281c0b0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "reEnvisioning",
+        "repo": "KeyInject",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1779971959,
@@ -301,12 +321,14 @@
         "browserProfile": "browserProfile",
         "disko": "disko",
         "home-manager": "home-manager",
+        "keyInject": "keyInject",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "plymouth": "plymouth",
         "retheme": "retheme",
         "sops-nix": "sops-nix",
-        "stylix": "stylix"
+        "stylix": "stylix",
+        "temporalShell": "temporalShell"
       }
     },
     "sops-nix": {
@@ -375,6 +397,26 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "temporalShell": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1786800992,
+        "narHash": "sha256-2qM/JRVinDQO96WjJKKo808IzbcHw8JyfXjkIe2l2TY=",
+        "owner": "reEnvisioning",
+        "repo": "temporalShell",
+        "rev": "2428fcd5be460f060b7a589d7d021437bb222d16",
+        "type": "github"
+      },
+      "original": {
+        "owner": "reEnvisioning",
+        "repo": "temporalShell",
         "type": "github"
       }
     },
