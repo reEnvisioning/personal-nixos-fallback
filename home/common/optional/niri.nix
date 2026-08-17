@@ -4,6 +4,7 @@ let
   mod = "Mod";
 
   niri-startup = pkgs.writeShellScript "niri-startup" ''
+    temporalshell &
     sway-audio-idle-inhibit &
     swayidle -w \
       timeout 300 'swaylock -f' \
