@@ -61,6 +61,7 @@
       };
 
       usernames = [ "visionary" ];
+      keyInjectUsers = [ "visionary" ];
       allUsers = usernames;
       rethemePackage = retheme.packages.${system}.default;
       browserProfilePackage = browserProfile.packages.${system}.default;
@@ -87,6 +88,7 @@
             appearance.users = allUsers;
             # NixOS requires this for users whose login shell is zsh.
             programs.zsh.enable = true;
+            hardware.uinput.enable = true;
 
             users.users = builtins.listToAttrs (
               (map
@@ -96,7 +98,7 @@
                     isNormalUser = true;
                     initialHashedPassword = "!";
                     shell = pkgs.zsh;
-                    extraGroups = [ "wheel" "networkmanager" "disk" "vboxusers" ];
+                    extraGroups = [ "wheel" "networkmanager" "disk" "vboxusers" ] ++ inputs.nixpkgs.lib.optional (builtins.elem u keyInjectUsers) "uinput";
                   };
                 })
                 usernames)
