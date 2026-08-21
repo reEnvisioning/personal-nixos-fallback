@@ -20,6 +20,7 @@ in
     ./compositor.nix
     ./polkit.nix
     ./security.nix
+    ./yubikey.nix
     ./sops.nix
     ./maintenance.nix
     ./power.nix

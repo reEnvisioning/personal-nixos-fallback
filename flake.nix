@@ -156,8 +156,16 @@
       devShells.x86_64-linux =
         let
           pkgs = nixpkgs.legacyPackages.x86_64-linux;
+          androidPkgs = import nixpkgs {
+            system = "x86_64-linux";
+            config = {
+              allowUnfree = true;
+              android_sdk.accept_license = true;
+            };
+          };
         in
         {
+          android = import ./devshells/android.nix { pkgs = androidPkgs; };
           default = import ./devshells/default.nix { inherit pkgs; };
           python = import ./devshells/python.nix { inherit pkgs; };
           rust = import ./devshells/rust.nix { inherit pkgs; };
