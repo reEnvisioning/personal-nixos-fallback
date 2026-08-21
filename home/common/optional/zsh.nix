@@ -5,18 +5,50 @@
     enable = true;
     enableCompletion = true;
     autosuggestion.enable = true;
-    history.share = true;
+    history = {
+      share = true;
+      ignoreDups = true;
+      expireDuplicatesFirst = true;
+      ignoreSpace = true;
+    };
     initContent = ''
       zle_highlight=('default:fg=#${config.lib.stylix.colors.base07}')
 
-      autoload -Uz add-zsh-hook
+      autoload -Uz add-zsh-hook edit-command-line
       add-zsh-hook preexec '_re_prompt_spacing_preexec'
       _re_prompt_spacing_preexec() { print }
+
+      zle -N edit-command-line
+      bindkey '^X^E' edit-command-line
+
+      zstyle ':completion:*' menu select
+      _re_tab() {
+        if [[ $LASTWIDGET == _re_tab ]]; then
+          if (( _re_tab_accepted )); then
+            BUFFER=$_re_tab_buffer
+            CURSOR=$_re_tab_cursor
+            _re_tab_accepted=0
+          fi
+          zle expand-or-complete
+          return
+        fi
+
+        _re_tab_buffer=$BUFFER
+        _re_tab_cursor=$CURSOR
+        zle autosuggest-accept
+        if [[ $BUFFER == $_re_tab_buffer && $CURSOR == $_re_tab_cursor ]]; then
+          _re_tab_accepted=0
+          zle expand-or-complete
+        else
+          _re_tab_accepted=1
+        fi
+      }
+      zle -N _re_tab
+      bindkey '^I' _re_tab
 
       zmodload zsh/terminfo
       [[ -n ''${terminfo[kcuu1]} ]] && bindkey "''${terminfo[kcuu1]}" history-beginning-search-backward
       [[ -n ''${terminfo[kcud1]} ]] && bindkey "''${terminfo[kcud1]}" history-beginning-search-forward
-      bindkey '^I' autosuggest-accept
     '';
   };
 
@@ -75,8 +107,8 @@
         style = "bold fg:#${config.lib.stylix.colors.base0A}";
       };
       character = {
-        success_symbol = "[>](bold fg:#${config.lib.stylix.colors.base04})";
-        error_symbol = "[>](bold fg:#${config.lib.stylix.colors.base04})";
+        success_symbol = "[❯](bold fg:#${config.lib.stylix.colors.base04})";
+        error_symbol = "[❯](bold fg:#${config.lib.stylix.colors.base04})";
       };
     };
   };

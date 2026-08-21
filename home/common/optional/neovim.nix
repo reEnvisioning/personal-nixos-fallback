@@ -29,13 +29,7 @@
       nvim-autopairs
       comment-nvim
       nvim-lspconfig
-      nvim-cmp
-      cmp-nvim-lsp
-      cmp-buffer
-      cmp-path
-      cmp-cmdline
-      luasnip
-      cmp_luasnip
+      blink-cmp
       friendly-snippets
     ];
 
@@ -87,46 +81,49 @@
       vim.keymap.set("n", "<S-Tab>", ":bprev<CR>", { silent = true })
       vim.keymap.set("n", "<leader>x", ":bdelete<CR>", { silent = true, desc = "Close Buffer" })
 
-      local cmp = require 'cmp'
-      local luasnip = require 'luasnip'
+      local function has_words_before()
+        local col = vim.api.nvim_win_get_cursor(0)[2]
+        return col > 0 and not vim.api.nvim_get_current_line():sub(col, col):match('%s')
+      end
 
-      require("luasnip.loaders.from_vscode").lazy_load()
-
-      cmp.setup {
-        snippet = {
-          expand = function(args)
-            luasnip.lsp_expand(args.body)
-          end,
-        },
-        mapping = cmp.mapping.preset.insert {
-          ['<C-n>'] = cmp.mapping.select_next_item(),
-          ['<C-p>'] = cmp.mapping.select_prev_item(),
-          ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-          ['<C-f>'] = cmp.mapping.scroll_docs(4),
-          ['<C-Space>'] = cmp.mapping.complete(),
-          ['<CR>'] = cmp.mapping.confirm {
-            behavior = cmp.ConfirmBehavior.Replace,
-            select = true,
+      local blink = require('blink.cmp')
+      blink.setup {
+        keymap = {
+          preset = 'none',
+          ['<Tab>'] = {
+            function(cmp)
+              if cmp.snippet_active() then return cmp.snippet_forward() end
+              if has_words_before() then
+                return cmp.select_next({
+                  count = cmp.get_selected_item_idx() and 1 or 0,
+                  on_ghost_text = true,
+                })
+              end
+            end,
+            'fallback',
           },
-          ['<Tab>'] = cmp.mapping(function(fallback)
-            if cmp.visible() then
-              cmp.select_next_item()
-            elseif luasnip.expand_or_jumpable() then
-              luasnip.expand_or_jump()
-            else
-              fallback()
-            end
-          end, { 'i', 's' }),
+          ['<S-Tab>'] = { 'snippet_backward', 'insert_prev', 'fallback' },
+          ['<C-y>'] = { 'select_and_accept', 'fallback' },
+          ['<C-e>'] = { 'cancel', 'fallback' },
+        },
+        completion = {
+          menu = { auto_show = false },
+          list = { selection = { preselect = false } },
+          ghost_text = { enabled = true, show_without_selection = true },
         },
         sources = {
-          { name = 'nvim_lsp' },
-          { name = 'luasnip' },
-          { name = 'buffer' },
-          { name = 'path' },
+          default = { 'lsp', 'path', 'snippets', 'buffer' },
+          providers = {
+            buffer = {
+              opts = { get_bufnrs = function() return { vim.api.nvim_get_current_buf() } end },
+            },
+          },
         },
+        fuzzy = { implementation = 'lua' },
       }
+      vim.api.nvim_set_hl(0, 'BlinkCmpGhostText', { link = 'Comment' })
 
-      local capabilities = require('cmp_nvim_lsp').default_capabilities()
+      local capabilities = blink.get_lsp_capabilities()
 
       local function setup_server(server_name, config)
         local ok, server_config = pcall(require, "lspconfig.server_configurations." .. server_name)
