@@ -113,29 +113,27 @@ in
         "Mod+Shift+F" hotkey-overlay-title="Fullscreen window" { fullscreen-window; }
         "Mod+F" hotkey-overlay-title="Maximize column" { maximize-column; }
 
-        // Focus navigation
+        // Navigation
         "Mod+H" hotkey-overlay-title="Focus column left" { focus-column-left; }
-        "Mod+J" hotkey-overlay-title="Focus window down" { focus-window-down; }
-        "Mod+K" hotkey-overlay-title="Focus window up" { focus-window-up; }
+        "Mod+J" hotkey-overlay-title="Focus workspace down" { focus-workspace-down; }
+        "Mod+K" hotkey-overlay-title="Focus workspace up" { focus-workspace-up; }
         "Mod+L" hotkey-overlay-title="Focus column right" { focus-column-right; }
-        "Mod+Left" hotkey-overlay-title="Focus column left" { focus-column-left; }
-        "Mod+Down" hotkey-overlay-title="Focus window down" { focus-window-down; }
-        "Mod+Up" hotkey-overlay-title="Focus window up" { focus-window-up; }
-        "Mod+Right" hotkey-overlay-title="Focus column right" { focus-column-right; }
-
-        // Move window/column
         "Mod+Shift+H" hotkey-overlay-title="Move column left" { move-column-left; }
-        "Mod+Shift+J" hotkey-overlay-title="Move window down" { move-window-down; }
-        "Mod+Shift+K" hotkey-overlay-title="Move window up" { move-window-up; }
+        "Mod+Shift+J" hotkey-overlay-title="Move window to workspace down" { move-window-to-workspace-down; }
+        "Mod+Shift+K" hotkey-overlay-title="Move window to workspace up" { move-window-to-workspace-up; }
         "Mod+Shift+L" hotkey-overlay-title="Move column right" { move-column-right; }
-        "Mod+Ctrl+H" hotkey-overlay-title="Move column left" { move-column-left; }
-        "Mod+Ctrl+J" hotkey-overlay-title="Move window down" { move-window-down; }
-        "Mod+Ctrl+K" hotkey-overlay-title="Move window up" { move-window-up; }
-        "Mod+Ctrl+L" hotkey-overlay-title="Move column right" { move-column-right; }
-        "Mod+Ctrl+Left" hotkey-overlay-title="Move column left" { move-column-left; }
-        "Mod+Ctrl+Down" hotkey-overlay-title="Move window down" { move-window-down; }
-        "Mod+Ctrl+Up" hotkey-overlay-title="Move window up" { move-window-up; }
-        "Mod+Ctrl+Right" hotkey-overlay-title="Move column right" { move-column-right; }
+        "Mod+Ctrl+J" hotkey-overlay-title="Focus window down" { focus-window-down; }
+        "Mod+Ctrl+K" hotkey-overlay-title="Focus window up" { focus-window-up; }
+        "Mod+Ctrl+Shift+J" hotkey-overlay-title="Move window down" { move-window-down; }
+        "Mod+Ctrl+Shift+K" hotkey-overlay-title="Move window up" { move-window-up; }
+        "Mod+Alt+H" hotkey-overlay-title="Focus left monitor" { focus-monitor-left; }
+        "Mod+Alt+J" hotkey-overlay-title="Focus lower monitor" { focus-monitor-down; }
+        "Mod+Alt+K" hotkey-overlay-title="Focus upper monitor" { focus-monitor-up; }
+        "Mod+Alt+L" hotkey-overlay-title="Focus right monitor" { focus-monitor-right; }
+        "Mod+Alt+Shift+H" hotkey-overlay-title="Move window to left monitor" { move-window-to-monitor-left; }
+        "Mod+Alt+Shift+J" hotkey-overlay-title="Move window to lower monitor" { move-window-to-monitor-down; }
+        "Mod+Alt+Shift+K" hotkey-overlay-title="Move window to upper monitor" { move-window-to-monitor-up; }
+        "Mod+Alt+Shift+L" hotkey-overlay-title="Move window to right monitor" { move-window-to-monitor-right; }
 
         // Screenshots
         "Print" hotkey-overlay-title="Screenshot region" { spawn-sh "hyprshot --mode region --freeze --output-folder $HOME/Pictures"; }
@@ -186,65 +184,16 @@ in
         "Mod+Shift+Equal" hotkey-overlay-title="Increase window height" { set-window-height "+10%"; }
         "Mod+Shift+Minus" hotkey-overlay-title="Decrease window height" { set-window-height "-10%"; }
 
-        // ---------------------------------------------------------------
-        // Focus / navigation extras
-        // ---------------------------------------------------------------
+        // Navigation extras
         "Mod+I" hotkey-overlay-title="Focus previous window" { focus-window-previous; }
         "Mod+G" hotkey-overlay-title="Focus first column" { focus-column-first; }
         "Mod+SemiColon" hotkey-overlay-title="Focus last column" { focus-column-last; }
         "Mod+Ctrl+G" hotkey-overlay-title="Move column to first" { move-column-to-first; }
         "Mod+Ctrl+SemiColon" hotkey-overlay-title="Move column to last" { move-column-to-last; }
-        "Mod+Home" hotkey-overlay-title="Focus first column" { focus-column-first; }
-        "Mod+End" hotkey-overlay-title="Focus last column" { focus-column-last; }
-        "Mod+Ctrl+Home" hotkey-overlay-title="Move column to first" { move-column-to-first; }
-        "Mod+Ctrl+End" hotkey-overlay-title="Move column to last" { move-column-to-last; }
 
-        "Mod+WheelScrollDown" hotkey-overlay-title="Focus column right" { focus-column-right; }
-        "Mod+WheelScrollUp" hotkey-overlay-title="Focus column left" { focus-column-left; }
-        "Mod+Ctrl+WheelScrollDown" hotkey-overlay-title="Move column right" { move-column-right; }
-        "Mod+Ctrl+WheelScrollUp" hotkey-overlay-title="Move column left" { move-column-left; }
-        "Mod+WheelScrollRight" hotkey-overlay-title="Focus column right" { focus-column-right; }
-        "Mod+WheelScrollLeft" hotkey-overlay-title="Focus column left" { focus-column-left; }
-        "Mod+Ctrl+WheelScrollRight" hotkey-overlay-title="Move column right" { move-column-right; }
-        "Mod+Ctrl+WheelScrollLeft" hotkey-overlay-title="Move column left" { move-column-left; }
-
-        // ---------------------------------------------------------------
-        // Multi-monitor column movement
-        // ---------------------------------------------------------------
-        "Mod+Ctrl+Shift+Left" hotkey-overlay-title="Move to left monitor" { move-column-to-monitor-left; }
-        "Mod+Ctrl+Shift+Down" hotkey-overlay-title="Move to lower monitor" { move-column-to-monitor-down; }
-        "Mod+Ctrl+Shift+Up" hotkey-overlay-title="Move to upper monitor" { move-column-to-monitor-up; }
-        "Mod+Ctrl+Shift+Right" hotkey-overlay-title="Move to right monitor" { move-column-to-monitor-right; }
-        "Mod+Ctrl+Shift+H" hotkey-overlay-title="Move to left monitor" { move-column-to-monitor-left; }
-        "Mod+Ctrl+Shift+J" hotkey-overlay-title="Move to lower monitor" { move-column-to-monitor-down; }
-        "Mod+Ctrl+Shift+K" hotkey-overlay-title="Move to upper monitor" { move-column-to-monitor-up; }
-        "Mod+Ctrl+Shift+L" hotkey-overlay-title="Move to right monitor" { move-column-to-monitor-right; }
-
-        "Mod+MouseBack" hotkey-overlay-title="Focus left monitor" { focus-monitor-left; }
-        "Mod+MouseForward" hotkey-overlay-title="Focus right monitor" { focus-monitor-right; }
-        "Mod+Ctrl+Shift+MouseBack" hotkey-overlay-title="Move to left monitor" { move-column-to-monitor-left; }
-        "Mod+Ctrl+Shift+MouseForward" hotkey-overlay-title="Move to right monitor" { move-column-to-monitor-right; }
-
-        // ---------------------------------------------------------------
-        // Workspace binds (prev/next, scroll)
-        // ---------------------------------------------------------------
-        "Mod+Shift+WheelScrollDown" cooldown-ms=150 hotkey-overlay-title="Focus next workspace" { focus-workspace-down; }
-        "Mod+Shift+WheelScrollUp" cooldown-ms=150 hotkey-overlay-title="Focus previous workspace" { focus-workspace-up; }
-        "Mod+Ctrl+Shift+WheelScrollDown" cooldown-ms=150 hotkey-overlay-title="Move column to next workspace" { move-column-to-workspace-down; }
-        "Mod+Ctrl+Shift+WheelScrollUp" cooldown-ms=150 hotkey-overlay-title="Move column to previous workspace" { move-column-to-workspace-up; }
-
-        "Mod+D" hotkey-overlay-title="Focus next workspace" { focus-workspace-down; }
-        "Mod+U" hotkey-overlay-title="Focus previous workspace" { focus-workspace-up; }
-        "Mod+Page_Down" hotkey-overlay-title="Focus next workspace" { focus-workspace-down; }
-        "Mod+Page_Up" hotkey-overlay-title="Focus previous workspace" { focus-workspace-up; }
-        "Mod+Ctrl+D" hotkey-overlay-title="Move column to next workspace" { move-column-to-workspace-down; }
-        "Mod+Ctrl+U" hotkey-overlay-title="Move column to previous workspace" { move-column-to-workspace-up; }
-        "Mod+Ctrl+Page_Down" hotkey-overlay-title="Move column to next workspace" { move-column-to-workspace-down; }
-        "Mod+Ctrl+Page_Up" hotkey-overlay-title="Move column to previous workspace" { move-column-to-workspace-up; }
+        // Workspace movement
         "Mod+Shift+D" hotkey-overlay-title="Move workspace down" { move-workspace-down; }
         "Mod+Shift+U" hotkey-overlay-title="Move workspace up" { move-workspace-up; }
-        "Mod+Shift+Page_Down" hotkey-overlay-title="Move workspace down" { move-workspace-down; }
-        "Mod+Shift+Page_Up" hotkey-overlay-title="Move workspace up" { move-workspace-up; }
 
         // Numbered workspace binds
         ${builtins.concatStringsSep "\n" wsBinds}
