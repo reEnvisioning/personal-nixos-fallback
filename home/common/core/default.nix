@@ -18,6 +18,8 @@
     element-desktop
     protonmail-desktop
     procps
+    gh
+    tea
     gimp
     blender
     libreoffice-qt
