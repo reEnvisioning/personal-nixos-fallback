@@ -103,11 +103,7 @@ in
     }
 
     binds {
-        "Mod+O" repeat=false hotkey-overlay-title="Toggle overview" { toggle-overview; }
-
-        // Hotkey overlay
-        "Mod+Shift+Slash" hotkey-overlay-title="Show hotkey overlay" { show-hotkey-overlay; }
-        "Mod+Alt+T" hotkey-overlay-title="Terminal" { spawn "kitty"; }
+        "F16" repeat=false hotkey-overlay-title="Toggle overview" { toggle-overview; }
 
         "Mod+Q" hotkey-overlay-title="Close window" { close-window; }
         "Mod+Shift+F" hotkey-overlay-title="Fullscreen window" { fullscreen-window; }
@@ -142,22 +138,21 @@ in
         // App launchers
         "Mod+W" hotkey-overlay-title="Terminal" { spawn "kitty"; }
         "Mod+E" hotkey-overlay-title="File manager" { spawn "kitty" "-e" "yazi"; }
-        "Mod+B" hotkey-overlay-title="Browser" { spawn "librewolf"; }
         "Mod+Shift+W" hotkey-overlay-title="Neovim" { spawn "kitty" "-e" "nvim"; }
-        "Mod+Shift+G" hotkey-overlay-title="GIMP" { spawn "gimp"; }
 
         // Brightness, volume, mic
         "F13" hotkey-overlay-title="Brightness down" { spawn "brightnessctl" "set" "5%-"; }
         "F14" hotkey-overlay-title="Brightness up" { spawn "brightnessctl" "set" "5%+"; }
         "F24" hotkey-overlay-title="Volume up" { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%+"; }
         "F23" hotkey-overlay-title="Volume down" { spawn "wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "5%-"; }
-        "Mod+Alt+M" hotkey-overlay-title="Toggle volume" { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
-        "Mod+Shift+M" hotkey-overlay-title="Toggle mic" { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
+        "F22" hotkey-overlay-title="Toggle volume" { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SINK@" "toggle"; }
+        "Mod+F10" hotkey-overlay-title="Toggle mic" { spawn "wpctl" "set-mute" "@DEFAULT_AUDIO_SOURCE@" "toggle"; }
 
         // System
-        "Mod+Shift+O" hotkey-overlay-title="Lock screen" { spawn "swaylock" "-f"; }
-        "Mod+Shift+P" hotkey-overlay-title="Quit" { quit; }
-        "Mod+Shift+E" hotkey-overlay-title="Quit" { quit; }
+        "F17" hotkey-overlay-title="Lock screen" { spawn "swaylock" "-f"; }
+        "Mod+Escape" hotkey-overlay-title="Quit" { quit; }
+        "Mod+F6" hotkey-overlay-title="Shut down" { spawn "systemctl" "poweroff"; }
+        "Mod+F17" hotkey-overlay-title="Log out" { quit; }
 
         // ---------------------------------------------------------------
         // Window management (behavior)
