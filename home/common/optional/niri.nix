@@ -131,6 +131,18 @@ in
         "Mod+Alt+Shift+K" hotkey-overlay-title="Move window to upper monitor" { move-window-to-monitor-up; }
         "Mod+Alt+Shift+L" hotkey-overlay-title="Move window to right monitor" { move-window-to-monitor-right; }
 
+        // Mouse
+        "Mod+WheelScrollUp" cooldown-ms=150 hotkey-overlay-title="Focus column left" { focus-column-left; }
+        "Mod+WheelScrollDown" cooldown-ms=150 hotkey-overlay-title="Focus column right" { focus-column-right; }
+        "Mod+Shift+WheelScrollUp" cooldown-ms=150 hotkey-overlay-title="Move workspace up" { move-workspace-up; }
+        "Mod+Shift+WheelScrollDown" cooldown-ms=150 hotkey-overlay-title="Move workspace down" { move-workspace-down; }
+
+        // Touchpad
+        "Mod+TouchpadScrollUp" cooldown-ms=150 hotkey-overlay-title="Focus column left" { focus-column-left; }
+        "Mod+TouchpadScrollDown" cooldown-ms=150 hotkey-overlay-title="Focus column right" { focus-column-right; }
+        "Mod+Shift+TouchpadScrollUp" cooldown-ms=150 hotkey-overlay-title="Move workspace up" { move-workspace-up; }
+        "Mod+Shift+TouchpadScrollDown" cooldown-ms=150 hotkey-overlay-title="Move workspace down" { move-workspace-down; }
+
         // Screenshots
         "Print" hotkey-overlay-title="Screenshot region" { spawn-sh "hyprshot --mode region --freeze --output-folder $HOME/Pictures"; }
         "Mod+Print" hotkey-overlay-title="Screenshot region to clipboard" { spawn-sh "hyprshot --mode region --freeze --clipboard-only"; }
