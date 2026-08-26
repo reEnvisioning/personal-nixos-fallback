@@ -1,5 +1,6 @@
-{ pkgs, cpuVendor, gpuVendor, pc ? "computer", ... }:
+{ pkgs, config, cpuVendor, gpuVendor, pc ? "computer", ... }:
 let
+  colors = config.lib.stylix.colors.withHashtag;
   hw = import ../../../hosts/common/core/hardware/hardware.nix { inherit pc cpuVendor gpuVendor; };
   mod = "Mod";
 
@@ -57,12 +58,12 @@ in
 
     window-rule {
         match is-focused=true
-        opacity 0.9
+        opacity 0.985
     }
 
     window-rule {
         match is-focused=false
-        opacity 0.85
+        opacity 0.96
     }
 
     window-rule {
@@ -81,25 +82,29 @@ in
         open-maximized true
     }
 
-    window-rule {
-        geometry-corner-radius 16
-        clip-to-geometry true
-    }
-
     layout {
-        background-color "#1A1714"
-        gaps 12
+        background-color "${colors.base01}"
+        gaps 4
+        struts {
+            left 6
+            right 6
+            top 6
+            bottom 6
+        }
         focus-ring {
             width 0
         }
         border {
-            off
+            on
+            width 2
+            active-color "${colors.base05}"
+            inactive-color "${colors.base03}"
         }
         default-column-width { proportion 0.5; }
     }
 
     overview {
-        backdrop-color "#3A342C"
+        backdrop-color "${colors.base02}"
     }
 
     binds {

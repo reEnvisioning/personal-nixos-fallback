@@ -22,7 +22,7 @@
   programs.kitty = {
     enable = true;
     settings = {
-      font_family = "Monospace";
+      font_family = "JetBrains Mono";
       font_size = 10;
       shell = "zsh";
       confirm_os_window_close = 0;
@@ -34,12 +34,14 @@
     settings = {
       theme_background = false;
       truecolor = true;
-      rounded_corners = true;
+      rounded_corners = false;
       graph_symbol = "braille";
       shown_boxes = "cpu mem net proc";
       update_ms = 2000;
     };
   };
+
+  home.packages = [ pkgs.jetbrains-mono ];
 
   gtk = {
     enable = true;
