@@ -99,9 +99,15 @@ in
             width 0
         }
         border {
+            off
+        }
+        shadow {
             on
-            width 2
-            active-color "${colors.base05}"
+            softness 0
+            spread 2
+            offset x=0 y=0
+            draw-behind-window false
+            color "${colors.base05}"
             inactive-color "${colors.base03}"
         }
         default-column-width { proportion 0.5; }
