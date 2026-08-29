@@ -90,8 +90,8 @@ in
         background-color "#000000"
         gaps 8
         struts {
-            left 12
-            right 12
+            left 5
+            right 5
             top 12
             bottom 12
         }
