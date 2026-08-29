@@ -57,6 +57,10 @@ in
     ${hw.niriOutputs}
 
     window-rule {
+        draw-border-with-background false
+    }
+
+    window-rule {
         match is-focused=true
         opacity 0.985
     }
