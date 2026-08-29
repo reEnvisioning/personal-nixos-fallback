@@ -87,13 +87,13 @@ in
     }
 
     layout {
-        background-color "${colors.base01}"
-        gaps 4
+        background-color "#000000"
+        gaps 8
         struts {
-            left 6
-            right 6
-            top 6
-            bottom 6
+            left 12
+            right 12
+            top 12
+            bottom 12
         }
         focus-ring {
             width 0
@@ -114,7 +114,7 @@ in
     }
 
     overview {
-        backdrop-color "${colors.base02}"
+        backdrop-color "${colors.base00}"
     }
 
     binds {
