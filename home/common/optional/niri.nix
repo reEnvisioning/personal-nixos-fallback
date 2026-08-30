@@ -88,7 +88,7 @@ in
 
     layout {
         background-color "#000000"
-        gaps 10
+        gaps 11
         struts {
             left 5
             right 5

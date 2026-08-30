@@ -24,7 +24,7 @@
     settings = {
       font_family = "JetBrains Mono";
       font_size = 10;
-      window_padding_width = 16;
+      window_padding_width = 8;
       shell = "zsh";
       confirm_os_window_close = 0;
     };
