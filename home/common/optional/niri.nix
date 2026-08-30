@@ -88,12 +88,12 @@ in
 
     layout {
         background-color "#000000"
-        gaps 8
+        gaps 10
         struts {
             left 5
             right 5
-            top 12
-            bottom 12
+            top 5
+            bottom 5
         }
         focus-ring {
             width 0
