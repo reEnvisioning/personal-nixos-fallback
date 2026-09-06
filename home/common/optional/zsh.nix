@@ -1,7 +1,10 @@
 { config, pkgs, ... }:
 {
   programs.zsh = {
-    shellAliases.nix-shell = "nix-shell --command ${pkgs.zsh}/bin/zsh";
+    shellAliases = {
+      nix-shell = "nix-shell --command ${pkgs.zsh}/bin/zsh";
+      bp = "browserprofile";
+    };
     enable = true;
     enableCompletion = true;
     autosuggestion.enable = true;
