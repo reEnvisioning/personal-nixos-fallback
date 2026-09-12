@@ -23,15 +23,15 @@ in
   options.besein.dns.primaryPlaintextIPv4Servers = lib.mkOption {
     type = lib.types.listOf (lib.types.addCheck lib.types.str isPrivateIPv4);
     default = [ ];
-    description = "Trusted IPv4 DNS servers allowed without DNS-over-TLS.";
+    description = "Trusted IPv4 DNS servers that replace the encrypted public defaults.";
   };
 
   config = {
     services.resolved = {
       enable = true;
       settings.Resolve = {
-        DNS = plaintextServers ++ network.dns.servers;
-        DNSOverTLS = if plaintextServers == [ ] then network.dns.doT else "opportunistic";
+        DNS = if plaintextServers == [ ] then network.dns.servers else plaintextServers;
+        DNSOverTLS = if plaintextServers == [ ] then network.dns.doT else false;
         Domains = network.dns.domains;
       };
     };
