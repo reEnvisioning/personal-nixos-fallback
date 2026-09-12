@@ -18,6 +18,7 @@ in
     ./greeter.nix
     ./audio.nix
     ./compositor.nix
+    ./printing.nix
     ./polkit.nix
     ./security.nix
     ./yubikey.nix
