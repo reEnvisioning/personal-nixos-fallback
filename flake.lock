@@ -206,11 +206,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1787232997,
-        "narHash": "sha256-d8rUgdEYS6yiv84XCdqn+9dq/fYs8E0fjKRdnxnq83g=",
+        "lastModified": 1789315485,
+        "narHash": "sha256-qV/LnNVPCisZ+J/orIgdmDA6ALLsuk4V9CHy8TGPX70=",
         "owner": "reEnvisioning",
         "repo": "KeyInject",
-        "rev": "c174b25072b52354c86872b97d68eb6df1881003",
+        "rev": "57e389a621e2530b2a0247f7adbd1effed2422bc",
         "type": "github"
       },
       "original": {
