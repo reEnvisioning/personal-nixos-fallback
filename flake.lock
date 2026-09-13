@@ -283,11 +283,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1786651886,
-        "narHash": "sha256-Tp9+Wm60FXnM+B+QHLJUDGYRqnRqXyLPbdV8tz4hqC4=",
+        "lastModified": 1789321693,
+        "narHash": "sha256-USImDm0nQon4NPXlX/oleT/xElgzPxPxDqRSzbSt+yQ=",
         "owner": "reEnvisioning",
         "repo": "plymouth",
-        "rev": "1d2a3e64572dcc807b635c95e2423b1481381cc1",
+        "rev": "64dd72b2366c41a577ce6bec5672725ec3b86c93",
         "type": "github"
       },
       "original": {
